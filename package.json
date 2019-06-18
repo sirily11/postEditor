@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.1.1",
     "@material-ui/icons": "^4.2.0",
+    "@types/draft-js": "^0.10.32",
     "@types/react-redux": "^7.1.0",
     "@types/react-router-dom": "^4.3.4",
     "aws-sdk": "^2.439.0",

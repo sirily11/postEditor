@@ -4,17 +4,20 @@ import { UserContext } from "../model/userContext";
 import { TextField } from "@material-ui/core";
 import Title from "./Title";
 import MainEditor from "./MainEditor";
+import { EditorContext, MainEditorProvider } from "../model/editorContext";
 
 export default class EditorPage extends Component {
   render() {
     return (
-      <div>
-        <SideController />
-        <div className="content">
-          <Title />
-          <MainEditor />
+      <MainEditorProvider>
+        <div>
+          <SideController />
+          <div className="content">
+            <Title />
+            <MainEditor />
+          </div>
         </div>
-      </div>
+      </MainEditorProvider>
     );
   }
 }

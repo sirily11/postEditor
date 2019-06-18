@@ -7,7 +7,7 @@ export default class Title extends Component {
   render() {
     return (
       <div>
-        <div className="row mx-4 my-2">
+        <div className="row mx-4 my-2 sticky-top">
           <InputBase
             className="title-input-text"
             style={{ fontSize: "30px" }}
@@ -15,9 +15,11 @@ export default class Title extends Component {
           />
 
           <UserContext.Consumer>
-              {({userName})=>{
-                  return <label style={{alignSelf: "flex-end"}}>By: {userName}</label>
-              }}
+            {({ userName }) => {
+              return (
+                <div style={{ alignSelf: "flex-end" }}>By: {userName}</div>
+              );
+            }}
           </UserContext.Consumer>
         </div>
         <Divider className="m-4" />
