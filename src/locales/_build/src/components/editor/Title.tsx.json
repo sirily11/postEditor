@@ -1,0 +1,18 @@
+{
+  "Enter your title here": {
+    "origin": [
+      [
+        "src/components/editor/Title.tsx",
+        26
+      ]
+    ]
+  },
+  "By": {
+    "origin": [
+      [
+        "src/components/editor/Title.tsx",
+        31
+      ]
+    ]
+  }
+}

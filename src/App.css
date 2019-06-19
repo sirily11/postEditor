@@ -1,3 +1,14 @@
+body,
+html {
+  height: 100%;
+  margin: 0px;
+}
+
+#root,
+#second-root {
+  height: 100%;
+}
+
 .content {
   padding-left: 70px;
 }
@@ -10,4 +21,8 @@
 .title-input-text {
   width: 70%;
   margin-right: 20px;
+}
+
+.main-editor {
+  padding-right: 80px;
 }

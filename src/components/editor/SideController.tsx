@@ -6,9 +6,13 @@ import {
   ListItemText,
   ListItemIcon,
   Tooltip,
-  Divider
+  Divider,
+  Card,
+  IconButton,
+  Paper
 } from "@material-ui/core";
-import SaveIcon from "@material-ui/icons/Save";
+import LabelImportantIcon from "@material-ui/icons/LabelImportant";
+
 import { EditorContext } from "../model/editorContext";
 
 export default class SideController extends Component {
@@ -18,7 +22,7 @@ export default class SideController extends Component {
         <Drawer variant="permanent" open={true}>
           <List>
             <EditorContext.Consumer>
-              {({actions, selected }) => {
+              {({ actions, selected }) => {
                 return actions.map((action) => {
                   if (action.text === "Divider") {
                     return <Divider />;
@@ -28,7 +32,7 @@ export default class SideController extends Component {
                         <ListItem
                           button={true}
                           onClick={action.action}
-                          selected={selected === action.text}
+                          selected={selected.includes(action.text)}
                         >
                           <ListItemIcon className="item-icon">
                             {action.icon}
@@ -42,6 +46,7 @@ export default class SideController extends Component {
             </EditorContext.Consumer>
           </List>
         </Drawer>
+       
       </div>
     );
   }

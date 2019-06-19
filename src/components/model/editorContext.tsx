@@ -1,21 +1,34 @@
-import { EditorState, RichUtils, Editor, DraftEditorCommand } from "draft-js";
+import { EditorState, RichUtils, DraftEditorCommand } from "draft-js";
 import React from "react";
 import ListIcon from "@material-ui/icons/List";
-import { ReactComponent as SaveIcon } from "../editor/SaveIcon.svg";
+import SaveIcon from "@material-ui/icons/Save";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import { t, Trans } from "@lingui/macro";
+import { setupI18n } from "@lingui/core";
+import chinese from "../../locales/zh/messages";
+
+const i18n = setupI18n({
+  language: "zh",
+  catalogs: {
+    zh: chinese
+  }
+});
 
 export interface Action {
-  text?: string;
+  text: string;
   icon: JSX.Element;
   action: any;
 }
 
 interface MainEditorState {
+  title: string;
   editorState: EditorState;
   handleKeyCommand: any;
   actions: Action[];
   onChange: any;
   onFocus: any;
-  selected: string;
+  setTitle: any;
+  selected: string[];
 }
 
 interface MainEditorProps {}
@@ -27,21 +40,34 @@ export class MainEditorProvider extends React.Component<
   constructor(props: MainEditorProps) {
     super(props);
     this.state = {
-      selected: "",
+      title: "",
+      selected: [],
       editorState: EditorState.createEmpty(),
       actions: this.actions,
       onChange: this.onChange,
       onFocus: this.onFocus,
+      setTitle: this.setTitle,
       handleKeyCommand: this.handleKeyCommand
     };
   }
 
   actions: Action[] = [
     {
-      text: "Save",
+      text: i18n._(t`Save`),
       icon: <SaveIcon />,
       action: () => {}
     },
+    {
+      text: i18n._(t`Save to local`),
+      icon: <SaveAltIcon />,
+      action: () => {}
+    },
+    {
+      text: "Divider",
+      icon: <div />,
+      action: () => {}
+    },
+
     {
       text: "Header 1",
       icon: <div>H1</div>,
@@ -66,9 +92,11 @@ export class MainEditorProvider extends React.Component<
       text: "Bold",
       icon: <div>B</div>,
       action: () => {
-        this.onChange(
-          RichUtils.toggleInlineStyle(this.state.editorState, "BOLD")
+        let newState = RichUtils.toggleInlineStyle(
+          this.state.editorState,
+          "BOLD"
         );
+        this.setState({ editorState: newState });
       }
     }
   ];
@@ -76,22 +104,36 @@ export class MainEditorProvider extends React.Component<
   onChange = (editorState: EditorState) => {
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
-    this.setState({ editorState: editorState, selected: isBold ? "Bold" : "" });
+    this.toggle("Bold", isBold);
+    this.setState({ editorState });
   };
 
   onFocus = () => {
     const style = this.state.editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
-    this.setState({ selected: isBold ? "Bold" : "" });
+    this.toggle("Bold", isBold);
   };
 
-  click = (text: string) => {
-    if (this.state.selected === text) {
-      this.setState({ selected: "" });
-    } else {
-      this.setState({ selected: text });
-    }
+  setTitle = (newTitle: string) => {
+    this.setState({ title: newTitle });
   };
+
+  toggle = (name: string, status: boolean) => {
+    let selected = this.state.selected;
+    if (status) {
+      if (!selected.includes(name)) {
+        selected.push(name);
+      }
+    } else {
+      let index = selected.indexOf(name);
+      if (index > -1) {
+        selected.splice(index, 1);
+      }
+    }
+    this.setState({ selected: selected });
+  };
+
+  click = (text: string) => {};
 
   handleKeyCommand(
     command: DraftEditorCommand,
@@ -114,14 +156,15 @@ export class MainEditorProvider extends React.Component<
   }
 }
 
-const actions: Action[] = [];
-const handleKeyCommand: any = () => {};
-
-export const EditorContext = React.createContext({
+const context : MainEditorState = {
   editorState: EditorState.createEmpty(),
   onChange: () => {},
-  handleKeyCommand: handleKeyCommand,
+  handleKeyCommand: () => {},
   onFocus: () => {},
-  actions: actions,
-  selected: ""
-});
+  setTitle: (newTitle: string) => {},
+  actions: [],
+  selected: [],
+  title: ""
+}
+
+export const EditorContext = React.createContext(context);

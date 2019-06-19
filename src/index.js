@@ -1,9 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
+import { I18nProvider } from "@lingui/react";
+import chinese from "./locales/zh/messages";
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const catalogs = { zh: chinese };
+
+ReactDOM.render(
+  <I18nProvider language="zh" catalogs={catalogs}>
+    <App />
+  </I18nProvider>,
+
+  document.getElementById("root")
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
