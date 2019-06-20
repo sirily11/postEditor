@@ -17,7 +17,7 @@ class App extends Component {
           <div id="second-root">
             <Route exact path="/" component={Login} />
             <Route exact path="/home" component={HomePage} />
-            <Route exact path="/edit" component={EditorPage} />
+            <Route exact path="/edit/:_id?/:isLocal?" component={EditorPage} />
           </div>
         </UserContext.Provider>
       </Router>

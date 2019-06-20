@@ -13,7 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/editor/Title.tsx:31
+#: src/components/home/Components/SearchBar.tsx:46
+#~ msgid "\"Search Post\""
+#~ msgstr ""
+
+#: src/components/editor/Title.tsx:35
 msgid "By"
 msgstr "来自"
 
@@ -21,18 +25,31 @@ msgstr "来自"
 msgid "Enter your post here"
 msgstr "在此输入你的正文"
 
-#: src/components/editor/Title.tsx:26
+#: src/components/editor/Title.tsx:30
 msgid "Enter your title here"
 msgstr "请在此输入你的标题"
+
+#: src/components/editor/Title.tsx:24
+#: src/components/home/Components/Navs.tsx:8
+msgid "Home"
+msgstr "主页"
+
+#: src/components/home/Components/PostItem.tsx:18
+msgid "Local"
+msgstr "本地"
 
 #: src/components/editor/FloatButton.tsx:16
 msgid "Post Setting"
 msgstr "推文设置"
 
-#: src/components/model/editorContext.tsx:19
+#: src/components/model/editorContext.tsx:32
 msgid "Save"
 msgstr "保存"
 
-#: src/components/model/editorContext.tsx:24
+#: src/components/model/editorContext.tsx:48
 msgid "Save to local"
 msgstr "保存到本地"
+
+#: src/components/home/Components/SearchBar.tsx:46
+msgid "Search Post"
+msgstr "搜索推文"

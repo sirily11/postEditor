@@ -1,9 +1,17 @@
 {
+  "Home": {
+    "origin": [
+      [
+        "src/components/editor/Title.tsx",
+        24
+      ]
+    ]
+  },
   "Enter your title here": {
     "origin": [
       [
         "src/components/editor/Title.tsx",
-        26
+        30
       ]
     ]
   },
@@ -11,7 +19,7 @@
     "origin": [
       [
         "src/components/editor/Title.tsx",
-        31
+        35
       ]
     ]
   }

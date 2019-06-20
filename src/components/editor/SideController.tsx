@@ -25,10 +25,14 @@ export default class SideController extends Component {
               {({ actions, selected }) => {
                 return actions.map((action) => {
                   if (action.text === "Divider") {
-                    return <Divider />;
+                    return <Divider key={action.text} />;
                   } else {
                     return (
-                      <Tooltip title={action.text} placement="right">
+                      <Tooltip
+                        title={action.text}
+                        placement="right"
+                        key={action.text}
+                      >
                         <ListItem
                           button={true}
                           onClick={action.action}
@@ -46,7 +50,6 @@ export default class SideController extends Component {
             </EditorContext.Consumer>
           </List>
         </Drawer>
-       
       </div>
     );
   }

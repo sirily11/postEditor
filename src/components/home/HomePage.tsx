@@ -23,7 +23,7 @@ const theme = createMuiTheme({
 });
 
 export interface Post {
-  id?: string;
+  _id?: string;
   userID?: number;
   title: string;
   content: string;
@@ -71,7 +71,7 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   };
 
   async fetchPosts(): Promise<Post[]> {
-    let response = await axios.get(getURL());
+    let response = await axios.get(getURL("get/post"));
     let data: Post[] = response.data;
     return data;
   }

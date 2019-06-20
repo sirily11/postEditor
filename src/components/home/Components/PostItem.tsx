@@ -11,6 +11,7 @@ import {
   IconButton
 } from "@material-ui/core";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import { Trans } from "@lingui/macro";
 
 interface Props {
   post: Post;
@@ -45,7 +46,7 @@ export default function PostItem(props: Props) {
                   className="ml-1"
                   label={
                     <div style={{ color: "white" }}>
-                      {props.post.category_name}
+                      <Trans>Local</Trans>
                     </div>
                   }
                   color="primary"
@@ -57,7 +58,7 @@ export default function PostItem(props: Props) {
           secondary={props.post.content.substring(0, 150)}
         />
         <IconButton>
-          <Link to="/edit">
+          <Link to={`/edit/${props.post._id}`}>
             <NavigateNextIcon />
           </Link>
         </IconButton>

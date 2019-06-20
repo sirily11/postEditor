@@ -7,6 +7,7 @@ import { setupI18n } from "@lingui/core";
 import chinese from "../../locales/zh/messages";
 import { EditorContext } from "../model/editorContext";
 import FloatButton from "./FloatButton";
+import { Paper } from "@material-ui/core";
 
 const i18n = setupI18n({
   language: "zh",
@@ -20,15 +21,21 @@ export default class Title extends Component {
     return (
       <EditorContext.Consumer>
         {({ title, setTitle }) => (
-          <div>
+          <Paper
+            elevation={0}
+            // style={{ top: 0, position: "sticky", zIndex: 1000 }}
+          >
             <div className="mx-4">
               <Breadcrumbs>
-                <Link to="/home">Home</Link>
+                <Link to="/home">
+                  <Trans>Home</Trans>
+                </Link>
                 <div>{title}</div>
               </Breadcrumbs>
             </div>
             <div className="row mx-4 my-2 sticky-top">
               <InputBase
+                value={title}
                 className="title-input-text"
                 style={{ fontSize: "30px" }}
                 placeholder={i18n._(t`Enter your title here`)}
@@ -47,7 +54,7 @@ export default class Title extends Component {
               <FloatButton />
             </div>
             <Divider className="m-4" />
-          </div>
+          </Paper>
         )}
       </EditorContext.Consumer>
     );

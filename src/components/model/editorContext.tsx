@@ -1,11 +1,24 @@
-import { EditorState, RichUtils, DraftEditorCommand } from "draft-js";
+import {
+  EditorState,
+  RichUtils,
+  DraftEditorCommand,
+  convertToRaw,
+  convertFromRaw
+} from "draft-js";
 import React from "react";
 import ListIcon from "@material-ui/icons/List";
 import SaveIcon from "@material-ui/icons/Save";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import { t, Trans } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
+import { draftToMarkdown } from "../editor/plugin/markdown-draft-js";
 import chinese from "../../locales/zh/messages";
+import { insertPost } from "./localDB";
+import { Post } from "../home/HomePage";
+import axios from "axios";
+import { getURL } from "../setting/settings";
+import { RouteComponentProps, withRouter } from "react-router";
+import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
 
 const i18n = setupI18n({
   language: "zh",
@@ -30,8 +43,11 @@ interface MainEditorState {
   setTitle: any;
   selected: string[];
 }
+interface RouterProps {
+  _id: string;
+}
 
-interface MainEditorProps {}
+export interface MainEditorProps extends RouteComponentProps<RouterProps> {}
 
 export class MainEditorProvider extends React.Component<
   MainEditorProps,
@@ -55,7 +71,19 @@ export class MainEditorProvider extends React.Component<
     {
       text: i18n._(t`Save`),
       icon: <SaveIcon />,
-      action: () => {}
+      action: async () => {
+        let editorState = this.state.editorState;
+        let raw = convertToRaw(editorState.getCurrentContent());
+
+        let content = draftToMarkdown(raw, undefined);
+        let post: Post = {
+          title: this.state.title,
+          content: content,
+          isLocal: true
+        };
+        console.log(post);
+        await insertPost(1, post);
+      }
     },
     {
       text: i18n._(t`Save to local`),
@@ -63,7 +91,7 @@ export class MainEditorProvider extends React.Component<
       action: () => {}
     },
     {
-      text: "Divider",
+      text: "Divider 1",
       icon: <div />,
       action: () => {}
     },
@@ -84,7 +112,7 @@ export class MainEditorProvider extends React.Component<
       action: () => {}
     },
     {
-      text: "Divider",
+      text: "Divider 2",
       icon: <div />,
       action: () => {}
     },
@@ -100,6 +128,15 @@ export class MainEditorProvider extends React.Component<
       }
     }
   ];
+
+  async componentWillMount() {
+    let id = this.props.match.params._id;
+    let response = await axios.get(getURL("get/post/" + id));
+    let postData: Post = response.data;
+    let raw = markdownToDraft(postData.content);
+    let editorState = EditorState.createWithContent(convertFromRaw(raw));
+    this.setState({ title: postData.title, editorState: editorState });
+  }
 
   onChange = (editorState: EditorState) => {
     const style = editorState.getCurrentInlineStyle();
@@ -156,7 +193,7 @@ export class MainEditorProvider extends React.Component<
   }
 }
 
-const context : MainEditorState = {
+const context: MainEditorState = {
   editorState: EditorState.createEmpty(),
   onChange: () => {},
   handleKeyCommand: () => {},
@@ -165,6 +202,6 @@ const context : MainEditorState = {
   actions: [],
   selected: [],
   title: ""
-}
+};
 
 export const EditorContext = React.createContext(context);

@@ -1,0 +1,1 @@
+export function draftToMarkdown(rawDraftObject: any, options: any | undefined): string

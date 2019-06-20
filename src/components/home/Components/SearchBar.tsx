@@ -8,6 +8,16 @@ import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import EditIcon from "@material-ui/icons/Edit";
 import RefeashIcon from "@material-ui/icons/Refresh";
+import { t, Trans } from "@lingui/macro";
+import { setupI18n } from "@lingui/core";
+import chinese from "../../../locales/zh/messages";
+
+const i18n = setupI18n({
+  language: "zh",
+  catalogs: {
+    zh: chinese
+  }
+});
 
 const useStyles = makeStyles(
   createStyles({
@@ -34,7 +44,7 @@ const useStyles = makeStyles(
 
 interface Props {
   onSearchTextChange: any;
-  refeash: any
+  refeash: any;
 }
 
 export default function SearchBar(props: Props) {
@@ -47,12 +57,16 @@ export default function SearchBar(props: Props) {
       style={{ position: "sticky", top: 0, zIndex: 100 }}
     >
       <div className="row w-100 mx-3 mt-1 mb-3">
-        <IconButton className={classes.iconButton} aria-label="Menu" onClick={props.refeash}>
+        <IconButton
+          className={classes.iconButton}
+          aria-label="Menu"
+          onClick={props.refeash}
+        >
           <RefeashIcon />
         </IconButton>
         <InputBase
           className={classes.input}
-          placeholder="Search Post"
+          placeholder={i18n._(t`Search Post`)}
           onChange={props.onSearchTextChange}
         />
         <IconButton className={classes.iconButton} aria-label="Search" disabled>
