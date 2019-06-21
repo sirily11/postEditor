@@ -19,7 +19,15 @@
     "origin": [
       [
         "src/components/editor/Title.tsx",
-        35
+        36
+      ]
+    ]
+  },
+  "Category": {
+    "origin": [
+      [
+        "src/components/editor/Title.tsx",
+        39
       ]
     ]
   }

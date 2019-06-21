@@ -13,12 +13,11 @@ import { t, Trans } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
 import { draftToMarkdown } from "../editor/plugin/markdown-draft-js";
 import chinese from "../../locales/zh/messages";
-import { insertPost } from "./localDB";
-import { Post } from "../home/HomePage";
+import { insertPost, getLocalPost, updatePost } from "./localDB";
 import axios from "axios";
 import { getURL } from "../setting/settings";
-import { RouteComponentProps, withRouter } from "react-router";
 import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
+import { Post } from "./interfaces";
 
 const i18n = setupI18n({
   language: "zh",
@@ -34,7 +33,9 @@ export interface Action {
 }
 
 interface MainEditorState {
-  title: string;
+  isLoading: boolean;
+  snackBarMessage: string;
+  post: Post;
   editorState: EditorState;
   handleKeyCommand: any;
   actions: Action[];
@@ -42,12 +43,14 @@ interface MainEditorState {
   onFocus: any;
   setTitle: any;
   selected: string[];
-}
-interface RouterProps {
-  _id: string;
+  hideMessage: any;
+  initEditor(_id: string, isLocal: boolean): void;
+  getCover(): string | null;
+  setCover(cover: File): void;
+  setCategory(category: number, categoryName: string): void;
 }
 
-export interface MainEditorProps extends RouteComponentProps<RouterProps> {}
+interface MainEditorProps {}
 
 export class MainEditorProvider extends React.Component<
   MainEditorProps,
@@ -56,13 +59,25 @@ export class MainEditorProvider extends React.Component<
   constructor(props: MainEditorProps) {
     super(props);
     this.state = {
-      title: "",
+      isLoading: false,
+      post: {
+        title: "",
+        content: "",
+        category: -1,
+        isLocal: false
+      },
+      snackBarMessage: "",
       selected: [],
       editorState: EditorState.createEmpty(),
       actions: this.actions,
       onChange: this.onChange,
       onFocus: this.onFocus,
       setTitle: this.setTitle,
+      setCover: this.setCover,
+      getCover: this.getCover,
+      setCategory: this.setCategory,
+      initEditor: this.initEditor,
+      hideMessage: this.hideMessage,
       handleKeyCommand: this.handleKeyCommand
     };
   }
@@ -72,17 +87,22 @@ export class MainEditorProvider extends React.Component<
       text: i18n._(t`Save`),
       icon: <SaveIcon />,
       action: async () => {
-        let editorState = this.state.editorState;
-        let raw = convertToRaw(editorState.getCurrentContent());
+        try {
+          let editorState = this.state.editorState;
+          let raw = convertToRaw(editorState.getCurrentContent());
+          let content = draftToMarkdown(raw, undefined);
+          let post = this.state.post;
+          post.content = content;
 
-        let content = draftToMarkdown(raw, undefined);
-        let post: Post = {
-          title: this.state.title,
-          content: content,
-          isLocal: true
-        };
-        console.log(post);
-        await insertPost(1, post);
+          if (this.state.post) {
+            await updatePost(post);
+          } else {
+            await insertPost(1, post);
+          }
+          this.showMessage("Post has been Saved");
+        } catch (err) {
+          this.showMessage(err.toString());
+        }
       }
     },
     {
@@ -129,15 +149,78 @@ export class MainEditorProvider extends React.Component<
     }
   ];
 
-  async componentWillMount() {
-    let id = this.props.match.params._id;
-    let response = await axios.get(getURL("get/post/" + id));
-    let postData: Post = response.data;
-    let raw = markdownToDraft(postData.content);
-    let editorState = EditorState.createWithContent(convertFromRaw(raw));
-    this.setState({ title: postData.title, editorState: editorState });
-  }
+  initEditor = async (_id: string | undefined, isLocal: boolean) => {
+    let postData: Post | undefined;
+    if (!_id) return;
+    this.setState({ isLoading: true });
+    if (isLocal) {
+      postData = await getLocalPost(_id);
+    } else {
+      let response = await axios.get(getURL("get/post/" + _id));
+      postData = response.data;
+    }
+    if (postData) {
+      let raw = markdownToDraft(postData.content);
+      let editorState = EditorState.createWithContent(convertFromRaw(raw));
+      postData._id = _id;
+      postData.isLocal = isLocal;
+      this.setState({
+        isLoading: false,
+        post: postData,
+        editorState: editorState
+      });
+    }
+  };
 
+  /**
+   * Get post cover
+   */
+  getCover = (): string | null => {
+    let post = this.state.post;
+    let reader = new FileReader();
+    if (post.cover) {
+      reader.readAsDataURL(post.cover);
+      reader.onloadend = () => {
+        let imageFile = reader.result;
+        return imageFile;
+      };
+    }
+    return null;
+  };
+
+  setCategory = (category: number, categoryName: string) => {
+    console.log("Set category", category);
+    let post = this.state.post;
+    post.category = category;
+    post.category_name = categoryName;
+    this.setState({ post });
+  };
+
+  /**
+   * Set post cover
+   */
+  setCover = (cover: File) => {
+    console.log("Set Cover", cover);
+    let post = this.state.post;
+    post.cover = cover;
+    this.setState({ post });
+  };
+
+  /**
+   * Show snackbar and display message
+   * @param message Message content
+   */
+  showMessage = (message: string) =>
+    this.setState({ snackBarMessage: message });
+
+  // Hide sanckbar and clear the message state
+  hideMessage = () => this.setState({ snackBarMessage: "" });
+
+  /**
+   * This function will be called when user
+   * enter content inside the editor
+   * @param editorState Editor state produced by draft js
+   */
   onChange = (editorState: EditorState) => {
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
@@ -145,16 +228,29 @@ export class MainEditorProvider extends React.Component<
     this.setState({ editorState });
   };
 
+  /**
+   * This function will be called when user click
+   * on the text inside the editor.
+   * This will change the look of the side bar
+   */
   onFocus = () => {
     const style = this.state.editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
     this.toggle("Bold", isBold);
   };
 
+  /**
+   * Set the title for the post
+   */
   setTitle = (newTitle: string) => {
-    this.setState({ title: newTitle });
+    let post = this.state.post;
+    post.title = newTitle;
+    this.setState({ post });
   };
 
+  /**
+   * Toggole the side bar to match the inline style
+   */
   toggle = (name: string, status: boolean) => {
     let selected = this.state.selected;
     if (status) {
@@ -169,8 +265,6 @@ export class MainEditorProvider extends React.Component<
     }
     this.setState({ selected: selected });
   };
-
-  click = (text: string) => {};
 
   handleKeyCommand(
     command: DraftEditorCommand,
@@ -194,14 +288,28 @@ export class MainEditorProvider extends React.Component<
 }
 
 const context: MainEditorState = {
+  isLoading: false,
+  snackBarMessage: "",
+  post: {
+    title: "",
+    isLocal: false,
+    content: "",
+    category: -1
+  },
   editorState: EditorState.createEmpty(),
   onChange: () => {},
   handleKeyCommand: () => {},
   onFocus: () => {},
   setTitle: (newTitle: string) => {},
+  hideMessage: () => {},
+  setCover: (cover: File) => {},
+  getCover: (): string | null => {
+    return null;
+  },
+  initEditor: (id, isLocal) => {},
+  setCategory: (category: number, categoryName: string) => {},
   actions: [],
-  selected: [],
-  title: ""
+  selected: []
 };
 
 export const EditorContext = React.createContext(context);

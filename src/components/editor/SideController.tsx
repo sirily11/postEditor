@@ -20,11 +20,11 @@ export default class SideController extends Component {
     return (
       <div>
         <Drawer variant="permanent" open={true}>
-          <List>
+          <List id="sidebar">
             <EditorContext.Consumer>
               {({ actions, selected }) => {
                 return actions.map((action) => {
-                  if (action.text === "Divider") {
+                  if (action.text.includes("Divider")) {
                     return <Divider key={action.text} />;
                   } else {
                     return (

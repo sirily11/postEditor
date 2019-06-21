@@ -10,6 +10,10 @@ html {
   height: 100%;
 }
 
+#sidebar {
+  margin-top: 10px;
+}
+
 .content {
   padding-left: 70px;
 }
@@ -20,7 +24,7 @@ html {
 }
 
 .title-input-text {
-  width: 70%;
+  width: 65%;
   margin-right: 20px;
 }
 

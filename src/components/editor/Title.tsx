@@ -20,7 +20,7 @@ export default class Title extends Component {
   render() {
     return (
       <EditorContext.Consumer>
-        {({ title, setTitle }) => (
+        {({ post, setTitle }) => (
           <Paper
             elevation={0}
             // style={{ top: 0, position: "sticky", zIndex: 1000 }}
@@ -30,12 +30,12 @@ export default class Title extends Component {
                 <Link to="/home">
                   <Trans>Home</Trans>
                 </Link>
-                <div>{title}</div>
+                <div>{post.title}</div>
               </Breadcrumbs>
             </div>
             <div className="row mx-4 my-2 sticky-top">
               <InputBase
-                value={title}
+                value={post.title}
                 className="title-input-text"
                 style={{ fontSize: "30px" }}
                 placeholder={i18n._(t`Enter your title here`)}
@@ -46,7 +46,12 @@ export default class Title extends Component {
                 {({ userName }) => {
                   return (
                     <div style={{ alignSelf: "flex-end" }}>
-                      <Trans>By</Trans>: {userName}
+                      <h6>
+                        <Trans>By</Trans>: {userName}
+                      </h6>
+                      <h6>
+                        <Trans>Category</Trans>: {post.category_name}
+                      </h6>
                     </div>
                   );
                 }}

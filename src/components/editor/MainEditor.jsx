@@ -5,8 +5,8 @@ import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
 import createSideToolbarPlugin from "draft-js-side-toolbar-plugin";
 import { t } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
+import { Fade } from "@material-ui/core";
 import chinese from "../../locales/zh/messages";
-
 import "draft-js/dist/Draft.css";
 import "draft-js-inline-toolbar-plugin/lib/plugin.css";
 import "draft-js-side-toolbar-plugin/lib/plugin.css";
@@ -26,27 +26,41 @@ const i18n = setupI18n({
 });
 
 export default class MainEditor extends Component {
+  componentWillMount() {
+    this.props.initEditor(this.props._id, this.props.isLocal);
+  }
+
   render() {
     return (
       <div className="mx-4 mb-1 main-editor">
         <EditorContext.Consumer>
-          {({ editorState, onChange, onFocus, handleKeyCommand }) => (
-            <div>
-              <Editor
-                editorState={editorState}
-                onChange={onChange}
-                onFocus={onFocus}
-                handleKeyCommand={handleKeyCommand}
-                autoCorrect="on"
-                autoCapitalize="on"
-                spellCheck={true}
-                placeholder={i18n._(t`Enter your post here`)} 
-                plugins={[inlineToolbarPlugin, sideToolbarPlugin]}
-              />
-              <InlineToolbar />
-              <SideToolbar />
-            </div>
-          )}
+          {({
+            editorState,
+            onChange,
+            onFocus,
+            handleKeyCommand,
+            isLoading
+          }) => {
+            return (
+              <Fade in={!isLoading} timeout={400}>
+                <div>
+                  <Editor
+                    editorState={editorState}
+                    onChange={onChange}
+                    onFocus={onFocus}
+                    handleKeyCommand={handleKeyCommand}
+                    autoCorrect="on"
+                    autoCapitalize="on"
+                    spellCheck={true}
+                    placeholder={i18n._(t`Enter your post here`)}
+                    plugins={[inlineToolbarPlugin, sideToolbarPlugin]}
+                  />
+                  <InlineToolbar />
+                  <SideToolbar />
+                </div>
+              </Fade>
+            );
+          }}
         </EditorContext.Consumer>
       </div>
     );

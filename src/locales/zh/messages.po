@@ -17,9 +17,22 @@ msgstr ""
 #~ msgid "\"Search Post\""
 #~ msgstr ""
 
-#: src/components/editor/Title.tsx:35
+#: src/components/editor/Title.tsx:36
 msgid "By"
 msgstr "来自"
+
+#: src/components/setting/SettingCard.tsx:24
+msgid "Cancel"
+msgstr "取消"
+
+#: src/components/editor/Title.tsx:39
+#: src/components/setting/CategorySelect.tsx:23
+msgid "Category"
+msgstr "类别"
+
+#: src/components/setting/SettingCard.tsx:16
+msgid "Create New Post"
+msgstr "创建新推文"
 
 #: src/components/editor/MainEditor.jsx:43
 msgid "Enter your post here"
@@ -39,6 +52,7 @@ msgid "Local"
 msgstr "本地"
 
 #: src/components/editor/FloatButton.tsx:16
+#: src/components/setting/SettingCard.tsx:16
 msgid "Post Setting"
 msgstr "推文设置"
 
@@ -46,10 +60,10 @@ msgstr "推文设置"
 msgid "Save"
 msgstr "保存"
 
-#: src/components/model/editorContext.tsx:48
+#: src/components/model/editorContext.tsx:59
 msgid "Save to local"
 msgstr "保存到本地"
 
-#: src/components/home/Components/SearchBar.tsx:46
+#: src/components/home/Components/SearchBar.tsx:47
 msgid "Search Post"
 msgstr "搜索推文"

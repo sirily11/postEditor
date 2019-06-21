@@ -1,5 +1,4 @@
 import React from "react";
-import { Post } from "../HomePage";
 import { Link } from "react-router-dom";
 import {
   ListItem,
@@ -12,6 +11,7 @@ import {
 } from "@material-ui/core";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { Trans } from "@lingui/macro";
+import { Post } from "../../model/interfaces";
 
 interface Props {
   post: Post;
@@ -58,7 +58,7 @@ export default function PostItem(props: Props) {
           secondary={props.post.content.substring(0, 150)}
         />
         <IconButton>
-          <Link to={`/edit/${props.post._id}`}>
+          <Link to={`/edit/${props.post._id}/${props.post.isLocal}`}>
             <NavigateNextIcon />
           </Link>
         </IconButton>

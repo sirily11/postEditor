@@ -4,29 +4,43 @@ import { UserContext } from "../model/userContext";
 import { TextField } from "@material-ui/core";
 import Title from "./Title";
 import MainEditor from "./MainEditor";
-import {
-  EditorContext,
-  MainEditorProvider,
-  MainEditorProps
-} from "../model/editorContext";
+import { EditorContext, MainEditorProvider } from "../model/editorContext";
 import { RouteComponentProps } from "react-router";
+import MessageBar from "./components/MessageBar";
+import { EditorProps } from "../model/interfaces";
 
-export default class EditorPage extends Component<MainEditorProps, any> {
+interface State {
+  isLocal: boolean;
+  _id: string;
+}
+
+export default class EditorPage extends Component<EditorProps, State> {
+  componentWillMount() {
+    let _id = this.props.match.params._id;
+    let isLocal = this.props.match.params.isLocal !== "undefined";
+    this.setState({ isLocal: isLocal, _id: _id });
+  }
+
   render() {
     return (
-      <MainEditorProvider
-        location={this.props.location}
-        history={this.props.history}
-        match={this.props.match}
-      >
-        <div>
-          <SideController />
-          <div className="content">
-            <Title />
-            <MainEditor />
-          </div>
-        </div>
-      </MainEditorProvider>
+      <EditorContext.Consumer>
+        {({ initEditor }) => {
+          return (
+            <div>
+              <SideController />
+              <div className="content">
+                <Title />
+                <MainEditor
+                  initEditor={initEditor}
+                  _id={this.state._id}
+                  isLocal={this.state.isLocal}
+                />
+                <MessageBar />
+              </div>
+            </div>
+          );
+        }}
+      </EditorContext.Consumer>
     );
   }
 }

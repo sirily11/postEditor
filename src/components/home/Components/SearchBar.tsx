@@ -11,6 +11,7 @@ import RefeashIcon from "@material-ui/icons/Refresh";
 import { t, Trans } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
 import chinese from "../../../locales/zh/messages";
+import { SettingConext } from "../../model/settingContext";
 
 const i18n = setupI18n({
   language: "zh",
@@ -52,9 +53,9 @@ export default function SearchBar(props: Props) {
 
   return (
     <Paper
-      className="d-flex my-2"
+      className="d-flex mt-2"
       elevation={0}
-      style={{ position: "sticky", top: 0, zIndex: 100 }}
+      style={{ position: "sticky", top: 0, zIndex: 100, height: "70px" }}
     >
       <div className="row w-100 mx-3 mt-1 mb-3">
         <IconButton
@@ -73,9 +74,17 @@ export default function SearchBar(props: Props) {
           <SearchIcon />
         </IconButton>
         <Divider className={classes.divider} />
-        <IconButton className={classes.iconButton} aria-label="Search">
-          <EditIcon />
-        </IconButton>
+        <SettingConext.Consumer>
+          {({ openSetting }) => (
+            <IconButton
+              className={classes.iconButton}
+              aria-label="Search"
+              onClick={openSetting}
+            >
+              <EditIcon />
+            </IconButton>
+          )}
+        </SettingConext.Consumer>
       </div>
     </Paper>
   );

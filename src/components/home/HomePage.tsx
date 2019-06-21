@@ -15,22 +15,16 @@ import SearchBar from "./Components/SearchBar";
 import RefeashIcon from "@material-ui/icons/Refresh";
 import Navs from "./Components/Navs";
 import { getAllLocalPosts } from "../model/localDB";
+import { Post } from "../model/interfaces";
+import { DisplayProvider, DisplayContext } from "../model/displayContext";
+import TabBar from "./Components/TabBar";
+import SettingCard from "../setting/SettingCard";
 
 const theme = createMuiTheme({
   palette: {
     primary: lightBlue
   }
 });
-
-export interface Post {
-  _id?: string;
-  userID?: number;
-  title: string;
-  content: string;
-  category_name?: string;
-  posted_name?: string;
-  isLocal: boolean;
-}
 
 interface HomeState {
   posts: Post[];
@@ -113,21 +107,36 @@ export default class HomePage extends Component<HomeProps, HomeState> {
               onSearchTextChange={this.onSearchTextChange}
               refeash={this._onMount}
             />
-            <List>
-              {this.state.posts.map((post) => {
-                let searchWord = this.state.searchWord;
-                let exist = true;
-                if (!post.title.includes(searchWord)) {
-                  exist = false;
-                }
-                return (
-                  <Collapse key={post.title} in={exist}>
-                    <PostItem post={post} />
-                  </Collapse>
-                );
-              })}
-            </List>
+            <TabBar />
+            <DisplayContext.Consumer>
+              {({ value }) => (
+                <List>
+                  {this.state.posts
+                    .filter((post) => {
+                      let isLocal = value === 1;
+                      if (isLocal) {
+                        return post.isLocal === true;
+                      } else {
+                        return post.isLocal === undefined;
+                      }
+                    })
+                    .map((post) => {
+                      let searchWord = this.state.searchWord;
+                      let exist = true;
+                      if (!post.title.includes(searchWord)) {
+                        exist = false;
+                      }
+                      return (
+                        <Collapse key={`post_${post._id}`} in={exist}>
+                          <PostItem post={post} />
+                        </Collapse>
+                      );
+                    })}
+                </List>
+              )}
+            </DisplayContext.Consumer>
           </div>
+          <SettingCard isCreated={true} />
         </Collapse>
       </ThemeProvider>
     );
