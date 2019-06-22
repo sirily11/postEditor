@@ -34,7 +34,6 @@ const { InlineToolbar } = inlineToolbarPlugin;
 const { SideToolbar } = sideToolbarPlugin;
 
 const i18n = setupI18n({
-  language: "zh",
   catalogs: {
     zh: chinese
   }

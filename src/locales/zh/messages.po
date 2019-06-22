@@ -17,11 +17,15 @@ msgstr ""
 #~ msgid "\"Search Post\""
 #~ msgstr ""
 
+#: src/components/setting/SettingCardContent.tsx:17
+msgid "Add Post Cover Image"
+msgstr ""
+
 #: src/components/editor/Title.tsx:36
 msgid "By"
 msgstr "来自"
 
-#: src/components/setting/SettingCard.tsx:24
+#: src/components/setting/SettingCardContent.tsx:45
 msgid "Cancel"
 msgstr "取消"
 
@@ -30,17 +34,33 @@ msgstr "取消"
 msgid "Category"
 msgstr "类别"
 
-#: src/components/setting/SettingCard.tsx:16
+#: src/components/setting/SettingCardContent.tsx:9
 msgid "Create New Post"
 msgstr "创建新推文"
 
-#: src/components/editor/MainEditor.jsx:43
+#: src/components/editor/components/UploadDialog.tsx:22
+msgid "Current:"
+msgstr "当前"
+
+#: src/components/model/editorContext.tsx:96
+msgid "Delete"
+msgstr "删除"
+
+#: src/components/model/editorContext.tsx:103
+msgid "Delete from cloud"
+msgstr "从云端删除"
+
+#: src/components/editor/MainEditor.jsx:91
 msgid "Enter your post here"
 msgstr "在此输入你的正文"
 
 #: src/components/editor/Title.tsx:30
 msgid "Enter your title here"
 msgstr "请在此输入你的标题"
+
+#: src/components/editor/components/UploadDialog.tsx:30
+msgid "Files:"
+msgstr "文件："
 
 #: src/components/editor/Title.tsx:24
 #: src/components/home/Components/Navs.tsx:8
@@ -51,19 +71,48 @@ msgstr "主页"
 msgid "Local"
 msgstr "本地"
 
-#: src/components/editor/FloatButton.tsx:16
-#: src/components/setting/SettingCard.tsx:16
+#: src/components/login/Login.tsx:58
+msgid "Password"
+msgstr "密码"
+
+#: src/components/editor/FloatButton.tsx:18
+#: src/components/setting/SettingCardContent.tsx:9
 msgid "Post Setting"
 msgstr "推文设置"
 
-#: src/components/model/editorContext.tsx:32
+#: src/components/model/editorContext.tsx:46
+msgid "Publish"
+msgstr "发布"
+
+#: src/components/login/Login.tsx:59
+msgid "Remember Me"
+msgstr "记住密码"
+
+#: src/components/model/editorContext.tsx:39
 msgid "Save"
 msgstr "保存"
 
-#: src/components/model/editorContext.tsx:59
+#: src/components/model/editorContext.tsx:53
 msgid "Save to local"
 msgstr "保存到本地"
 
 #: src/components/home/Components/SearchBar.tsx:47
 msgid "Search Post"
 msgstr "搜索推文"
+
+#: src/components/login/Login.tsx:54
+#: src/components/login/Login.tsx:61
+msgid "Sign In"
+msgstr "登陆"
+
+#: src/components/model/editorContext.tsx:107
+msgid "This is a local post and you cannot delete it"
+msgstr "这是本地文本，你无法从云端删除"
+
+#: src/components/editor/components/UploadDialog.tsx:18
+msgid "Uploading Images"
+msgstr "上传照片"
+
+#: src/components/login/Login.tsx:57
+msgid "User Name"
+msgstr "用户名"

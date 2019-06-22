@@ -14,7 +14,6 @@ import chinese from "../../../locales/zh/messages";
 import { SettingConext } from "../../model/settingContext";
 
 const i18n = setupI18n({
-  language: "zh",
   catalogs: {
     zh: chinese
   }

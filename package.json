@@ -1,6 +1,7 @@
 {
   "name": "post-editor",
-  "version": "0.1.0",
+  "author": "Qiwei Li",
+  "version": "0.5.0",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.4.5",
@@ -30,6 +31,7 @@
     "draft-js-side-toolbar-plugin": "^3.0.1",
     "draft-js-video-plugin": "^2.0.1",
     "electron-is-dev": "^1.1.0",
+    "jquery": "^3.4.1",
     "markdown-draft-js": "^1.5.0",
     "nedb": "^1.8.0",
     "react": "^16.8.6",
@@ -46,10 +48,20 @@
     "extract": "lingui extract",
     "compile": "lingui compile",
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && tsc public/electron.ts",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron-dev": "concurrently \"BROWSER=none yarn start && tsc electron/electron.ts\" \"wait-on http://localhost:3000  && electron .\""
+    "electron-pack": "build",
+    "dist": "electron-builder -mwl",
+    "predist": "npm run build && yarn clean",
+    "clean": "rm -rf dist",
+    "electron-dev": " tsc public/electron.ts && concurrently \"BROWSER=none yarn start \" \"wait-on http://localhost:3000  && electron .\""
+  },
+  "build": {
+    "appId": "app.test",
+    "mac": {
+      "category": "admin"
+    }
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -60,11 +72,18 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "main": "electron/electron.js",
+  "mac": {
+    "category": "blog.app.editor.production"
+  },
+  "main": "public/electron.js",
   "devDependencies": {
     "concurrently": "^4.1.0",
     "electron": "^4.1.4",
-    "electron-builder": "^20.39.0",
+    "electron-builder": "^20.44.4",
     "wait-on": "^3.2.0"
-  }
+  },
+  "files": [
+    "./build/*"
+  ],
+  "homepage": "./"
 }

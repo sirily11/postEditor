@@ -8,10 +8,9 @@ import chinese from "./locales/zh/messages";
 const catalogs = { zh: chinese };
 
 ReactDOM.render(
-  <I18nProvider language="zh" catalogs={catalogs}>
+  <I18nProvider catalogs={catalogs}>
     <App />
   </I18nProvider>,
-
   document.getElementById("root")
 );
 

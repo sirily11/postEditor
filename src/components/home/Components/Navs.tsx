@@ -6,7 +6,7 @@ export default function Navs() {
   return (
     <div className="pl-4">
       <Breadcrumbs>
-        <Link href="/home">
+        <Link>
           <Trans>Home</Trans>
         </Link>
       </Breadcrumbs>

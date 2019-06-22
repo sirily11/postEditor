@@ -19,6 +19,10 @@ import { Post } from "../model/interfaces";
 import { DisplayProvider, DisplayContext } from "../model/displayContext";
 import TabBar from "./Components/TabBar";
 import SettingCard from "../setting/SettingCard";
+import { Redirect } from "react-router";
+
+const electron = (window as any).require("electron");
+const ipc: Electron.IpcRenderer = electron.ipcRenderer;
 
 const theme = createMuiTheme({
   palette: {
@@ -31,6 +35,7 @@ interface HomeState {
   searchWord: string;
   failedToFetch: boolean;
   errMsg: string;
+  isLogin: boolean;
 }
 
 interface HomeProps {}
@@ -39,6 +44,7 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
     super(props);
     this.state = {
+      isLogin: true,
       posts: [],
       searchWord: "",
       failedToFetch: false,
@@ -47,10 +53,13 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   }
 
   async componentDidMount() {
-    console.log("Back");
     setTimeout(async () => {
       await this._onMount();
     }, 100);
+
+    ipc.on("logout", () => {
+      this.setState({ isLogin: false });
+    });
   }
 
   _onMount = async () => {
@@ -100,6 +109,8 @@ export default class HomePage extends Component<HomeProps, HomeState> {
         </div>
       );
     }
+
+    if (!this.state.isLogin) return <Redirect to="/login" />;
 
     return (
       <ThemeProvider theme={theme}>

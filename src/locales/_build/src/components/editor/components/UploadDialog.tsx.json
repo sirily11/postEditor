@@ -1,0 +1,26 @@
+{
+  "Uploading Images": {
+    "origin": [
+      [
+        "src/components/editor/components/UploadDialog.tsx",
+        18
+      ]
+    ]
+  },
+  "Current:": {
+    "origin": [
+      [
+        "src/components/editor/components/UploadDialog.tsx",
+        22
+      ]
+    ]
+  },
+  "Files:": {
+    "origin": [
+      [
+        "src/components/editor/components/UploadDialog.tsx",
+        30
+      ]
+    ]
+  }
+}

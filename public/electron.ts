@@ -1,11 +1,37 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, remote } from "electron";
 import * as path from "path";
-import { readFile } from "./readfile";
-import fs from 'fs';
+import * as fs from 'fs';
 
 const isDev = require("electron-is-dev");
 
 let mainWindow: Electron.BrowserWindow | undefined;
+
+
+
+
+var menu = Menu.buildFromTemplate([
+  {
+    label: 'Menu',
+  }, {
+    label: "File",
+    submenu: [
+      {
+        label: 'Log out', click: () => {
+          if (mainWindow) {
+            mainWindow.webContents.send('logout')
+          }
+        }
+      }, {
+        label: "Reload", click: () => {
+          if (mainWindow) {
+            mainWindow.reload()
+          }
+        },
+      }
+    ]
+  }
+])
+Menu.setApplicationMenu(menu);
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -20,8 +46,8 @@ function createWindow() {
   console.log("Starting the webserver")
   mainWindow.loadURL(
     isDev
-      ? "http://localhost:3000#home"
-      : `file://${path.join(__dirname, "../build/index.html")}`
+      ? "http://localhost:3000#/login"
+      : `file://${path.join(__dirname, "../build/index.html#/login")}`
   );
 
   mainWindow.once("ready-to-show", () => {
@@ -29,17 +55,13 @@ function createWindow() {
       mainWindow.show()
     }
   })
+
   if (isDev) {
     // Open the DevTools.
     //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
     mainWindow.webContents.openDevTools();
   }
-  mainWindow.on("closed", () => {
-    if (mainWindow) {
-      mainWindow.webContents.send("close")
-      mainWindow = undefined
-    }
-  });
+  mainWindow.on("closed", () => mainWindow = undefined);
 }
 
 app.on("ready", createWindow);

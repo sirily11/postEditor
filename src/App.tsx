@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.css";
 import { HashRouter as Router, Route, Link } from "react-router-dom";
-import Login from "./components/login/Login";
 import EditorPage from "./components/editor/EditorPage";
-import { UserContext } from "./components/model/userContext";
+import { UserProvider } from "./components/model/userContext";
 import HomePage from "./components/home/HomePage";
 import { SettingProvider } from "./components/model/settingContext";
 import {
@@ -12,19 +11,18 @@ import {
   EditorContext
 } from "./components/model/editorContext";
 import { DisplayProvider } from "./components/model/displayContext";
+import LoginPage from "./components/login/LoginPage";
 
 class App extends Component {
   render() {
     return (
       <Router>
-        <UserContext.Provider
-          value={{ userID: "123", userName: "sirily11", isLogin: false }}
-        >
+        <UserProvider>
           <MainEditorProvider>
             <SettingProvider>
               <DisplayProvider>
                 <div id="second-root">
-                  <Route exact path="/" component={Login} />
+                  <Route exact path="/login" component={LoginPage} />
                   <Route exact path="/home" component={HomePage} />
                   <Route
                     exact
@@ -35,7 +33,7 @@ class App extends Component {
               </DisplayProvider>
             </SettingProvider>
           </MainEditorProvider>
-        </UserContext.Provider>
+        </UserProvider>
       </Router>
     );
   }

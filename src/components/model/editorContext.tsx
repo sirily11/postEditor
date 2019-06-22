@@ -36,7 +36,6 @@ const electron = (window as any).require("electron");
 const ipc: IpcRenderer = electron.ipcRenderer;
 
 const i18n = setupI18n({
-  language: "zh",
   catalogs: {
     zh: chinese
   }
@@ -235,7 +234,6 @@ export class MainEditorProvider extends React.Component<
     }
     if (postData) {
       let raw = markdownToDraft(postData.content);
-      console.log(raw);
       let editorState = EditorState.createWithContent(convertFromRaw(raw));
       postData._id = _id;
       postData.isLocal = isLocal;
@@ -374,8 +372,7 @@ export class MainEditorProvider extends React.Component<
   private async deleteFromCloud() {
     // TODO get token from local storage
     try {
-      let token =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTYxMjQwMzQxLCJqdGkiOiJiZjExNzE4YTQ1MmE0ZjAwODgyMGM2ODVjMDk4ZDQ2YSIsInVzZXJfaWQiOjF9.yBzzIckFFhWtfvoVyL0lamlWT_xp6HMNRIsFCE7gJ40";
+      let token = localStorage.getItem("access");
       let post = this.preparePost();
       if (post.isLocal && post.onlineID) {
         let url = getURL("delete/post/" + post.onlineID);
@@ -393,7 +390,6 @@ export class MainEditorProvider extends React.Component<
   }
 
   async save() {
-    // TODO: Update post which has local post before won't update
     try {
       let post = this.preparePost();
       if (this.state.post.isLocal) {
@@ -431,8 +427,7 @@ export class MainEditorProvider extends React.Component<
     try {
       let url = "";
       let response: AxiosResponse;
-      let token =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTYxMjQwMzQxLCJqdGkiOiJiZjExNzE4YTQ1MmE0ZjAwODgyMGM2ODVjMDk4ZDQ2YSIsInVzZXJfaWQiOjF9.yBzzIckFFhWtfvoVyL0lamlWT_xp6HMNRIsFCE7gJ40";
+      let token = localStorage.getItem("access");
       let post = this.preparePost();
       let data = {
         category: post.category,

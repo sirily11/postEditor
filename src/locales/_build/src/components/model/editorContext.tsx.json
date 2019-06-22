@@ -3,7 +3,15 @@
     "origin": [
       [
         "src/components/model/editorContext.tsx",
-        32
+        39
+      ]
+    ]
+  },
+  "Publish": {
+    "origin": [
+      [
+        "src/components/model/editorContext.tsx",
+        46
       ]
     ]
   },
@@ -11,7 +19,31 @@
     "origin": [
       [
         "src/components/model/editorContext.tsx",
-        59
+        53
+      ]
+    ]
+  },
+  "Delete": {
+    "origin": [
+      [
+        "src/components/model/editorContext.tsx",
+        96
+      ]
+    ]
+  },
+  "Delete from cloud": {
+    "origin": [
+      [
+        "src/components/model/editorContext.tsx",
+        103
+      ]
+    ]
+  },
+  "This is a local post and you cannot delete it": {
+    "origin": [
+      [
+        "src/components/model/editorContext.tsx",
+        107
       ]
     ]
   }
