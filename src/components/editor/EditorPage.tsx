@@ -8,6 +8,7 @@ import { EditorContext, MainEditorProvider } from "../model/editorContext";
 import { RouteComponentProps } from "react-router";
 import MessageBar from "./components/MessageBar";
 import { EditorProps } from "../model/interfaces";
+import SettingCard from "../setting/SettingCard";
 
 interface State {
   isLocal: boolean;
@@ -24,7 +25,7 @@ export default class EditorPage extends Component<EditorProps, State> {
   render() {
     return (
       <EditorContext.Consumer>
-        {({ initEditor }) => {
+        {({ initEditor, clear }) => {
           return (
             <div>
               <SideController />
@@ -34,9 +35,11 @@ export default class EditorPage extends Component<EditorProps, State> {
                   initEditor={initEditor}
                   _id={this.state._id}
                   isLocal={this.state.isLocal}
+                  clear={clear}
                 />
                 <MessageBar />
               </div>
+              <SettingCard isCreated={false} />
             </div>
           );
         }}

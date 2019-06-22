@@ -20,9 +20,10 @@ interface Props {
   isCreat: boolean;
   categories: Category[];
   category: number;
+  previewCover: any;
   setCategory(category: number, categoryName: string): void;
   setCover(cover: File): void;
-  getCover(): string | null;
+  redirect(): void;
 }
 
 export default function SettingCardContent(props: Props) {
@@ -49,7 +50,7 @@ export default function SettingCardContent(props: Props) {
               handleChange={props.setCategory}
             />
           </div>
-          <div className="col-4">
+          <div className="col-2">
             <Tooltip title={<Trans>Add Post Cover Image</Trans>}>
               <IconButton>
                 <AddPhotoAlternate />
@@ -66,21 +67,27 @@ export default function SettingCardContent(props: Props) {
             </Tooltip>
           </div>
         </div>
-        <Collapse in={props.getCover !== null} mountOnEnter unmountOnExit>
+        <Collapse in={props.previewCover !== ""} mountOnEnter unmountOnExit>
           <div
             className="mx-auto"
             style={{
               width: "300px",
               height: "300px",
               backgroundSize: "cover",
-              backgroundImage: `url(${props.getCover})`
+              backgroundImage: `url(${props.previewCover})`
             }}
           />
         </Collapse>
       </DialogContent>
 
       <DialogActions>
-        <Button> OK</Button>
+        <Button
+          onClick={props.isCreat ? props.redirect : props.onClose}
+          disabled={props.category === -1}
+        >
+          {" "}
+          OK
+        </Button>
         <Button onClick={props.onClose}>
           <Trans>Cancel</Trans>
         </Button>

@@ -47,7 +47,10 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   }
 
   async componentDidMount() {
-    await this._onMount();
+    console.log("Back");
+    setTimeout(async () => {
+      await this._onMount();
+    }, 100);
   }
 
   _onMount = async () => {

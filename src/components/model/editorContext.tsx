@@ -6,18 +6,26 @@ import {
   convertFromRaw
 } from "draft-js";
 import React from "react";
-import ListIcon from "@material-ui/icons/List";
+import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import CloudOffIcon from "@material-ui/icons/CloudOff";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import { t, Trans } from "@lingui/macro";
-import { setupI18n } from "@lingui/core";
+import { setupI18n, number } from "@lingui/core";
 import { draftToMarkdown } from "../editor/plugin/markdown-draft-js";
 import chinese from "../../locales/zh/messages";
-import { insertPost, getLocalPost, updatePost } from "./localDB";
-import axios from "axios";
+import { insertPost, getLocalPost, updatePost, deletePost } from "./localDB";
+import axios, { AxiosResponse } from "axios";
 import { getURL } from "../setting/settings";
 import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
 import { Post } from "./interfaces";
+import { IpcRenderer } from "electron";
+import { url } from "inspector";
+
+const fs = (window as any).require("fs");
+const electron = (window as any).require("electron");
+const ipc: IpcRenderer = electron.ipcRenderer;
 
 const i18n = setupI18n({
   language: "zh",
@@ -30,22 +38,26 @@ export interface Action {
   text: string;
   icon: JSX.Element;
   action: any;
+  disabled?: any;
 }
 
 interface MainEditorState {
   isLoading: boolean;
+  isRedirect: boolean;
   snackBarMessage: string;
   post: Post;
   editorState: EditorState;
+  numberOfChanges: number;
   handleKeyCommand: any;
   actions: Action[];
+  previewCover: string;
   onChange: any;
   onFocus: any;
   setTitle: any;
   selected: string[];
   hideMessage: any;
+  clear(): void;
   initEditor(_id: string, isLocal: boolean): void;
-  getCover(): string | null;
   setCover(cover: File): void;
   setCategory(category: number, categoryName: string): void;
 }
@@ -59,13 +71,16 @@ export class MainEditorProvider extends React.Component<
   constructor(props: MainEditorProps) {
     super(props);
     this.state = {
+      isRedirect: false,
       isLoading: false,
+      numberOfChanges: 0,
       post: {
         title: "",
         content: "",
         category: -1,
-        isLocal: false
+        isLocal: true
       },
+      previewCover: "",
       snackBarMessage: "",
       selected: [],
       editorState: EditorState.createEmpty(),
@@ -74,11 +89,11 @@ export class MainEditorProvider extends React.Component<
       onFocus: this.onFocus,
       setTitle: this.setTitle,
       setCover: this.setCover,
-      getCover: this.getCover,
       setCategory: this.setCategory,
       initEditor: this.initEditor,
       hideMessage: this.hideMessage,
-      handleKeyCommand: this.handleKeyCommand
+      handleKeyCommand: this.handleKeyCommand,
+      clear: this.clear
     };
   }
 
@@ -87,22 +102,14 @@ export class MainEditorProvider extends React.Component<
       text: i18n._(t`Save`),
       icon: <SaveIcon />,
       action: async () => {
-        try {
-          let editorState = this.state.editorState;
-          let raw = convertToRaw(editorState.getCurrentContent());
-          let content = draftToMarkdown(raw, undefined);
-          let post = this.state.post;
-          post.content = content;
-
-          if (this.state.post) {
-            await updatePost(post);
-          } else {
-            await insertPost(1, post);
-          }
-          this.showMessage("Post has been Saved");
-        } catch (err) {
-          this.showMessage(err.toString());
-        }
+        await this.save();
+      }
+    },
+    {
+      text: i18n._(t`Publish`),
+      icon: <CloudUploadIcon />,
+      action: async () => {
+        await this.send();
       }
     },
     {
@@ -146,21 +153,67 @@ export class MainEditorProvider extends React.Component<
         );
         this.setState({ editorState: newState });
       }
+    },
+    {
+      text: "Divider 3",
+      icon: <div />,
+      action: async () => {}
+    },
+    {
+      text: i18n._(t`Delete`),
+      icon: <DeleteIcon />,
+      action: async () => {
+        await this.delete();
+      }
+    },
+    {
+      text: i18n._(t`Delete from cloud`),
+      icon: <CloudOffIcon />,
+      action: async () => {
+        if (this.state.post.isLocal && !this.state.post.onlineID) {
+          this.showMessage(
+            i18n._(t`This is a local post and you cannot delete it`)
+          );
+        } else {
+          await this.deleteFromCloud();
+        }
+      }
     }
   ];
+
+  componentDidMount() {
+    ipc.on("close", () => {
+      this.save();
+    });
+  }
+
+  clear = () => {
+    this.setState({
+      isRedirect: false,
+      previewCover: "",
+      numberOfChanges: 0,
+      post: { title: "", content: "", category: 0, isLocal: false },
+      editorState: EditorState.createEmpty()
+    });
+  };
 
   initEditor = async (_id: string | undefined, isLocal: boolean) => {
     let postData: Post | undefined;
     if (!_id) return;
     this.setState({ isLoading: true });
+    // Get data from local database
     if (isLocal) {
       postData = await getLocalPost(_id);
+      // Set preview image
+      this.setPreviewData(postData);
     } else {
+      // get data from internet
       let response = await axios.get(getURL("get/post/" + _id));
       postData = response.data;
     }
     if (postData) {
       let raw = markdownToDraft(postData.content);
+      console.log(raw);
       let editorState = EditorState.createWithContent(convertFromRaw(raw));
       postData._id = _id;
       postData.isLocal = isLocal;
@@ -175,21 +228,18 @@ export class MainEditorProvider extends React.Component<
   /**
    * Get post cover
    */
-  getCover = (): string | null => {
-    let post = this.state.post;
-    let reader = new FileReader();
-    if (post.cover) {
-      reader.readAsDataURL(post.cover);
+  getCover = (cover: File): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      let reader = new FileReader();
+      reader.readAsDataURL(cover);
       reader.onloadend = () => {
         let imageFile = reader.result;
-        return imageFile;
+        resolve(imageFile);
       };
-    }
-    return null;
+    });
   };
 
   setCategory = (category: number, categoryName: string) => {
-    console.log("Set category", category);
     let post = this.state.post;
     post.category = category;
     post.category_name = categoryName;
@@ -199,11 +249,12 @@ export class MainEditorProvider extends React.Component<
   /**
    * Set post cover
    */
-  setCover = (cover: File) => {
-    console.log("Set Cover", cover);
+  setCover = async (cover: File) => {
     let post = this.state.post;
-    post.cover = cover;
-    this.setState({ post });
+    post.cover = cover.path;
+    let imageData = await this.getCover(cover);
+    this.setState({ post: post, previewCover: imageData });
+    await this.save();
   };
 
   /**
@@ -221,11 +272,21 @@ export class MainEditorProvider extends React.Component<
    * enter content inside the editor
    * @param editorState Editor state produced by draft js
    */
-  onChange = (editorState: EditorState) => {
+  onChange = async (editorState: EditorState) => {
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
+    let numberOfChange = this.state.numberOfChanges;
     this.toggle("Bold", isBold);
-    this.setState({ editorState });
+    this.setState({
+      editorState: editorState,
+      numberOfChanges: numberOfChange + 1
+    });
+    // Auto save if the number of change is
+    // greater than 20
+    if (this.state.numberOfChanges > 20) {
+      await this.save();
+      this.setState({ numberOfChanges: 0 });
+    }
   };
 
   /**
@@ -266,6 +327,125 @@ export class MainEditorProvider extends React.Component<
     this.setState({ selected: selected });
   };
 
+  private async setPreviewData(postData: Post) {
+    if (postData.cover) {
+      let imageData = fs.readFileSync(postData.cover, { encoding: "base64" });
+      imageData = `data:image/png;base64,${imageData}`;
+      this.setState({ previewCover: imageData });
+    }
+  }
+
+  private async delete() {
+    if (this.state.post.isLocal) {
+      try {
+        await deletePost(this.state.post);
+        this.setState({ isRedirect: true });
+        setTimeout(() => {
+          this.setState({ isRedirect: false });
+        }, 100);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  private async deleteFromCloud() {
+    try {
+      let token =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTYxMjQwMzQxLCJqdGkiOiJiZjExNzE4YTQ1MmE0ZjAwODgyMGM2ODVjMDk4ZDQ2YSIsInVzZXJfaWQiOjF9.yBzzIckFFhWtfvoVyL0lamlWT_xp6HMNRIsFCE7gJ40";
+      let post = this.preparePost();
+      if (post.isLocal && post.onlineID) {
+        let url = getURL("delete/post/" + post.onlineID);
+        axios.delete(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else if (!post.isLocal) {
+        let url = getURL("delete/post/" + post._id);
+        axios.delete(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+      this.setState({ isRedirect: true });
+    } catch (err) {}
+  }
+
+  async save() {
+    try {
+      let post = this.preparePost();
+      if (this.state.post.isLocal) {
+        await updatePost(post);
+      } else {
+        post.onlineID = post._id;
+        delete post._id;
+        post.isLocal = true;
+        let savedPost = await insertPost(1, post);
+        post._id = savedPost._id;
+      }
+      this.setState({ numberOfChanges: 0 });
+      this.showMessage("Post has been Saved");
+    } catch (err) {
+      this.showMessage(err.toString());
+    }
+  }
+
+  /**
+   * Convert raw data to markdown and then
+   * set the markdown to the post content
+   */
+  private preparePost() {
+    let editorState = this.state.editorState;
+    let raw = convertToRaw(editorState.getCurrentContent());
+    let content = draftToMarkdown(raw, undefined);
+    let post = this.state.post;
+    post.content = content;
+    return post;
+  }
+
+  private async send() {
+    try {
+      let url = "";
+      let response: AxiosResponse;
+      let token =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTYxMjQwMzQxLCJqdGkiOiJiZjExNzE4YTQ1MmE0ZjAwODgyMGM2ODVjMDk4ZDQ2YSIsInVzZXJfaWQiOjF9.yBzzIckFFhWtfvoVyL0lamlWT_xp6HMNRIsFCE7gJ40";
+      let post = this.preparePost();
+      let data = {
+        category: post.category,
+        title: post.title,
+        content: post.content
+      };
+      // Newly created post
+      if (post.isLocal && !post.onlineID) {
+        url = getURL("create/post");
+        response = await axios.post(url, data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.showMessage("Created");
+      }
+      // not saved online post
+      else if (!post.isLocal && !post.onlineID) {
+        url = getURL("update/post/" + post._id);
+        response = await axios.patch(url, data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.showMessage("Updated");
+      }
+      // saved online post
+      else {
+        url = getURL("update/post/" + post.onlineID);
+        response = await axios.patch(url, data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.showMessage("Updated");
+      }
+
+      let backData: Post = response.data;
+      post.onlineID = backData._id;
+      this.setState({ post });
+    } catch (err) {
+      this.showMessage(err.toString());
+    }
+  }
+
   handleKeyCommand(
     command: DraftEditorCommand,
     editorState: EditorState
@@ -288,7 +468,9 @@ export class MainEditorProvider extends React.Component<
 }
 
 const context: MainEditorState = {
+  isRedirect: false,
   isLoading: false,
+  numberOfChanges: 0,
   snackBarMessage: "",
   post: {
     title: "",
@@ -297,17 +479,16 @@ const context: MainEditorState = {
     category: -1
   },
   editorState: EditorState.createEmpty(),
+  previewCover: "",
   onChange: () => {},
   handleKeyCommand: () => {},
   onFocus: () => {},
   setTitle: (newTitle: string) => {},
   hideMessage: () => {},
   setCover: (cover: File) => {},
-  getCover: (): string | null => {
-    return null;
-  },
   initEditor: (id, isLocal) => {},
   setCategory: (category: number, categoryName: string) => {},
+  clear: () => {},
   actions: [],
   selected: []
 };

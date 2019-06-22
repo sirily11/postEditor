@@ -4,12 +4,12 @@ export interface Post {
 
     // Post ID
     _id?: string;
+    //OnLine id
+    onlineID?: string;
     // Post category ID
     category: number;
     // Local Image File
-    cover?: File;
-    // Online Image
-    cover_url?: string;
+    cover?: string;
     // User ID
     posted_by?: number;
     // Post title

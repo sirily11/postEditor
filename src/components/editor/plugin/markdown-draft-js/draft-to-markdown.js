@@ -1,26 +1,4 @@
-const TRAILING_WHITESPACE = /[ \u0020\t]*$/;
-
-// This escapes some markdown but there's a few cases that are TODO -
-// - List items
-// - Back tics  (see https://github.com/Rosey/markdown-draft-js/issues/52#issuecomment-388458017)
-// - Complex markdown, like links or images. Not sure it's even worth it, because if you're typing
-// that into draft chances are you know its markdown and maybe expect it convert? :/
-const MARKDOWN_STYLE_CHARACTERS = ["*", "_", "~", "`"];
-const MARKDOWN_STYLE_CHARACTER_REGXP = /(\*|_|~|\\|`)/g;
-
-// I hate this a bit, being outside of the function’s scope
-// but can’t think of a better way to keep track of how many ordered list
-// items were are on, as draft doesn’t explicitly tell us in the raw object 😢.
-// This is a hash that will be assigned values based on depth, so like
-// orderedListNumber[0] = 1 would mean that ordered list at depth 0 is on number 1.
-// orderedListNumber[0] = 2 would mean that ordered list at depth 0 is on number 2.
-// This is so we have the right number of numbers when doing a list, eg
-// 1. Item One
-// 2. Item two
-// 3. Item three
-// And so on.
-var orderedListNumber = {},
-  previousOrderedListDepth = 0;
+const TRAILING_WHITESPACE = /[ |\u0020|\t]*$/;
 
 // A map of draftjs block types -> markdown open and close characters
 // Both the open and close methods must exist, even if they simply return an empty string.
@@ -38,8 +16,8 @@ const StyleItems = {
   },
 
   "ordered-list-item": {
-    open: function(block, number = 1) {
-      return `${number}. `;
+    open: function() {
+      return "1. ";
     },
 
     close: function() {
@@ -118,8 +96,8 @@ const StyleItems = {
   },
 
   "code-block": {
-    open: function(block) {
-      return "```" + (block.data.language || "") + "\n";
+    open: function() {
+      return "```\n";
     },
 
     close: function() {
@@ -182,7 +160,16 @@ const EntityItems = {
     },
 
     close: function(entity) {
-      return `](${entity.data.url || entity.data.href})`;
+      return `](${entity.data.url})`;
+    }
+  },
+  image: {
+    open: function(entity) {
+      return "";
+    },
+
+    close: function(entity) {
+      return `![](${entity.data.src})`;
     }
   }
 };
@@ -190,14 +177,6 @@ const EntityItems = {
 // Bit of a hack - we normally want a double newline after a block,
 // but for list items we just want one (unless it's the _last_ list item in a group.)
 const SingleNewlineAfterBlock = ["unordered-list-item", "ordered-list-item"];
-
-function isEmptyBlock(block) {
-  return (
-    block.text.length === 0 &&
-    block.entityRanges.length === 0 &&
-    Object.keys(block.data || {}).length === 0
-  );
-}
 
 /**
  * Generate markdown for a single block javascript object
@@ -216,52 +195,20 @@ function renderBlock(block, index, rawDraftObject, options) {
     markdownToAdd = [];
   var markdownString = "",
     customStyleItems = options.styleItems || {},
-    customEntityItems = options.entityItems || {},
-    escapeMarkdownCharacters = options.hasOwnProperty(
-      "escapeMarkdownCharacters"
-    )
-      ? options.escapeMarkdownCharacters
-      : true;
+    customEntityItems = options.entityItems || {};
 
   var type = block.type;
 
-  var markdownStyleCharactersToEscape = [];
-
-  // draft-js emits empty blocks that have type set… don’t style them unless the user wants to preserve new lines
-  // (if newlines are preserved each empty line should be "styled" eg in case of blockquote we want to see a blockquote.)
-  // but if newlines aren’t preserved then we'd end up having double or triple or etc markdown characters, which is a bug.
-  if (isEmptyBlock(block) && !options.preserveNewlines) {
-    type = "unstyled";
-  }
-
   // Render main block wrapping element
   if (customStyleItems[type] || StyleItems[type]) {
-    if (type === "unordered-list-item" || type === "ordered-list-item") {
+    if (
+      block.type === "unordered-list-item" ||
+      block.type === "ordered-list-item"
+    ) {
       markdownString += " ".repeat(block.depth * 4);
     }
 
-    if (type === "ordered-list-item") {
-      orderedListNumber[block.depth] = orderedListNumber[block.depth] || 1;
-      markdownString += (customStyleItems[type] || StyleItems[type]).open(
-        block,
-        orderedListNumber[block.depth]
-      );
-      orderedListNumber[block.depth]++;
-
-      // Have to reset the number for orderedListNumber if we are breaking out of a list so that if
-      // there's another nested list at the same level further down, it starts at 1 again.
-      // COMPLICATED 😭
-      if (previousOrderedListDepth > block.depth) {
-        orderedListNumber[previousOrderedListDepth] = 1;
-      }
-
-      previousOrderedListDepth = block.depth;
-    } else {
-      orderedListNumber = {};
-      markdownString += (customStyleItems[type] || StyleItems[type]).open(
-        block
-      );
-    }
+    markdownString += (customStyleItems[type] || StyleItems[type]).open(block);
   }
 
   // Render text within content, along with any inline styles/entities
@@ -391,121 +338,6 @@ function renderBlock(block, index, rawDraftObject, options) {
       markdownToAdd = [];
     }
 
-    if (block.type !== "code-block" && escapeMarkdownCharacters) {
-      let insideInlineCodeStyle = openInlineStyles.find(
-        (style) => style.style === "CODE"
-      );
-
-      if (insideInlineCodeStyle) {
-        // Todo - The syntax to escape backtics when inside backtic code already is to use MORE backtics wrapping.
-        // So we need to see how many backtics in a row we have and then when converting to markdown, use that # + 1
-        // EG  ``Test ` Hllo ``
-        // OR   ```Test `` Hello```
-        // OR ````Test ``` Hello ````
-        // Similar work has to be done for codeblocks.
-      } else {
-        // Special escape logic for blockquotes and heading characters
-        if (
-          characterIndex === 0 &&
-          character === "#" &&
-          block.text[1] &&
-          block.text[1] === " "
-        ) {
-          character = character.replace("#", "\\#");
-        } else if (characterIndex === 0 && character === ">") {
-          character = character.replace(">", "\\>");
-        }
-
-        // Escaping inline markdown characters
-        // 🧹 If someone can think of a more elegant solution, I would love that.
-        // orginally this was just a little char replace using a simple regular expression, but there’s lots of cases where
-        // a markdown character does not actually get converted to markdown, like this case: http://google.com/i_am_a_link
-        // so this code now tries to be smart and keeps track of potential “opening” characters as well as potential “closing”
-        // characters, and only escapes if both opening and closing exist, and they have the correct whitepace-before-open, whitespace-or-end-of-string-after-close pattern
-        if (MARKDOWN_STYLE_CHARACTERS.includes(character)) {
-          let openingStyle = markdownStyleCharactersToEscape.find(function(
-            item
-          ) {
-            return item.character === character;
-          });
-
-          if (
-            !openingStyle &&
-            block.text[characterIndex - 1] === " " &&
-            block.text[characterIndex + 1] !== " "
-          ) {
-            markdownStyleCharactersToEscape.push({
-              character: character,
-              index: characterIndex,
-              markdownStringIndexStart:
-                markdownString.length + character.length - 1,
-              markdownStringIndexEnd: markdownString.length + character.length
-            });
-          } else if (
-            openingStyle &&
-            block.text[characterIndex - 1] === character &&
-            characterIndex === openingStyle.index + 1
-          ) {
-            openingStyle.markdownStringIndexEnd += 1;
-          } else if (openingStyle) {
-            let openingStyleLength =
-              openingStyle.markdownStringIndexEnd -
-              openingStyle.markdownStringIndexStart;
-            let escapeCharacter = false;
-            let popOpeningStyle = false;
-            if (
-              openingStyleLength === 1 &&
-              (block.text[characterIndex + 1] === " " ||
-                !block.text[characterIndex + 1])
-            ) {
-              popOpeningStyle = true;
-              escapeCharacter = true;
-            }
-
-            if (
-              openingStyleLength === 2 &&
-              block.text[characterIndex + 1] === character
-            ) {
-              escapeCharacter = true;
-            }
-
-            if (
-              openingStyleLength === 2 &&
-              block.text[characterIndex - 1] === character &&
-              (block.text[characterIndex + 1] === " " ||
-                !block.text[characterIndex + 1])
-            ) {
-              popOpeningStyle = true;
-              escapeCharacter = true;
-            }
-
-            if (popOpeningStyle) {
-              markdownStyleCharactersToEscape.splice(
-                markdownStyleCharactersToEscape.indexOf(openingStyle),
-                1
-              );
-              let replacementString = markdownString.slice(
-                openingStyle.markdownStringIndexStart,
-                openingStyle.markdownStringIndexEnd
-              );
-              replacementString = replacementString.replace(
-                MARKDOWN_STYLE_CHARACTER_REGXP,
-                "\\$1"
-              );
-              markdownString =
-                markdownString.slice(0, openingStyle.markdownStringIndexStart) +
-                replacementString +
-                markdownString.slice(openingStyle.markdownStringIndexEnd);
-            }
-
-            if (escapeCharacter) {
-              character = `\\${character}`;
-            }
-          }
-        }
-      }
-    }
-
     markdownString += character;
   });
 
@@ -549,19 +381,7 @@ function renderBlock(block, index, rawDraftObject, options) {
     markdownString += "\n";
   } else if (rawDraftObject.blocks[index + 1]) {
     if (rawDraftObject.blocks[index].text) {
-      if (
-        (type === "unstyled" && options.preserveNewlines) ||
-        (SingleNewlineAfterBlock.indexOf(type) !== -1 &&
-          SingleNewlineAfterBlock.indexOf(
-            rawDraftObject.blocks[index + 1].type
-          ) === -1)
-      ) {
-        markdownString += "\n\n";
-      } else if (!options.preserveNewlines) {
-        markdownString += "\n\n";
-      } else {
-        markdownString += "\n";
-      }
+      markdownString += "\n\n";
     } else if (options.preserveNewlines) {
       markdownString += "\n";
     }
@@ -587,6 +407,5 @@ export default function draftToMarkdown(rawDraftObject, options) {
     markdownString += renderBlock(block, index, rawDraftObject, options);
   });
 
-  orderedListNumber = {}; // See variable definitions at the top of the page to see why we have to do this sad hack.
   return markdownString;
 }

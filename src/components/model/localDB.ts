@@ -42,13 +42,38 @@ export const updatePost = (post: Post, dbName = "data.db") => {
     })
 }
 
-export const insertPost = (userID: number, post: Post, dbName = "data.db") => {
+export const insertPost = async (userID: number, post: Post, dbName = "data.db"): Promise<Post> => {
+    let _, db = new DataStore({ filename: dbName, autoload: true });
+    return new Promise(async (resolve, reject) => {
+        post.posted_by = userID;
+        if (post.onlineID) {
+            let p = await findByOnlineID(post.onlineID)
+            console.log("Find post data with onlineID")
+            if (p) {
+                console.log("Update existing post")
+                updatePost(post)
+            } else {
+                console.log("Insert new one")
+                db.insert(post, (err: any, newDoc: Post) => {
+                    if (err) reject()
+                    console.log("Inserted new data", newDoc)
+                    resolve(newDoc)
+                })
+            }
+        }
+
+
+    })
+}
+
+const findByOnlineID = (postID: string, dbName = "data.db") => {
     let _, db = new DataStore({ filename: dbName, autoload: true });
     return new Promise((resolve, reject) => {
-        post.posted_by = userID;
-        db.insert(post, (err: any, newDoc: any) => {
-            if (err) reject()
-            resolve()
+        db.findOne({ onlineID: postID }, (err, document) => {
+            if (err) reject(err)
+            else {
+                resolve(document)
+            }
         })
     })
 }

@@ -6,9 +6,10 @@ import CategorySelect from "./CategorySelect";
 import AddPhotoAlternate from "@material-ui/icons/AddPhotoAlternate";
 import { EditorContext } from "../model/editorContext";
 import SettingCardContent from "./SettingCardContent";
+import { Redirect } from "react-router";
 
 interface State {
-  categories: Category[];
+  redirect: boolean;
 }
 
 interface Props {
@@ -18,16 +19,22 @@ interface Props {
 export default class SettingCard extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    this.state = {
+      redirect: false
+    };
   }
 
   render() {
+    if (this.state.redirect) {
+      return <Redirect to={`/edit`} />;
+    }
     return (
       <div>
         <SettingConext.Consumer>
           {({ open, closeSetting, categories }) => (
             <div>
               <EditorContext.Consumer>
-                {({ post, setCover, getCover, setCategory }) => (
+                {({ post, setCover, setCategory, previewCover }) => (
                   <SettingCardContent
                     open={open}
                     onClose={closeSetting}
@@ -39,7 +46,11 @@ export default class SettingCard extends Component<Props, State> {
                       setCategory(category, categoryName);
                     }}
                     setCover={setCover}
-                    getCover={getCover}
+                    previewCover={previewCover}
+                    redirect={() => {
+                      closeSetting();
+                      this.setState({ redirect: true });
+                    }}
                   />
                 )}
               </EditorContext.Consumer>

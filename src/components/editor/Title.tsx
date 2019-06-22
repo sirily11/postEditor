@@ -8,6 +8,7 @@ import chinese from "../../locales/zh/messages";
 import { EditorContext } from "../model/editorContext";
 import FloatButton from "./FloatButton";
 import { Paper } from "@material-ui/core";
+import { SettingConext } from "../model/settingContext";
 
 const i18n = setupI18n({
   language: "zh",
@@ -56,6 +57,7 @@ export default class Title extends Component {
                   );
                 }}
               </UserContext.Consumer>
+
               <FloatButton />
             </div>
             <Divider className="m-4" />

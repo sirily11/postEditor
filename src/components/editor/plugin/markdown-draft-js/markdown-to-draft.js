@@ -49,9 +49,6 @@ const DefaultBlockTypes = {
   fence: function(item) {
     return {
       type: "code-block",
-      data: {
-        language: item.params || ""
-      },
       text: (item.content || "").replace(TRAILING_NEW_LINE, ""), // remarkable seems to always append an erronious trailing newline to its codeblock content, so we need to trim it out.
       entityRanges: [],
       inlineStyleRanges: []
@@ -87,8 +84,16 @@ const DefaultBlockEntities = {
       type: "LINK",
       mutability: "MUTABLE",
       data: {
-        url: item.href,
-        href: item.href
+        url: item.href
+      }
+    };
+  },
+  image: function(item) {
+    return {
+      type: "image",
+      mutability: "IMMUTABLE",
+      data: {
+        src: item.src
       }
     };
   }
@@ -134,8 +139,6 @@ function parseInline(inlineItem, BlockEntities, BlockStyles) {
       content += child.content;
     } else if (child.type === "softbreak") {
       content += "\n";
-    } else if (child.type === "hardbreak") {
-      content += "\n";
     } else if (BlockStyles[child.type]) {
       var key = generateUniqueKey();
       var styleBlock = {
@@ -158,7 +161,7 @@ function parseInline(inlineItem, BlockEntities, BlockStyles) {
 
       blockEntityRanges.push({
         offset: strlen(content) || 0,
-        length: 0,
+        length: 1,
         key: key
       });
     } else if (
@@ -194,18 +197,7 @@ function parseInline(inlineItem, BlockEntities, BlockStyles) {
  * @return {Object} rawDraftObject
  **/
 export default function markdownToDraft(string, options = {}) {
-  const remarkablePreset =
-    options.remarkablePreset || options.remarkableOptions;
-  const remarkableOptions =
-    typeof options.remarkableOptions === "object"
-      ? options.remarkableOptions
-      : null;
-  const md = new Remarkable(remarkablePreset, remarkableOptions);
-
-  // TODO: markdownToDisable - I imagine we may want to allow users to customize this.
-  // and also a way to enable specific special markdown, as that’s another thing remarkable allows.
-  const markdownToDisable = ["table"];
-  md.block.ruler.disable(markdownToDisable);
+  const md = new Remarkable(options.remarkableOptions);
 
   // If users want to define custom remarkable plugins for custom markdown, they can be added here
   if (options.remarkablePlugins) {
@@ -260,57 +252,56 @@ export default function markdownToDraft(string, options = {}) {
         blockInlineStyleRanges
       } = parseInline(item, BlockEntities, BlockStyles);
       var blockToModify = blocks[blocks.length - 1];
+
       blockToModify.text = content;
+
+      // No content, we have an image?
+      if (content === "") {
+        blockToModify.type = "atomic";
+        blockToModify.text = " "; // need a blank space?
+      }
+
       blockToModify.inlineStyleRanges = blockInlineStyleRanges;
       blockToModify.entityRanges = blockEntityRanges;
 
       // The entity map is a master object separate from the block so just add any entities created for this block to the master object
       Object.assign(entityMap, blockEntities);
     } else if (
-      (itemType.indexOf("_open") !== -1 ||
-        itemType === "fence" ||
-        itemType === "hr") &&
+      (itemType.indexOf("_open") !== -1 || itemType === "fence") &&
       BlockTypes[itemType]
     ) {
-      var depth = 0;
-      var block;
-
-      if (item.level > 0) {
-        depth = Math.floor(item.level / 2);
-      }
-
       // Draftjs only supports 1 level of blocks, hence the item.level === 0 check
       // List items will always be at least `level==1` though so we need a separate check for that
-      // If there’s nested block level items deeper than that, we need to make sure we capture this by cloning the topmost block
-      // otherwise we’ll accidentally overwrite its text. (eg if there's a blockquote with 3 nested paragraphs with inline text, without this check, only the last paragraph would be reflected)
       if (item.level === 0 || item.type === "list_item_open") {
-        block = Object.assign(
+        var depth = 0;
+
+        if (item.level > 0) {
+          depth = Math.floor(item.level / 2);
+        }
+
+        var block = Object.assign(
           {
             depth: depth
           },
           BlockTypes[itemType](item)
         );
-      } else if (item.level > 0 && blocks[blocks.length - 1].text) {
-        block = Object.assign({}, blocks[blocks.length - 1]);
-      }
 
-      if (block && options.preserveNewlines) {
-        // Re: previousBlockEndingLine.... omg.
-        // So remarkable strips out empty newlines and doesn't make any entities to parse to restore them
-        // the only solution I could find is that there's a 2-value array on each block item called "lines" which is the start end line of the block element.
-        // by keeping track of the PREVIOUS block element ending line and the NEXT block element starting line, we can find the difference between the new lines and insert
-        // an appropriate number of extra paragraphs to re-create those newlines in draftjs.
-        // This is probably my least favourite thing in this file, but not sure what could be better.
-        if (previousBlockEndingLine) {
-          var totalEmptyParagraphsToCreate =
-            item.lines[0] - previousBlockEndingLine;
-          for (var i = 0; i < totalEmptyParagraphsToCreate; i++) {
-            blocks.push(DefaultBlockTypes.paragraph_open());
+        if (options.preserveNewlines) {
+          // Re: previousBlockEndingLine.... omg.
+          // So remarkable strips out empty newlines and doesn't make any entities to parse to restore them
+          // the only solution I could find is that there's a 2-value array on each block item called "lines" which is the start end line of the block element.
+          // by keeping track of the PREVIOUS block element ending line and the NEXT block element starting line, we can find the difference between the new lines and insert
+          // an appropriate number of extra paragraphs to re-create those newlines in draftjs.
+          // This is probably my least favourite thing in this file, but not sure what could be better.
+          if (previousBlockEndingLine) {
+            var totalEmptyParagraphsToCreate =
+              item.lines[0] - previousBlockEndingLine;
+            for (var i = 0; i < totalEmptyParagraphsToCreate; i++) {
+              blocks.push(DefaultBlockTypes.paragraph_open());
+            }
           }
         }
-      }
 
-      if (block) {
         previousBlockEndingLine = item.lines[1] + 1;
         blocks.push(block);
       }

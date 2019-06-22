@@ -5,6 +5,7 @@ import { IconButton, Tooltip } from "@material-ui/core";
 import chinese from "../../locales/zh/messages";
 import { setupI18n } from "@lingui/core";
 import { t } from "@lingui/macro";
+import { SettingConext } from "../model/settingContext";
 
 const i18n = setupI18n({
   language: "zh",
@@ -17,11 +18,15 @@ export default class FloatButton extends Component {
   render() {
     return (
       <div>
-        <Tooltip title={i18n._(t`Post Setting`)}>
-          <IconButton className="ml-5">
-            <SettingsIcon />
-          </IconButton>
-        </Tooltip>
+        <SettingConext.Consumer>
+          {({ openSetting }) => (
+            <Tooltip title={i18n._(t`Post Setting`)}>
+              <IconButton className="ml-5" onClick={openSetting}>
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </SettingConext.Consumer>
       </div>
     );
   }
