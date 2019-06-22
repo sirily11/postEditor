@@ -1,5 +1,5 @@
 import DataStore from "nedb"
-import { Post } from './interfaces';
+import { Post } from '../interfaces';
 
 export const getAllLocalPosts = (userID: number, dbName = "data.db"): Promise<Post[]> => {
     let _, db = new DataStore({ filename: dbName, autoload: true });

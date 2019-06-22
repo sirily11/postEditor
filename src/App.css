@@ -16,6 +16,7 @@ html {
 
 .content {
   padding-left: 70px;
+  height: 100%;
 }
 
 .item-icon {
@@ -32,9 +33,7 @@ html {
   padding-right: 80px;
 }
 
-
 img:hover {
   box-shadow: 0 0 0 3px #d2e3f7;
   border-radius: 2px;
 }
-

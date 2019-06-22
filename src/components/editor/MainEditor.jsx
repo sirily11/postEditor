@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import Dropzone from "react-dropzone";
 import Editor, { composeDecorators } from "draft-js-plugins-editor";
 import { EditorContext } from "../model/editorContext";
 import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
@@ -48,24 +49,9 @@ export default class MainEditor extends Component {
     this.props.clear();
   }
 
-  myBlockRenderer(contentBlock) {
-    const type = contentBlock.getType();
-    if (type === "atomic") {
-      return {
-        component: CustomImageBlock,
-        editable: true
-      };
-    }
-  }
-
   render() {
     return (
-      <div
-        className="mx-4 mb-1 main-editor"
-        onDrop={(e) => {
-          console.log("Dropped", e);
-        }}
-      >
+      <div className="mx-4 mb-1 main-editor h-100">
         <EditorContext.Consumer>
           {({
             editorState,
@@ -81,28 +67,41 @@ export default class MainEditor extends Component {
 
             return (
               <Fade in={!isLoading} timeout={400}>
-                <div>
-                  <Editor
-                    editorState={editorState}
-                    onChange={onChange}
-                    onFocus={onFocus}
-                    handleKeyCommand={handleKeyCommand}
-                    autoCorrect="on"
-                    autoCapitalize="on"
-                    spellCheck={true}
-                    blockRendererFn={this.myBlockRenderer}
-                    placeholder={i18n._(t`Enter your post here`)}
-                    plugins={[
-                      inlineToolbarPlugin,
-                      sideToolbarPlugin,
-                      imagePlugin,
-                      blockDndPlugin,
-                      focusPlugin
-                    ]}
-                  />
-                  <InlineToolbar />
-                  <SideToolbar />
-                </div>
+                <Dropzone
+                  id="dropZone"
+                  type="file"
+                  accept="image/*"
+                  onDrop={this.props.upload}
+                >
+                  {({ getRootProps, getInputProps }) => (
+                    <div {...getRootProps()}>
+                      <input
+                        {...getInputProps()}
+                        onClick={(e) => e.preventDefault()}
+                      />
+                      <Editor
+                        editorState={editorState}
+                        onChange={onChange}
+                        onFocus={onFocus}
+                        handleKeyCommand={handleKeyCommand}
+                        autoCorrect="on"
+                        autoCapitalize="on"
+                        spellCheck={true}
+                        blockRendererFn={this.myBlockRenderer}
+                        placeholder={i18n._(t`Enter your post here`)}
+                        plugins={[
+                          inlineToolbarPlugin,
+                          sideToolbarPlugin,
+                          imagePlugin,
+                          blockDndPlugin,
+                          focusPlugin
+                        ]}
+                      />
+                      <InlineToolbar />
+                      <SideToolbar />
+                    </div>
+                  )}
+                </Dropzone>
               </Fade>
             );
           }}

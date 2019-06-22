@@ -7,7 +7,10 @@ import EditorPage from "./components/editor/EditorPage";
 import { UserContext } from "./components/model/userContext";
 import HomePage from "./components/home/HomePage";
 import { SettingProvider } from "./components/model/settingContext";
-import { MainEditorProvider } from "./components/model/editorContext";
+import {
+  MainEditorProvider,
+  EditorContext
+} from "./components/model/editorContext";
 import { DisplayProvider } from "./components/model/displayContext";
 
 class App extends Component {

@@ -13,8 +13,9 @@ function createWindow() {
     height: 900,
     titleBarStyle: "hidden",
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+      webSecurity: false,
+    },
   });
   console.log("Starting the webserver")
   mainWindow.loadURL(

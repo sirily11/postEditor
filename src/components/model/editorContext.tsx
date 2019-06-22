@@ -3,7 +3,9 @@ import {
   RichUtils,
   DraftEditorCommand,
   convertToRaw,
-  convertFromRaw
+  convertFromRaw,
+  genKey,
+  ContentBlock
 } from "draft-js";
 import React from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -15,13 +17,19 @@ import { t, Trans } from "@lingui/macro";
 import { setupI18n, number } from "@lingui/core";
 import { draftToMarkdown } from "../editor/plugin/markdown-draft-js";
 import chinese from "../../locales/zh/messages";
-import { insertPost, getLocalPost, updatePost, deletePost } from "./localDB";
+import {
+  insertPost,
+  getLocalPost,
+  updatePost,
+  deletePost
+} from "./utils/localDB";
 import axios, { AxiosResponse } from "axios";
 import { getURL } from "../setting/settings";
 import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
 import { Post } from "./interfaces";
 import { IpcRenderer } from "electron";
 import { url } from "inspector";
+import { insertImageBlock } from "./utils/insertImageBlock";
 
 const fs = (window as any).require("fs");
 const electron = (window as any).require("electron");
@@ -60,6 +68,7 @@ interface MainEditorState {
   initEditor(_id: string, isLocal: boolean): void;
   setCover(cover: File): void;
   setCategory(category: number, categoryName: string): void;
+  insertImage(imagePath: string): void;
 }
 
 interface MainEditorProps {}
@@ -93,6 +102,7 @@ export class MainEditorProvider extends React.Component<
       initEditor: this.initEditor,
       hideMessage: this.hideMessage,
       handleKeyCommand: this.handleKeyCommand,
+      insertImage: this.insertImage,
       clear: this.clear
     };
   }
@@ -195,6 +205,18 @@ export class MainEditorProvider extends React.Component<
       post: { title: "", content: "", category: 0, isLocal: false },
       editorState: EditorState.createEmpty()
     });
+  };
+
+  insertImage = async (imagePath: string) => {
+    let newEditorState = await insertImageBlock(
+      imagePath,
+      this.state.editorState
+    );
+    console.log(
+      "Insert image",
+      convertToRaw(newEditorState.getCurrentContent())
+    );
+    this.setState({ editorState: newEditorState });
   };
 
   initEditor = async (_id: string | undefined, isLocal: boolean) => {
@@ -350,6 +372,7 @@ export class MainEditorProvider extends React.Component<
   }
 
   private async deleteFromCloud() {
+    // TODO get token from local storage
     try {
       let token =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTYxMjQwMzQxLCJqdGkiOiJiZjExNzE4YTQ1MmE0ZjAwODgyMGM2ODVjMDk4ZDQ2YSIsInVzZXJfaWQiOjF9.yBzzIckFFhWtfvoVyL0lamlWT_xp6HMNRIsFCE7gJ40";
@@ -370,6 +393,7 @@ export class MainEditorProvider extends React.Component<
   }
 
   async save() {
+    // TODO: Update post which has local post before won't update
     try {
       let post = this.preparePost();
       if (this.state.post.isLocal) {
@@ -396,12 +420,14 @@ export class MainEditorProvider extends React.Component<
     let editorState = this.state.editorState;
     let raw = convertToRaw(editorState.getCurrentContent());
     let content = draftToMarkdown(raw, undefined);
+    console.log(content);
     let post = this.state.post;
     post.content = content;
     return post;
   }
 
   private async send() {
+    // TODO get token from local storage
     try {
       let url = "";
       let response: AxiosResponse;
@@ -489,6 +515,7 @@ const context: MainEditorState = {
   initEditor: (id, isLocal) => {},
   setCategory: (category: number, categoryName: string) => {},
   clear: () => {},
+  insertImage: () => {},
   actions: [],
   selected: []
 };

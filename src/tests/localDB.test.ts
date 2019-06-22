@@ -1,4 +1,4 @@
-import { getAllLocalPosts, insertPost } from "../components/model/localDB";
+import { getAllLocalPosts, insertPost } from "../components/model/utils/localDB";
 import { Post } from '../components/home/HomePage';
 import { setTimeout } from "timers";
 

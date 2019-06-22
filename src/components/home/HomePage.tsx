@@ -14,7 +14,7 @@ import lightBlue from "@material-ui/core/colors/lightBlue";
 import SearchBar from "./Components/SearchBar";
 import RefeashIcon from "@material-ui/icons/Refresh";
 import Navs from "./Components/Navs";
-import { getAllLocalPosts } from "../model/localDB";
+import { getAllLocalPosts } from "../model/utils/localDB";
 import { Post } from "../model/interfaces";
 import { DisplayProvider, DisplayContext } from "../model/displayContext";
 import TabBar from "./Components/TabBar";

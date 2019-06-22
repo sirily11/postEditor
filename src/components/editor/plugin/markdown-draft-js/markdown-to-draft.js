@@ -212,6 +212,8 @@ export default function markdownToDraft(string, options = {}) {
   var currentListType = null; // Because of how remarkable's data is formatted, we need to cache what kind of list we're currently dealing with
   var previousBlockEndingLine = 1;
 
+  console.log("Parsed data", parsedData);
+
   // Allow user to define custom BlockTypes and Entities if they so wish
   const BlockTypes = Object.assign(
     {},
@@ -252,6 +254,7 @@ export default function markdownToDraft(string, options = {}) {
         blockInlineStyleRanges
       } = parseInline(item, BlockEntities, BlockStyles);
       var blockToModify = blocks[blocks.length - 1];
+      console.log("parse inline result", parseInline(item, BlockEntities, BlockStyles))
 
       blockToModify.text = content;
 

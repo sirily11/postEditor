@@ -5,5 +5,4 @@ export function getURL(path?: string): string {
     } else {
         return base
     }
-
 }
