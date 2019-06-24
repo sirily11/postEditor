@@ -27,3 +27,7 @@
 [Mac 版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/post-editor-0.5.0-mac.zip?Expires=1561393436&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=gk8W5cy8eIJQHNhViIwrn2cHjV4%3D)
 
 [Windows 版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/post-editor%20Setup%200.7.0.exe?Expires=1561399370&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=xZ%2FpkdNbUifLo7DrA6QczKGcUd0%3D)
+
+[Windows 免安装版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/win-unpacked.zip?Expires=1561399790&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=O8Y%2FxJoOuRrDqHIFpTBxIgodtdM%3D)
+
+> 注意⚠️！ Windows可能会说软件不安全，记得选择仍要允许。或者直接打开免安装版本运行即可。使用前请解压免安装版。
