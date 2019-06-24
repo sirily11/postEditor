@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { getURL } from "../setting/settings";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 
 const electron = (window as any).require("electron");
 const ipc: Electron.IpcRenderer = electron.ipcRenderer;
@@ -78,10 +78,11 @@ export class UserProvider extends Component<Props, User> {
   login = async () => {
     let url = getURL("api/token/");
     let bodyFormData = new FormData();
+    let response: AxiosResponse;
     bodyFormData.set("username", this.state.userName);
     bodyFormData.set("password", this.state.password);
     try {
-      let response = await axios({
+      response = await axios({
         method: "post",
         url: url,
         data: bodyFormData,
@@ -100,7 +101,14 @@ export class UserProvider extends Component<Props, User> {
       localStorage.setItem("access", access);
       this.setState({ isLogin: true });
     } catch (err) {
-      alert(err);
+      let e: string = err.toString();
+      if (e.includes("401")) {
+        alert("Password or Username is not correct");
+      } else if (e.includes("500")) {
+        alert("Server's error");
+      } else {
+        alert(e);
+      }
     }
   };
 

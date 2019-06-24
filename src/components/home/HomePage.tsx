@@ -77,7 +77,10 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   };
 
   async fetchPosts(): Promise<Post[]> {
-    let response = await axios.get(getURL("get/post"));
+    let token = localStorage.getItem("access");
+    let response = await axios.get(getURL("get/post"), {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     let data: Post[] = response.data;
     return data;
   }
