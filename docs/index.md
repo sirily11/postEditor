@@ -24,6 +24,6 @@
 
 > 如果国内下载速度慢，请使用以下连接下载,但是不保证会更新到最新版本
 
-[Mac 版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/post-editor%20Setup%200.7.0.exe?Expires=1561393425&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=CWrvAOWwxgUAznrx8DP683Q1bww%3D)
+[Mac 版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/post-editor-0.5.0-mac.zip?Expires=1561393436&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=gk8W5cy8eIJQHNhViIwrn2cHjV4%3D)
 
-[Windows 版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/post-editor-0.5.0-mac.zip?Expires=1561393436&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=gk8W5cy8eIJQHNhViIwrn2cHjV4%3D)
+[Windows 版本](https://blog-editor-releases.oss-cn-shenzhen.aliyuncs.com/post-editor%20Setup%200.7.0.exe?Expires=1561393425&OSSAccessKeyId=TMP.AgGb0yarr0S0hsCF9JIXkrk7YvcixEVNWACXa7Zl65Ps8eusBebq6vXlTogyAAAwLAIUBv9up_J_xiggzd7tgQbbt0VPCQkCFATt2jB-AlpwXJbm4MrqnWoua5Vi&Signature=CWrvAOWwxgUAznrx8DP683Q1bww%3D)
