@@ -1,7 +1,7 @@
 {
   "name": "post-editor",
   "author": "Qiwei Li",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.4.5",
@@ -52,8 +52,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron-pack": "build",
-    "dist": "electron-builder -mwl",
-    "predist": "npm run build && yarn clean",
+    "dist": "electron-builder -wl",
     "clean": "rm -rf dist",
     "electron-dev": " tsc public/electron.ts && concurrently \"BROWSER=none yarn start \" \"wait-on http://localhost:3000  && electron .\""
   },

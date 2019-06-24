@@ -113,7 +113,7 @@ export default class HomePage extends Component<HomeProps, HomeState> {
       );
     }
 
-    if (!this.state.isLogin) return <Redirect to="/login" />;
+    if (!this.state.isLogin) return <Redirect to="/" />;
 
     return (
       <ThemeProvider theme={theme}>

@@ -22,7 +22,7 @@ class App extends Component {
             <SettingProvider>
               <DisplayProvider>
                 <div id="second-root">
-                  <Route exact path="/login" component={LoginPage} />
+                  <Route exact path="/" component={LoginPage} />
                   <Route exact path="/home" component={HomePage} />
                   <Route
                     exact

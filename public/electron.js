@@ -46,8 +46,8 @@ function createWindow() {
     });
     console.log("Starting the webserver");
     mainWindow.loadURL(isDev
-        ? "http://localhost:3000#/login"
-        : "file://" + path.join(__dirname, "../build/index.html#/login"));
+        ? "http://localhost:3000#/"
+        : "file://" + path.join(__dirname, "../build/index.html"));
     mainWindow.once("ready-to-show", function () {
         if (mainWindow) {
             mainWindow.show();
