@@ -52,7 +52,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron-pack": "build",
-    "dist": "electron-builder -wl",
+    "predist": "build",
+    "dist": "electron-builder -mw",
     "clean": "rm -rf dist",
     "electron-dev": " tsc public/electron.ts && concurrently \"BROWSER=none yarn start \" \"wait-on http://localhost:3000  && electron .\""
   },
