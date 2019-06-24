@@ -27,6 +27,12 @@ var menu = Menu.buildFromTemplate([
             mainWindow.reload()
           }
         },
+      }, {
+        label: "Debug", click: () => {
+          if (mainWindow) {
+            mainWindow.webContents.openDevTools()
+          }
+        },
       }
     ]
   }
@@ -61,7 +67,9 @@ function createWindow() {
     //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
     mainWindow.webContents.openDevTools();
   }
-  mainWindow.on("closed", () => mainWindow = undefined);
+  mainWindow.on("closed", () => {
+    mainWindow = undefined;
+  })
 }
 
 app.on("ready", createWindow);

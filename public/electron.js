@@ -23,6 +23,12 @@ var menu = electron_1.Menu.buildFromTemplate([
                         mainWindow.reload();
                     }
                 }
+            }, {
+                label: "Debug", click: function () {
+                    if (mainWindow) {
+                        mainWindow.webContents.openDevTools();
+                    }
+                }
             }
         ]
     }
@@ -52,7 +58,9 @@ function createWindow() {
         //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
         mainWindow.webContents.openDevTools();
     }
-    mainWindow.on("closed", function () { return mainWindow = undefined; });
+    mainWindow.on("closed", function () {
+        mainWindow = undefined;
+    });
 }
 electron_1.app.on("ready", createWindow);
 electron_1.app.on("window-all-closed", function () {
