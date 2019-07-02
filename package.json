@@ -53,7 +53,9 @@
     "eject": "react-scripts eject",
     "electron-pack": "build",
     "predist": "build",
-    "dist": "electron-builder -mw",
+    "win": "electron-builder -w",
+    "mac": "electron-builder -m",
+    "all": "electron-builder -mw",
     "clean": "rm -rf dist",
     "electron-dev": " tsc public/electron.ts && concurrently \"BROWSER=none yarn start \" \"wait-on http://localhost:3000  && electron .\""
   },
