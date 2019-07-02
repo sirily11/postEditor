@@ -10,7 +10,9 @@ phases:
   pre_build:
     commands:
       - echo Installing source NPM dependencies...
-      - npm install
+      - npm install --global yarn
+      - yarn install
+      - yarn add electron-builder --dev 
   build:
     commands:
       - echo Build started on `date`
