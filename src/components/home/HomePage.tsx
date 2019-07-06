@@ -20,6 +20,7 @@ import { DisplayProvider, DisplayContext } from "../model/displayContext";
 import TabBar from "./Components/TabBar";
 import SettingCard from "../setting/SettingCard";
 import { Redirect } from "react-router";
+import { computeDownloadProgress } from "../model/utils/uploadUtils";
 
 const electron = (window as any).require("electron");
 const ipc: Electron.IpcRenderer = electron.ipcRenderer;
@@ -36,9 +37,10 @@ interface HomeState {
   failedToFetch: boolean;
   errMsg: string;
   isLogin: boolean;
+  progress?: number;
 }
 
-interface HomeProps {}
+interface HomeProps { }
 
 export default class HomePage extends Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
@@ -48,7 +50,8 @@ export default class HomePage extends Component<HomeProps, HomeState> {
       posts: [],
       searchWord: "",
       failedToFetch: false,
-      errMsg: ""
+      errMsg: "",
+      progress: 0
     };
   }
 
@@ -79,10 +82,14 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   async fetchPosts(): Promise<Post[]> {
     let token = localStorage.getItem("access");
     let response = await axios.get(getURL("get/post"), {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      onDownloadProgress: (progressEvent) => {
+        computeDownloadProgress(progressEvent, (progress: number) => this.setState({ progress }))
+      }
     });
     let data: Post[] = response.data;
-    return data;
+
+    return data.reverse();
   }
 
   onSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +101,8 @@ export default class HomePage extends Component<HomeProps, HomeState> {
       return (
         <div className="d-flex h-100">
           <div className="mx-auto my-auto">
-            <CircularProgress color="primary"> </CircularProgress>
+            <CircularProgress variant="determinate" color="primary" value={this.state.progress} > </CircularProgress>
+            <div>{this.state.progress} %</div>
           </div>
         </div>
       );

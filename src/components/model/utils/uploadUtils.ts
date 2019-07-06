@@ -25,4 +25,20 @@ export const uploadImage = async (image: File, onUpload: (progress: number) => v
         })
     })
 
-}   
+}
+
+export function computeDownloadProgress(progressEvent: any, callback?: any) {
+    const totalLength = progressEvent.lengthComputable ? progressEvent.total : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
+    if (totalLength !== null) {
+        let progress = Math.round((progressEvent.loaded * 100) / totalLength);
+        callback(progress)
+    }
+}
+
+export function computeUploadProgress(progressEvent: any, callback?: any) {
+    const totalLength = progressEvent.lengthComputable ? progressEvent.total : progressEvent.target.getResponseHeader('content-length') || progressEvent.target.getResponseHeader('x-decompressed-content-length');
+    if (totalLength !== null) {
+        let progress = Math.round((progressEvent.loaded * 100) / totalLength);
+        callback(progress)
+    }
+}

@@ -12,9 +12,22 @@ import {
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { Trans } from "@lingui/macro";
 import { Post } from "../../model/interfaces";
+import * as path from "path";
 
 interface Props {
   post: Post;
+}
+
+let getPath = (urlSrc?: string) =>{
+  if(urlSrc){
+    let url = new URL(urlSrc)
+    let pathName = url.pathname
+    let base = path.dirname(pathName)
+    let fileName = path.basename(pathName)
+    pathName = path.join(base, `small-${fileName}`)
+    return `https://${url.hostname}${pathName}`
+  }
+    
 }
 
 export default function PostItem(props: Props) {
@@ -24,7 +37,7 @@ export default function PostItem(props: Props) {
         <ListItemAvatar>
           <Avatar
             alt={props.post.title}
-            src="https://via.placeholder.com/150/92c952"
+            src={getPath(props.post.image_url)}
           />
         </ListItemAvatar>
         <ListItemText

@@ -10,6 +10,7 @@ import { S3 } from "aws-sdk";
 import { uploadImage } from "../model/utils/uploadUtils";
 import { t } from "@lingui/macro";
 import UploadDialog from "./components/UploadDialog";
+import { LinearProgress, Collapse, Snackbar, SnackbarContent } from "@material-ui/core";
 
 interface State {
   isLocal: boolean;
@@ -79,7 +80,7 @@ export default class EditorPage extends Component<EditorProps, State> {
     } = this.state;
     return (
       <EditorContext.Consumer>
-        {({ initEditor, clear }) => {
+        {({ initEditor, clear, progress, isLoading }) => {
           return (
             <div>
               <SideController />
@@ -93,6 +94,13 @@ export default class EditorPage extends Component<EditorProps, State> {
                   upload={this.uploadFiles}
                 />
                 <MessageBar />
+                <Snackbar open={isLoading} anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right', 
+                }}>
+                  <SnackbarContent message={`Progress:${progress}%`}>
+                  </SnackbarContent>
+                </Snackbar>
               </div>
               <SettingCard isCreated={false} />
               <EditorContext.Consumer>

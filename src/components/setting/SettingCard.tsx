@@ -31,7 +31,7 @@ export default class SettingCard extends Component<Props, State> {
     return (
       <div>
         <SettingConext.Consumer>
-          {({ open, closeSetting, categories }) => (
+          {({ open, closeSetting, categories, sendCover, setImage }) => (
             <div>
               <EditorContext.Consumer>
                 {({ post, setCover, setCategory, previewCover }) => (
@@ -47,6 +47,7 @@ export default class SettingCard extends Component<Props, State> {
                     }}
                     setCover={setCover}
                     previewCover={previewCover}
+                    sendCover={sendCover}
                     redirect={() => {
                       closeSetting();
                       this.setState({ redirect: true });

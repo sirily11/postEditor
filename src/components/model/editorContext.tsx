@@ -28,8 +28,8 @@ import { getURL } from "../setting/settings";
 import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
 import { Post } from "./interfaces";
 import { IpcRenderer } from "electron";
-import { url } from "inspector";
 import { insertImageBlock } from "./utils/insertImageBlock";
+import { computeDownloadProgress, computeUploadProgress } from "./utils/uploadUtils";
 
 const fs = (window as any).require("fs");
 const electron = (window as any).require("electron");
@@ -49,14 +49,23 @@ export interface Action {
 }
 
 interface MainEditorState {
+  // Indicate if the post is loading
   isLoading: boolean;
+  //Progress
+  progress?: number
+  // will back to the homepage
   isRedirect: boolean;
   snackBarMessage: string;
+  // post
   post: Post;
+  // editor's state
   editorState: EditorState;
+  // number of changes to indicate whether to do the auto save
   numberOfChanges: number;
   handleKeyCommand: any;
+  // side bar actions
   actions: Action[];
+  // cover which will be diplayed on the setting card
   previewCover: string;
   onChange: any;
   onFocus: any;
@@ -79,6 +88,7 @@ export class MainEditorProvider extends React.Component<
   constructor(props: MainEditorProps) {
     super(props);
     this.state = {
+      progress: 0,
       isRedirect: false,
       isLoading: false,
       numberOfChanges: 0,
@@ -211,10 +221,6 @@ export class MainEditorProvider extends React.Component<
       imagePath,
       this.state.editorState
     );
-    console.log(
-      "Insert image",
-      convertToRaw(newEditorState.getCurrentContent())
-    );
     this.setState({ editorState: newEditorState });
   };
 
@@ -229,17 +235,23 @@ export class MainEditorProvider extends React.Component<
       this.setPreviewData(postData);
     } else {
       // get data from internet
-      let response = await axios.get(getURL("get/post/" + _id));
+      let response = await axios.get(getURL("get/post/" + _id), {onDownloadProgress: (ProgressEvent)=>{
+        computeDownloadProgress(ProgressEvent, (progress: number) => this.setState({progress}))
+      }});
       postData = response.data;
     }
     if (postData) {
       let raw = markdownToDraft(postData.content);
       let editorState = EditorState.createWithContent(convertFromRaw(raw));
+      let imageURL = postData.image_url ? postData.image_url : ""
+
       postData._id = _id;
       postData.isLocal = isLocal;
       this.setState({
         isLoading: false,
+        progress: 0,
         post: postData,
+        previewCover: imageURL,
         editorState: editorState
       });
     }
@@ -416,15 +428,14 @@ export class MainEditorProvider extends React.Component<
     let editorState = this.state.editorState;
     let raw = convertToRaw(editorState.getCurrentContent());
     let content = draftToMarkdown(raw, undefined);
-    console.log(content);
     let post = this.state.post;
     post.content = content;
     return post;
   }
 
   private async send() {
-    // TODO get token from local storage
     try {
+      this.setState({isLoading: true, progress: 0})
       let url = "";
       let response: AxiosResponse;
       let token = localStorage.getItem("access");
@@ -438,6 +449,9 @@ export class MainEditorProvider extends React.Component<
       if (post.isLocal && !post.onlineID) {
         url = getURL("create/post");
         response = await axios.post(url, data, {
+          onUploadProgress : (evt) =>{
+            computeUploadProgress(evt, (progress: number) => {this.setState({progress})})
+          },
           headers: { Authorization: `Bearer ${token}` }
         });
         this.showMessage("Created");
@@ -446,7 +460,11 @@ export class MainEditorProvider extends React.Component<
       else if (!post.isLocal && !post.onlineID) {
         url = getURL("update/post/" + post._id);
         response = await axios.patch(url, data, {
+          onUploadProgress : (evt) =>{
+            computeUploadProgress(evt, (progress: number) => {this.setState({progress})})
+          },
           headers: { Authorization: `Bearer ${token}` }
+        
         });
         this.showMessage("Updated");
       }
@@ -454,6 +472,9 @@ export class MainEditorProvider extends React.Component<
       else {
         url = getURL("update/post/" + post.onlineID);
         response = await axios.patch(url, data, {
+          onUploadProgress : (evt) =>{
+            computeUploadProgress(evt, (progress: number) => {this.setState({progress})})
+          },
           headers: { Authorization: `Bearer ${token}` }
         });
         this.showMessage("Updated");
@@ -464,6 +485,8 @@ export class MainEditorProvider extends React.Component<
       this.setState({ post });
     } catch (err) {
       this.showMessage(err.toString());
+    } finally{
+      this.setState({ isLoading : false, progress : 0})
     }
   }
 

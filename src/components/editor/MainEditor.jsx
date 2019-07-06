@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Dropzone from "react-dropzone";
+import Prism from 'prismjs';
 import Editor, { composeDecorators } from "draft-js-plugins-editor";
 import { EditorContext } from "../model/editorContext";
 import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
@@ -7,10 +8,12 @@ import createSideToolbarPlugin from "draft-js-side-toolbar-plugin";
 import createImagePlugin from "./plugin/image";
 import createBlockDndPlugin from "draft-js-drag-n-drop-plugin";
 import createFocusPlugin from "draft-js-focus-plugin";
+import createPrismPlugin from 'draft-js-prism-plugin';
 import { t } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
 import { Fade } from "@material-ui/core";
 import chinese from "../../locales/zh/messages";
+import "prismjs/themes/prism.css";
 import "draft-js/dist/Draft.css";
 import "draft-js-inline-toolbar-plugin/lib/plugin.css";
 import "draft-js-side-toolbar-plugin/lib/plugin.css";
@@ -21,6 +24,9 @@ import CustomImageBlock from "./components/CustomImageBlock";
 const inlineToolbarPlugin = createInlineToolbarPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
   position: "right"
+});
+const prismPlugin = createPrismPlugin({
+  prism: Prism
 });
 const focusPlugin = createFocusPlugin();
 const blockDndPlugin = createBlockDndPlugin();
@@ -46,6 +52,13 @@ export default class MainEditor extends Component {
 
   componentWillUnmount() {
     this.props.clear();
+  }
+
+  myBlockRenderer(contentBlock){
+    const type = contentBlock.getType();
+    if(type === "code-block"){
+      // console.log(contentBlock)
+    }
   }
 
   render() {
@@ -93,7 +106,8 @@ export default class MainEditor extends Component {
                           sideToolbarPlugin,
                           imagePlugin,
                           blockDndPlugin,
-                          focusPlugin
+                          focusPlugin,
+                          prismPlugin
                         ]}
                       />
                       <InlineToolbar />

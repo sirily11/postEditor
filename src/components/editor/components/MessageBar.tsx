@@ -9,8 +9,8 @@ export default function MessageBar() {
         {({ snackBarMessage, hideMessage }) => (
           <Snackbar
             anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left"
+              vertical: "top",
+              horizontal: "right"
             }}
             message={snackBarMessage}
             open={snackBarMessage !== ""}

@@ -1,4 +1,4 @@
-# Blog Editor 0.7
+# Blog Editor 0.9
 
 ## 更新日志
 

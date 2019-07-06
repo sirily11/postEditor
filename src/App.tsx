@@ -12,6 +12,11 @@ import {
 } from "./components/model/editorContext";
 import { DisplayProvider } from "./components/model/displayContext";
 import LoginPage from "./components/login/LoginPage";
+import {
+  spring,
+  AnimatedRoute,
+  AnimatedSwitch
+} from "./components/editor/plugin/react-router-transition";
 
 class App extends Component {
   render() {
@@ -21,15 +26,20 @@ class App extends Component {
           <MainEditorProvider>
             <SettingProvider>
               <DisplayProvider>
-                <div id="second-root">
-                  <Route exact path="/" component={LoginPage} />
-                  <Route exact path="/home" component={HomePage} />
-                  <Route
-                    exact
-                    path="/edit/:_id?/:isLocal?"
-                    component={EditorPage}
-                  />
-                </div>
+                  <AnimatedSwitch
+                    atEnter={{ opacity: 0 }}
+                    atLeave={{ opacity: 0 }}
+                    atActive={{ opacity: 1 }}
+                    className="switch-wrapper"
+                  >
+                    <Route exact path="/" component={LoginPage} />
+                    <Route exact path="/home" component={HomePage} />
+                    <Route
+                      exact
+                      path="/edit/:_id?/:isLocal?"
+                      component={EditorPage}
+                    />
+                  </AnimatedSwitch>
               </DisplayProvider>
             </SettingProvider>
           </MainEditorProvider>

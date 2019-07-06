@@ -22,6 +22,8 @@ export interface Post {
     posted_name?: string;
     // Is local version
     isLocal: boolean;
+    // Image URL
+    image_url?: string;
 }
 
 export interface Category {
