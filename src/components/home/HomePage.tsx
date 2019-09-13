@@ -14,7 +14,6 @@ import lightBlue from "@material-ui/core/colors/lightBlue";
 import SearchBar from "./Components/SearchBar";
 import RefeashIcon from "@material-ui/icons/Refresh";
 import Navs from "./Components/Navs";
-import { getAllLocalPosts } from "../model/utils/localDB";
 import { Post } from "../model/interfaces";
 import { DisplayProvider, DisplayContext } from "../model/displayContext";
 import TabBar from "./Components/TabBar";
@@ -40,7 +39,7 @@ interface HomeState {
   progress?: number;
 }
 
-interface HomeProps { }
+interface HomeProps {}
 
 export default class HomePage extends Component<HomeProps, HomeState> {
   constructor(props: HomeProps) {
@@ -68,9 +67,11 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   _onMount = async () => {
     try {
       let online_posts = await this.fetchPosts();
-      let local_posts = await getAllLocalPosts(1);
-      let posts = local_posts.concat(online_posts);
-      this.setState({ posts: posts, errMsg: "", failedToFetch: false });
+      this.setState({
+        posts: online_posts,
+        errMsg: "",
+        failedToFetch: false
+      });
     } catch (err) {
       this.setState({
         failedToFetch: true,
@@ -81,13 +82,15 @@ export default class HomePage extends Component<HomeProps, HomeState> {
 
   async fetchPosts(): Promise<Post[]> {
     let token = localStorage.getItem("access");
-    let response = await axios.get(getURL("get/post"), {
+    let response = await axios.get(getURL("post"), {
       headers: { Authorization: `Bearer ${token}` },
       onDownloadProgress: (progressEvent) => {
-        computeDownloadProgress(progressEvent, (progress: number) => this.setState({ progress }))
+        computeDownloadProgress(progressEvent, (progress: number) =>
+          this.setState({ progress })
+        );
       }
     });
-    let data: Post[] = response.data;
+    let data: Post[] = response.data.results;
 
     return data.reverse();
   }
@@ -101,7 +104,13 @@ export default class HomePage extends Component<HomeProps, HomeState> {
       return (
         <div className="d-flex h-100">
           <div className="mx-auto my-auto">
-            <CircularProgress variant="determinate" color="primary" value={this.state.progress} > </CircularProgress>
+            <CircularProgress
+              variant="determinate"
+              color="primary"
+              value={this.state.progress}
+            >
+              {" "}
+            </CircularProgress>
             <div>{this.state.progress} %</div>
           </div>
         </div>
@@ -136,27 +145,29 @@ export default class HomePage extends Component<HomeProps, HomeState> {
             <DisplayContext.Consumer>
               {({ value }) => (
                 <List>
-                  {this.state.posts
-                    .filter((post) => {
-                      let isLocal = value === 1;
-                      if (isLocal) {
-                        return post.isLocal === true;
-                      } else {
-                        return post.isLocal === undefined;
-                      }
-                    })
-                    .map((post) => {
-                      let searchWord = this.state.searchWord;
-                      let exist = true;
-                      if (!post.title.includes(searchWord)) {
-                        exist = false;
-                      }
-                      return (
-                        <Collapse key={`post_${post._id}`} in={exist}>
-                          <PostItem post={post} />
-                        </Collapse>
-                      );
-                    })}
+                  {this.state.posts.map((post) => {
+                    let searchWord = this.state.searchWord;
+                    let exist = true;
+                    if (!post.title.includes(searchWord)) {
+                      exist = false;
+                    }
+                    return (
+                      <Collapse
+                        mountOnEnter
+                        unmountOnExit
+                        key={`post_${post.id}`}
+                        in={
+                          exist &&
+                          (value !== -1
+                            ? post.post_category &&
+                              post.post_category.id === value
+                            : true)
+                        }
+                      >
+                        <PostItem post={post} />
+                      </Collapse>
+                    );
+                  })}
                 </List>
               )}
             </DisplayContext.Consumer>

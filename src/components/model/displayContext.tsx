@@ -6,7 +6,6 @@ interface Tab {
 
 interface DisplayState {
   value: number;
-  tabs: Tab[];
   onChange: any;
 }
 
@@ -16,16 +15,8 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
   constructor(props: DisplayProps) {
     super(props);
     this.state = {
-      value: 0,
-      onChange: this.onChange,
-      tabs: [
-        {
-          name: "Online Post"
-        },
-        {
-          name: "Local Post"
-        }
-      ]
+      value: -1,
+      onChange: this.onChange
     };
   }
 
@@ -44,8 +35,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
 
 const context: DisplayState = {
   value: 0,
-  onChange: (e: React.ChangeEvent<{}>, newValue: number) => {},
-  tabs: []
+  onChange: (e: React.ChangeEvent<{}>, newValue: number) => {}
 };
 
 export const DisplayContext = React.createContext(context);

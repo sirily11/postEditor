@@ -47,7 +47,7 @@ const i18n = setupI18n({
 
 export default class MainEditor extends Component {
   componentWillMount() {
-    this.props.initEditor(this.props._id, this.props.isLocal);
+    this.props.initEditor(this.props._id);
   }
 
   componentWillUnmount() {

@@ -51,7 +51,8 @@ export default class Title extends Component {
                         <Trans>By</Trans>: {userName}
                       </h6>
                       <h6>
-                        <Trans>Category</Trans>: {post.category_name}
+                        <Trans>Category</Trans>:{" "}
+                        {post.post_category ? post.post_category.category : ""}
                       </h6>
                     </div>
                   );

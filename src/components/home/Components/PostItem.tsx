@@ -18,27 +18,23 @@ interface Props {
   post: Post;
 }
 
-let getPath = (urlSrc?: string) =>{
-  if(urlSrc){
-    let url = new URL(urlSrc)
-    let pathName = url.pathname
-    let base = path.dirname(pathName)
-    let fileName = path.basename(pathName)
-    pathName = path.join(base, `small-${fileName}`)
-    return `https://${url.hostname}${pathName}`
+let getPath = (urlSrc?: string) => {
+  if (urlSrc) {
+    let url = new URL(urlSrc);
+    let pathName = url.pathname;
+    let base = path.dirname(pathName);
+    let fileName = path.basename(pathName);
+    pathName = path.join(base, `small-${fileName}`);
+    return `http://${url.hostname}${pathName}`;
   }
-    
-}
+};
 
 export default function PostItem(props: Props) {
   return (
     <div>
       <ListItem alignItems="flex-start">
         <ListItemAvatar>
-          <Avatar
-            alt={props.post.title}
-            src={getPath(props.post.image_url)}
-          />
+          <Avatar alt={props.post.title} src={props.post.image_url} />
         </ListItemAvatar>
         <ListItemText
           primary={
@@ -48,30 +44,20 @@ export default function PostItem(props: Props) {
                 className="ml-1"
                 label={
                   <div style={{ color: "white" }}>
-                    {props.post.category_name}
+                    {props.post.post_category
+                      ? props.post.post_category.category
+                      : ""}
                   </div>
                 }
                 color="primary"
                 size="small"
               />
-              {props.post.isLocal && (
-                <Chip
-                  className="ml-1"
-                  label={
-                    <div style={{ color: "white" }}>
-                      <Trans>Local</Trans>
-                    </div>
-                  }
-                  color="primary"
-                  size="small"
-                />
-              )}
             </div>
           }
           secondary={props.post.content.substring(0, 150)}
         />
         <IconButton>
-          <Link to={`/edit/${props.post._id}/${props.post.isLocal}`}>
+          <Link to={`/edit/${props.post.id}`}>
             <NavigateNextIcon />
           </Link>
         </IconButton>

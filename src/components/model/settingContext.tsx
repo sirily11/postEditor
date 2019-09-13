@@ -12,15 +12,11 @@ const readFile = promisify(fs.readFile);
 
 interface SettingState {
   open: boolean;
-  imagePath?: File;
-  didUpload: boolean;
   categories: Category[];
   language: number;
-  setImage: any;
   openSetting: any;
   closeSetting: any;
-  sendCover: any;
-  progress?: number;
+  addCategory(category: Category): void;
 }
 
 interface SettingProps {}
@@ -29,23 +25,19 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   constructor(props: SettingProps) {
     super(props);
     this.state = {
-      progress: 0,
-      didUpload: false,
-      imagePath: undefined,
       open: false,
       language: -1,
       categories: [],
       openSetting: this.openSetting,
       closeSetting: this.closeSetting,
-      setImage: this.setImage,
-      sendCover: this.sendCover
+      addCategory: this.addCategory
     };
   }
 
   async componentWillMount() {
     try {
-      let response = await axios.get(getURL("get/category"));
-      let categories: Category[] | undefined = response.data;
+      let response = await axios.get(getURL("category/"));
+      let categories: Category[] | undefined = response.data.results;
       if (categories) {
         this.setState({ categories: categories });
       }
@@ -54,53 +46,11 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
     }
   }
 
-  setImage = (image: File) => {
-    this.setState({ imagePath: image });
-  };
 
-  sendCover = async (post: Post) => {
-    // let imageUrl = new URL(post.image_url ? post.image_url : "")
-    if (this.state.imagePath) {
-      let url = "";
-      let response: AxiosResponse;
-      let token = localStorage.getItem("access");
-      let data = new FormData();
-      const settings: AxiosRequestConfig = {
-        onUploadProgress: (evt: any) => {
-          computeUploadProgress(evt, (progress: number) => {
-            this.setState({ progress });
-          });
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        }
-      };
-
-      data.append("image_url", this.state.imagePath);
-      try {
-        // Newly created post
-        if (post.isLocal && !post.onlineID) {
-          url = getURL("create/post");
-          response = await axios.post(url, data, settings);
-        }
-        // not saved online post
-        else if (!post.isLocal && !post.onlineID) {
-          url = getURL("update/post/" + post._id);
-          response = await axios.patch(url, data, settings);
-        }
-        // saved online post
-        else {
-          url = getURL("update/post/" + post.onlineID);
-          response = await axios.patch(url, data, settings);
-        }
-        this.closeSetting();
-      } catch (err) {
-        alert(err);
-      }
-    } else {
-      this.closeSetting()
-    }
+  addCategory = (category: Category) => {
+    let categories = this.state.categories;
+    categories.push(category);
+    this.setState({ categories });
   };
 
   openSetting = () => {
@@ -108,7 +58,7 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   };
 
   closeSetting = () => {
-    this.setState({ progress: undefined, open: false, imagePath: undefined });
+    this.setState({  open: false});
   };
 
   render() {
@@ -121,15 +71,12 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
 }
 
 const context: SettingState = {
-  didUpload: false,
-  imagePath: undefined,
   open: false,
   language: -1,
   categories: [],
   openSetting: () => {},
   closeSetting: () => {},
-  setImage: () => {},
-  sendCover: () => {}
+  addCategory: () => {}
 };
 
 export const SettingConext = React.createContext(context);

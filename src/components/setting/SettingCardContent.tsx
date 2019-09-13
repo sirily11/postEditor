@@ -1,10 +1,8 @@
-import React, { Component, useContext } from "react";
+import React, { Component, useContext, useState } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogActions,
-  Button,
-  IconButton,
   DialogContent,
   Tooltip,
   Collapse,
@@ -16,101 +14,116 @@ import AddPhotoAlternate from "@material-ui/icons/AddPhotoAlternate";
 import { Category, Post } from "../model/interfaces";
 import { EditorContext } from "../model/editorContext";
 import { SettingConext } from "../model/settingContext";
+import {
+  Grid,
+  Input,
+  Select,
+  Container,
+  Button,
+  Icon
+} from "semantic-ui-react";
+import "semantic-ui-css/semantic.min.css";
+import NewCategoryDialog from "./NewCategoryDialog";
+import fs from "fs";
+
+const { dialog } = (window as any).require("electron").remote;
 
 interface Props {
-  open: boolean;
-  onClose: () => {};
-  isCreat: boolean;
-  categories: Category[];
-  category: number;
-  previewCover: any;
-  setCategory(category: number, categoryName: string): void;
-  setCover(cover: File): void;
   redirect(): void;
-  sendCover(post: Post): void;
+  isCreate: boolean;
+}
+
+interface Options {
+  key: any;
+  value: any;
+  text: any;
 }
 
 export default function SettingCardContent(props: Props) {
   const editorContext = useContext(EditorContext);
   const settingContext = useContext(SettingConext);
+  const [openCategory, setOpenCategory] = useState(false);
+
+  const { categories, open, closeSetting } = settingContext;
+  const { setCover, post, create } = editorContext;
 
   return (
-    <Dialog
-      open={props.open}
-      onClose={props.onClose}
-      fullWidth
-      className="container"
-    >
-      <Collapse in={settingContext.progress !== undefined}>
-        <LinearProgress variant="determinate" value={settingContext.progress} />
-      </Collapse>
+    <Dialog open={open} onClose={closeSetting} fullWidth className="container">
       <DialogTitle>
-        {props.isCreat ? (
+        {props.isCreate ? (
           <Trans>Create New Post</Trans>
         ) : (
           <Trans>Post Setting</Trans>
         )}
       </DialogTitle>
-      <DialogContent>
-        <div className="row">
-          <div className="col-8">
-            <CategorySelect
-              categories={props.categories}
-              selectedCategory={props.category}
-              handleChange={props.setCategory}
-            />
-          </div>
-          {!props.isCreat && (
-            <div className="col-1">
+
+      <Grid style={{ margin: 30, overflow: "hidden" }}>
+        <Grid.Row>
+          <Grid.Column width={10}>
+            <CategorySelect> </CategorySelect>
+          </Grid.Column>
+          <Grid.Column width={2}>
+            <Button icon="add" onClick={() => setOpenCategory(true)}></Button>
+          </Grid.Column>
+          {!props.isCreate && (
+            <Grid.Column width={4}>
               <Tooltip title={<Trans>Add Post Cover Image</Trans>}>
-                <IconButton>
-                  <AddPhotoAlternate />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ position: "absolute", opacity: 0 }}
-                    onChange={(e) => {
-                      let file = e.target.files && e.target.files[0];
-                      if (file) {
-                        props.setCover(file);
-                        settingContext.setImage(file);
-                      }
-                    }}
-                  />
-                </IconButton>
+                <Button
+                  icon="file image"
+                  onClick={async () => {
+                    let result:
+                      | string
+                      | undefined = await dialog.showOpenDialog({
+                      filters: [
+                        { name: "Images", extensions: ["jpg", "png", "gif"] }
+                      ]
+                    });
+                    if (result !== undefined) {
+                      // console.log(result);
+                      setCover(result[0]);
+                    }
+                  }}
+                ></Button>
               </Tooltip>
-            </div>
+            </Grid.Column>
           )}
-        </div>
-        <Collapse in={props.previewCover !== ""} mountOnEnter unmountOnExit>
+        </Grid.Row>
+        <Collapse in={post.image_url !== undefined} mountOnEnter unmountOnExit>
           <div
             className="mx-auto"
             style={{
               width: "300px",
               height: "300px",
               backgroundSize: "cover",
-              backgroundImage: `url(${props.previewCover})`
+              backgroundImage: `url(${post.image_url})`
             }}
           />
         </Collapse>
-      </DialogContent>
+      </Grid>
 
       <DialogActions>
         <Button
-          onClick={
-            props.isCreat
-              ? props.redirect
-              : () => props.sendCover(editorContext.post)
-          }
-          disabled={props.category === -1}
+          onClick={async () => {
+            if (props.isCreate) {
+              let success = await create();
+              if (success) {
+                props.redirect();
+              }
+            }
+            closeSetting();
+          }}
+          disabled={post.post_category === undefined}
         >
-          {" "}
           OK
         </Button>
-        <Button onClick={props.onClose}>
+        <Button onClick={closeSetting}>
           <Trans>Cancel</Trans>
         </Button>
       </DialogActions>
+      <NewCategoryDialog
+        open={openCategory}
+        close={() => setOpenCategory(false)}
+      ></NewCategoryDialog>
     </Dialog>
   );
 }

@@ -20,7 +20,7 @@ export default class SideController extends Component {
     return (
       <div>
         <Drawer variant="permanent" open={true}>
-          <List id="sidebar">
+          <List id="sidebar" style={{ overflow: "hidden" }}>
             <EditorContext.Consumer>
               {({ actions, selected }) => {
                 return actions.map((action) => {

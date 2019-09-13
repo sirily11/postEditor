@@ -10,7 +10,12 @@ import { S3 } from "aws-sdk";
 import { uploadImage } from "../model/utils/uploadUtils";
 import { t } from "@lingui/macro";
 import UploadDialog from "./components/UploadDialog";
-import { LinearProgress, Collapse, Snackbar, SnackbarContent } from "@material-ui/core";
+import {
+  LinearProgress,
+  Collapse,
+  Snackbar,
+  SnackbarContent
+} from "@material-ui/core";
 
 interface State {
   isLocal: boolean;
@@ -38,8 +43,7 @@ export default class EditorPage extends Component<EditorProps, State> {
 
   componentWillMount() {
     let _id = this.props.match.params._id;
-    let isLocal = this.props.match.params.isLocal !== "undefined";
-    this.setState({ isLocal: isLocal, _id: _id });
+    this.setState({ _id: _id });
   }
 
   uploadFiles = async (acceptedFiles: File[], rejectedFiles: File[]) => {
@@ -94,12 +98,16 @@ export default class EditorPage extends Component<EditorProps, State> {
                   upload={this.uploadFiles}
                 />
                 <MessageBar />
-                <Snackbar open={isLoading} anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right', 
-                }}>
-                  <SnackbarContent message={`Progress:${progress}%`}>
-                  </SnackbarContent>
+                <Snackbar
+                  open={isLoading}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right"
+                  }}
+                >
+                  <SnackbarContent
+                    message={`Progress:${progress}%`}
+                  ></SnackbarContent>
                 </Snackbar>
               </div>
               <SettingCard isCreated={false} />

@@ -17,23 +17,21 @@ import { t, Trans } from "@lingui/macro";
 import { setupI18n, number } from "@lingui/core";
 import { draftToMarkdown } from "../editor/plugin/markdown-draft-js";
 import chinese from "../../locales/zh/messages";
-import {
-  insertPost,
-  getLocalPost,
-  updatePost,
-  deletePost
-} from "./utils/localDB";
 import axios, { AxiosResponse } from "axios";
 import { getURL } from "../setting/settings";
 import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
-import { Post } from "./interfaces";
-import { IpcRenderer } from "electron";
+import { Post, Category } from "./interfaces";
+import { IpcRenderer, NativeImage } from "electron";
 import { insertImageBlock } from "./utils/insertImageBlock";
-import { computeDownloadProgress, computeUploadProgress } from "./utils/uploadUtils";
+import {
+  computeDownloadProgress,
+  computeUploadProgress,
+  dataURItoBlob
+} from "./utils/uploadUtils";
 
 const fs = (window as any).require("fs");
 const electron = (window as any).require("electron");
-const ipc: IpcRenderer = electron.ipcRenderer;
+const nativeImage = electron.nativeImage;
 
 const i18n = setupI18n({
   catalogs: {
@@ -52,7 +50,7 @@ interface MainEditorState {
   // Indicate if the post is loading
   isLoading: boolean;
   //Progress
-  progress?: number
+  progress?: number;
   // will back to the homepage
   isRedirect: boolean;
   snackBarMessage: string;
@@ -61,21 +59,19 @@ interface MainEditorState {
   // editor's state
   editorState: EditorState;
   // number of changes to indicate whether to do the auto save
-  numberOfChanges: number;
   handleKeyCommand: any;
   // side bar actions
   actions: Action[];
-  // cover which will be diplayed on the setting card
-  previewCover: string;
   onChange: any;
   onFocus: any;
   setTitle: any;
   selected: string[];
   hideMessage: any;
   clear(): void;
+  create(): Promise<boolean>;
   initEditor(_id: string, isLocal: boolean): void;
-  setCover(cover: File): void;
-  setCategory(category: number, categoryName: string): void;
+  setCover(cover: string): void;
+  setCategory(category: Category): void;
   insertImage(imagePath: string): void;
 }
 
@@ -91,14 +87,10 @@ export class MainEditorProvider extends React.Component<
       progress: 0,
       isRedirect: false,
       isLoading: false,
-      numberOfChanges: 0,
       post: {
-        title: "",
-        content: "",
-        category: -1,
-        isLocal: true
+        title: "New Post",
+        content: "New Post"
       },
-      previewCover: "",
       snackBarMessage: "",
       selected: [],
       editorState: EditorState.createEmpty(),
@@ -106,35 +98,24 @@ export class MainEditorProvider extends React.Component<
       onChange: this.onChange,
       onFocus: this.onFocus,
       setTitle: this.setTitle,
-      setCover: this.setCover,
       setCategory: this.setCategory,
       initEditor: this.initEditor,
       hideMessage: this.hideMessage,
       handleKeyCommand: this.handleKeyCommand,
       insertImage: this.insertImage,
-      clear: this.clear
+      clear: this.clear,
+      setCover: this.setCover,
+      create: this.create
     };
   }
 
   actions: Action[] = [
     {
       text: i18n._(t`Save`),
-      icon: <SaveIcon />,
+      icon: <SaveAltIcon />,
       action: async () => {
         await this.save();
       }
-    },
-    {
-      text: i18n._(t`Publish`),
-      icon: <CloudUploadIcon />,
-      action: async () => {
-        await this.send();
-      }
-    },
-    {
-      text: i18n._(t`Save to local`),
-      icon: <SaveAltIcon />,
-      action: () => {}
     },
     {
       text: "Divider 1",
@@ -179,39 +160,22 @@ export class MainEditorProvider extends React.Component<
       action: async () => {}
     },
     {
-      text: i18n._(t`Delete`),
-      icon: <DeleteIcon />,
-      action: async () => {
-        await this.delete();
-      }
-    },
-    {
       text: i18n._(t`Delete from cloud`),
       icon: <CloudOffIcon />,
       action: async () => {
-        if (this.state.post.isLocal && !this.state.post.onlineID) {
-          this.showMessage(
-            i18n._(t`This is a local post and you cannot delete it`)
-          );
-        } else {
-          await this.deleteFromCloud();
-        }
+        await this.deleteFromCloud();
       }
     }
   ];
 
-  componentDidMount() {
-    ipc.on("close", () => {
-      this.save();
-    });
-  }
-
   clear = () => {
     this.setState({
       isRedirect: false,
-      previewCover: "",
-      numberOfChanges: 0,
-      post: { title: "", content: "", category: 0, isLocal: false },
+      post: {
+        title: "",
+        content: "",
+        post_category: undefined
+      },
       editorState: EditorState.createEmpty()
     });
   };
@@ -224,69 +188,63 @@ export class MainEditorProvider extends React.Component<
     this.setState({ editorState: newEditorState });
   };
 
-  initEditor = async (_id: string | undefined, isLocal: boolean) => {
-    let postData: Post | undefined;
-    if (!_id) return;
+  initEditor = async (id: string | undefined) => {
+    if (!id) return;
     this.setState({ isLoading: true });
-    // Get data from local database
-    if (isLocal) {
-      postData = await getLocalPost(_id);
-      // Set preview image
-      this.setPreviewData(postData);
-    } else {
-      // get data from internet
-      let response = await axios.get(getURL("get/post/" + _id), {onDownloadProgress: (ProgressEvent)=>{
-        computeDownloadProgress(ProgressEvent, (progress: number) => this.setState({progress}))
-      }});
-      postData = response.data;
-    }
+    // get data from internet
+    let response = await axios.get<Post>(getURL("post/" + id), {
+      onDownloadProgress: (ProgressEvent) => {
+        computeDownloadProgress(ProgressEvent, (progress: number) =>
+          this.setState({ progress })
+        );
+      }
+    });
+    let postData = response.data;
+
     if (postData) {
       let raw = markdownToDraft(postData.content);
       let editorState = EditorState.createWithContent(convertFromRaw(raw));
-      let imageURL = postData.image_url ? postData.image_url : ""
-
-      postData._id = _id;
-      postData.isLocal = isLocal;
+      let imageURL = postData.image_url ? postData.image_url : "";
       this.setState({
         isLoading: false,
         progress: 0,
         post: postData,
-        previewCover: imageURL,
         editorState: editorState
       });
     }
   };
 
-  /**
-   * Get post cover
-   */
-  getCover = (cover: File): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(cover);
-      reader.onloadend = () => {
-        let imageFile = reader.result;
-        resolve(imageFile);
-      };
-    });
-  };
-
-  setCategory = (category: number, categoryName: string) => {
+  setCategory = async (category: Category) => {
     let post = this.state.post;
-    post.category = category;
-    post.category_name = categoryName;
-    this.setState({ post });
+    let token = localStorage.getItem("access");
+    let url = getURL(`post/${post.id}/`);
+    let result = await axios.patch<Post>(
+      url,
+      { category: category.id },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    this.setState({ post: result.data });
   };
 
   /**
    * Set post cover
    */
-  setCover = async (cover: File) => {
+  setCover = async (cover: string) => {
     let post = this.state.post;
-    post.cover = cover.path;
-    let imageData = await this.getCover(cover);
-    this.setState({ post: post, previewCover: imageData });
-    await this.save();
+    let url = getURL(`post/${post.id}/`);
+    let token = localStorage.getItem("access");
+    let form = new FormData();
+    const image: NativeImage = nativeImage.createFromPath(cover);
+    const dataURL = image.toDataURL();
+    form.append("image_url", dataURItoBlob(dataURL), "cover.jpg");
+
+    let result = await axios.patch<Post>(url, form, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data"
+      }
+    });
+    this.setState({ post: result.data });
   };
 
   /**
@@ -307,18 +265,10 @@ export class MainEditorProvider extends React.Component<
   onChange = async (editorState: EditorState) => {
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
-    let numberOfChange = this.state.numberOfChanges;
     this.toggle("Bold", isBold);
     this.setState({
-      editorState: editorState,
-      numberOfChanges: numberOfChange + 1
+      editorState: editorState
     });
-    // Auto save if the number of change is
-    // greater than 20
-    if (this.state.numberOfChanges > 20) {
-      await this.save();
-      this.setState({ numberOfChanges: 0 });
-    }
   };
 
   /**
@@ -359,65 +309,18 @@ export class MainEditorProvider extends React.Component<
     this.setState({ selected: selected });
   };
 
-  private async setPreviewData(postData: Post) {
-    if (postData.cover) {
-      let imageData = fs.readFileSync(postData.cover, { encoding: "base64" });
-      imageData = `data:image/png;base64,${imageData}`;
-      this.setState({ previewCover: imageData });
-    }
-  }
-
-  private async delete() {
-    if (this.state.post.isLocal) {
-      try {
-        await deletePost(this.state.post);
-        this.setState({ isRedirect: true });
-        setTimeout(() => {
-          this.setState({ isRedirect: false });
-        }, 100);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }
-
   private async deleteFromCloud() {
-    // TODO get token from local storage
     try {
       let token = localStorage.getItem("access");
       let post = this.preparePost();
-      if (post.isLocal && post.onlineID) {
-        let url = getURL("delete/post/" + post.onlineID);
-        axios.delete(url, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else if (!post.isLocal) {
-        let url = getURL("delete/post/" + post._id);
-        axios.delete(url, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      }
+
+      let url = getURL("post/" + post.id);
+      axios.delete(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       this.setState({ isRedirect: true });
     } catch (err) {}
-  }
-
-  async save() {
-    try {
-      let post = this.preparePost();
-      if (this.state.post.isLocal) {
-        await updatePost(post);
-      } else {
-        post.onlineID = post._id;
-        delete post._id;
-        post.isLocal = true;
-        let savedPost = await insertPost(1, post);
-        post._id = savedPost._id;
-      }
-      this.setState({ numberOfChanges: 0 });
-      this.showMessage("Post has been Saved");
-    } catch (err) {
-      this.showMessage(err.toString());
-    }
   }
 
   /**
@@ -425,68 +328,68 @@ export class MainEditorProvider extends React.Component<
    * set the markdown to the post content
    */
   private preparePost() {
+    // get post from content state
     let editorState = this.state.editorState;
+    // convert content state to markdown
     let raw = convertToRaw(editorState.getCurrentContent());
     let content = draftToMarkdown(raw, undefined);
+
     let post = this.state.post;
-    post.content = content;
-    return post;
+    return {
+      id: post.id,
+      title: post.title === "" ? "New Post" : post.title,
+      content: content === "" ? "New Post" : content,
+      category: post.post_category && post.post_category.id
+    };
   }
 
-  private async send() {
+  create = async (): Promise<boolean> => {
     try {
-      this.setState({isLoading: true, progress: 0})
-      let url = "";
-      let response: AxiosResponse;
       let token = localStorage.getItem("access");
-      let post = this.preparePost();
-      let data = {
-        category: post.category,
-        title: post.title,
-        content: post.content
-      };
-      // Newly created post
-      if (post.isLocal && !post.onlineID) {
-        url = getURL("create/post");
-        response = await axios.post(url, data, {
-          onUploadProgress : (evt) =>{
-            computeUploadProgress(evt, (progress: number) => {this.setState({progress})})
-          },
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.showMessage("Created");
+      let url = getURL("post/");
+      let data = this.preparePost();
+      delete data.id;
+      console.log(data);
+      let result = await axios.post<Post>(url, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (result.status === 201) {
+        this.setState({ post: result.data });
+        return true;
+      } else {
+        return false;
       }
-      // not saved online post
-      else if (!post.isLocal && !post.onlineID) {
-        url = getURL("update/post/" + post._id);
-        response = await axios.patch(url, data, {
-          onUploadProgress : (evt) =>{
-            computeUploadProgress(evt, (progress: number) => {this.setState({progress})})
-          },
-          headers: { Authorization: `Bearer ${token}` }
-        
-        });
-        this.showMessage("Updated");
-      }
-      // saved online post
-      else {
-        url = getURL("update/post/" + post.onlineID);
-        response = await axios.patch(url, data, {
-          onUploadProgress : (evt) =>{
-            computeUploadProgress(evt, (progress: number) => {this.setState({progress})})
-          },
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.showMessage("Updated");
-      }
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+    return false;
+  };
 
-      let backData: Post = response.data;
-      post.onlineID = backData._id;
-      this.setState({ post });
+  /**
+   * Save the post to the cloud
+   */
+  private async save() {
+    try {
+      this.setState({ isLoading: true, progress: 0 });
+      let token = localStorage.getItem("access");
+      let data = this.preparePost();
+      console.log(data);
+
+      let url = getURL(`post/${data.id}/`);
+      let response = await axios.patch<Post>(url, data, {
+        onUploadProgress: (evt) => {
+          computeUploadProgress(evt, (progress: number) => {
+            this.setState({ progress });
+          });
+        },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      this.showMessage("Updated");
     } catch (err) {
       this.showMessage(err.toString());
-    } finally{
-      this.setState({ isLoading : false, progress : 0})
+    } finally {
+      this.setState({ isLoading: false, progress: 0 });
     }
   }
 
@@ -514,26 +417,25 @@ export class MainEditorProvider extends React.Component<
 const context: MainEditorState = {
   isRedirect: false,
   isLoading: false,
-  numberOfChanges: 0,
   snackBarMessage: "",
   post: {
     title: "",
-    isLocal: false,
-    content: "",
-    category: -1
+    content: ""
   },
   editorState: EditorState.createEmpty(),
-  previewCover: "",
   onChange: () => {},
   handleKeyCommand: () => {},
   onFocus: () => {},
   setTitle: (newTitle: string) => {},
   hideMessage: () => {},
-  setCover: (cover: File) => {},
+  setCover: (cover: string) => {},
   initEditor: (id, isLocal) => {},
-  setCategory: (category: number, categoryName: string) => {},
+  setCategory: (category: Category) => {},
   clear: () => {},
   insertImage: () => {},
+  create: () => {
+    return Promise.resolve(false);
+  },
   actions: [],
   selected: []
 };
