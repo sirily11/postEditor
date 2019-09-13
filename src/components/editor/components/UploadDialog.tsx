@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -14,19 +14,23 @@ import {
 } from "@material-ui/core";
 import AttachmentIcon from "@material-ui/icons/Attachment";
 import { Trans } from "@lingui/macro";
+import { uploadImage } from "../../model/utils/uploadUtils";
+import { EditorContext } from "../../model/editorContext";
 
 interface Props {
   open: boolean;
   files: File[];
-  currentUploading: string;
-  currentUploadProgress: number;
-  numberOfFinished: number;
   close(): void;
-  insertImage(imagePath: string): void;
 }
 
 export default function UploadDialog(props: Props) {
-  const isUploadEnd = props.numberOfFinished === props.files.length;
+  const [numFinished, setNumFinished] = useState(0);
+  const [currentUpload, setCurrentUpload] = useState<string>();
+  const [currentProgress, setCurrentProgress] = useState<number>(0);
+  const editContext = useContext(EditorContext);
+
+  const isUploadEnd = numFinished === props.files.length;
+
   return (
     <div>
       <Dialog open={props.open} fullWidth onClose={props.close}>
@@ -35,16 +39,12 @@ export default function UploadDialog(props: Props) {
         </DialogTitle>
         <DialogContent>
           <h6>
-            <Trans>Current: </Trans>
+            <Trans>Current: {currentUpload}</Trans>
           </h6>
           <div>
-            {props.currentUploading}: {props.numberOfFinished}/
-            {props.files.length}{" "}
+            {numFinished}/{props.files.length}{" "}
           </div>
-          <LinearProgress
-            value={props.currentUploadProgress}
-            variant="determinate"
-          />
+          <LinearProgress value={currentProgress} variant="determinate" />
           <h6 className="mt-2">
             <Trans>Files:</Trans>
           </h6>
@@ -65,25 +65,22 @@ export default function UploadDialog(props: Props) {
         <DialogActions>
           <Button
             onClick={async () => {
-              let domin =
-                "https://sirilee-webpage-post-image.s3.ap-east-1.amazonaws.com";
-              let folder = "postImage";
-              props.files
-                .map((file) => file.name)
-                .forEach(async (path) => {
-                  path = `${domin}/${folder}/${path}`;
-                  console.log(path);
-                  await props.insertImage(path);
-                });
+              for (let path of props.files) {
+                setCurrentUpload(path.path);
+                let image: any = await uploadImage(
+                  path,
+                  editContext.post.id as string,
+                  (progress) => setCurrentProgress(progress)
+                );
+                editContext.insertImage(image.image);
+                setNumFinished(numFinished + 1);
+              }
               props.close();
             }}
-            disabled={!isUploadEnd}
           >
             Insert Images
           </Button>
-          <Button onClick={props.close} disabled={!isUploadEnd}>
-            Cancel
-          </Button>
+          <Button onClick={props.close}>Cancel</Button>
         </DialogActions>
       </Dialog>
     </div>

@@ -1,9 +1,28 @@
-import AWS, { S3 } from "aws-sdk";
+import axios from "axios"
+import { NativeImage } from "electron";
+import { getURL } from "../../setting/settings";
+const electron = (window as any).require("electron");
+const nativeImage = electron.nativeImage;
 
 
-export const uploadImage = async (image: File, onUpload: (progress: number) => void) => {
-    return new Promise((resolve, reject) => {
+export const uploadImage = async (imageFile: File, pid: string, onUpload: (progress: number) => void) => {
+    return new Promise(async (resolve, reject) => {
+        let url = getURL("post-image/")
+        let token = localStorage.getItem("access");
+        let form = new FormData();
+        // const image: NativeImage = nativeImage.createFromPath(imageFile.path);
+        // const dataURL = image.toDataURL();
+        form.append("image", imageFile);
+        form.append('pid', pid.toString())
 
+        let result = await axios.post(url, form, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data"
+            },
+            onUploadProgress: (evt) => computeUploadProgress(evt, onUpload)
+        });
+        resolve(result.data)
     })
 }
 

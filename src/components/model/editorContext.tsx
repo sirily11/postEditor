@@ -29,7 +29,6 @@ import {
   dataURItoBlob
 } from "./utils/uploadUtils";
 
-const fs = (window as any).require("fs");
 const electron = (window as any).require("electron");
 const nativeImage = electron.nativeImage;
 
