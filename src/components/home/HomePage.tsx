@@ -36,7 +36,7 @@ interface HomeState {
   failedToFetch: boolean;
   errMsg: string;
   isLogin: boolean;
-  progress?: number;
+  progress: number;
 }
 
 interface HomeProps {}
@@ -100,7 +100,7 @@ export default class HomePage extends Component<HomeProps, HomeState> {
   };
 
   render() {
-    if (this.state.posts.length === 0 && !this.state.failedToFetch) {
+    if (this.state.progress < 100 && !this.state.failedToFetch) {
       return (
         <div className="d-flex h-100">
           <div className="mx-auto my-auto">

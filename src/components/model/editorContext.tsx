@@ -215,14 +215,19 @@ export class MainEditorProvider extends React.Component<
 
   setCategory = async (category: Category) => {
     let post = this.state.post;
-    let token = localStorage.getItem("access");
-    let url = getURL(`post/${post.id}/`);
-    let result = await axios.patch<Post>(
-      url,
-      { category: category.id },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    this.setState({ post: result.data });
+    if (post.id) {
+      let token = localStorage.getItem("access");
+      let url = getURL(`post/${post.id}/`);
+      let result = await axios.patch<Post>(
+        url,
+        { category: category.id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      this.setState({ post: result.data });
+    } else {
+      post.post_category = category;
+      this.setState({ post });
+    }
   };
 
   /**
