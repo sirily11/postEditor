@@ -24,8 +24,6 @@ import {
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import NewCategoryDialog from "./NewCategoryDialog";
-import fs from "fs";
-
 const { dialog } = (window as any).require("electron").remote;
 
 interface Props {

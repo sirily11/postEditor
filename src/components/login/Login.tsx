@@ -66,7 +66,7 @@ export default function Login() {
                 <Avatar className={classes.avatar}>
                   <LockOutlinedIcon />
                 </Avatar>
-                <Typography component="h1" variant="h5">
+                <Typography component="h1" variant="h5" data-testid="signin">
                   <Trans>Sign In</Trans>
                 </Typography>
                 <form className={classes.form} noValidate>
@@ -75,7 +75,7 @@ export default function Login() {
                     margin="normal"
                     required
                     fullWidth
-                    id="User"
+                    id="username"
                     label={<Trans>User Name</Trans>}
                     name="User"
                     autoComplete="User"
@@ -89,9 +89,10 @@ export default function Login() {
                     required
                     fullWidth
                     name="password"
+                    id="password"
                     label={<Trans>Password</Trans>}
                     type="password"
-                    id="password"
+                    data-testid="password"
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => onChangePassword(e.target.value)}
@@ -99,6 +100,7 @@ export default function Login() {
                   <FormControlLabel
                     control={
                       <Checkbox
+                        id="rememberMe"
                         checked={saveLoginInfo}
                         color="primary"
                         onChange={(e) => saveLogin(e.target.checked)}
@@ -108,6 +110,7 @@ export default function Login() {
                   />
                   <Button
                     fullWidth
+                    id="signInBtn"
                     variant="contained"
                     color="primary"
                     className={classes.submit}

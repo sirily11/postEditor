@@ -49,8 +49,6 @@ export function dataURItoBlob(dataURI: string) {
 
     //New Code
     return new Blob([ab], { type: mimeString });
-
-
 }
 
 

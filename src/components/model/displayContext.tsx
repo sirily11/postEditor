@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import { Post, Result, Category } from "./interfaces";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
-import searchPost from "./utils/utils";
+import { searchPost } from "./utils/utils";
 import axios from "axios";
 import { getURL } from "../setting/settings";
 import { computeDownloadProgress } from "./utils/uploadUtils";
-import { async } from "q";
 
 interface Tab {
   name: string;
@@ -83,11 +82,13 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
       const { value } = this.state;
       let post = await this.fetchPosts(value > 0 ? value : undefined);
       this.setState({
+        progress: 100,
         postsResult: post,
         errMsg: undefined
       });
     } catch (err) {
       this.setState({
+        progess: 100,
         errMsg: err.toString()
       });
     }

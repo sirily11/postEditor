@@ -1,4 +1,4 @@
-import React, { Component, useContext } from "react";
+import React, { useContext } from "react";
 import {
   List,
   Collapse,
@@ -18,8 +18,6 @@ import SettingCard from "../setting/SettingCard";
 import { Grid } from "semantic-ui-react";
 import { Button } from "@material-ui/core";
 
-const electron = (window as any).require("electron");
-
 const theme = createMuiTheme({
   palette: {
     primary: lightBlue
@@ -30,11 +28,12 @@ export default function HomePage() {
   const displayContext = useContext(DisplayContext);
   const { progress, errMsg, postsResult, fetch, fetchMore } = displayContext;
 
-  if (progress < 100 && errMsg) {
+  if (progress < 100) {
     return (
       <div className="d-flex h-100">
         <div className="mx-auto my-auto">
           <CircularProgress
+            id="progress-bar"
             variant="determinate"
             color="primary"
             value={progress}
@@ -50,7 +49,11 @@ export default function HomePage() {
   if (errMsg) {
     return (
       <div className="d-flex h-100">
-        <div className="mx-auto my-auto" style={{ alignItems: "center" }}>
+        <div
+          className="mx-auto my-auto"
+          style={{ alignItems: "center" }}
+          id="err-msg"
+        >
           <IconButton onClick={fetch}>
             <RefeashIcon />
           </IconButton>
@@ -69,7 +72,7 @@ export default function HomePage() {
           <Navs />
           <SearchBar />
           <TabBar />
-          <List>
+          <List id="post-list">
             {postsResult &&
               postsResult.results.map((post) => {
                 return (
@@ -82,6 +85,7 @@ export default function HomePage() {
           <Grid>
             <Grid.Row centered>
               <Button
+                id="load-btn"
                 color="primary"
                 disabled={!(postsResult && postsResult.next)}
                 onClick={() => fetchMore()}

@@ -63,7 +63,7 @@ export class UserProvider extends Component<Props, User> {
   }
 
   componentWillUnmount() {
-    ipc.removeAllListeners("logout");
+    // ipc.removeAllListeners("logout");
     this.setState({ isLogin: false, password: "" });
   }
 
@@ -82,10 +82,7 @@ export class UserProvider extends Component<Props, User> {
     bodyFormData.set("username", this.state.userName);
     bodyFormData.set("password", this.state.password);
     try {
-      response = await axios({
-        method: "post",
-        url: url,
-        data: bodyFormData,
+      response = await axios.post(url, bodyFormData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       let data = response.data;

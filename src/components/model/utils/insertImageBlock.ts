@@ -1,17 +1,14 @@
 import {
     EditorState,
-    RichUtils,
-    DraftEditorCommand,
     convertToRaw,
-    convertFromRaw,
-    genKey,
-    ContentBlock,
-    ContentState,
-    Entity,
     AtomicBlockUtils
 } from "draft-js";
-import { type } from "os";
 
+/**
+ * insert image
+ * @param imagePath image path 
+ * @param editorState draft editor state
+ */
 export function insertImageBlock(imagePath: string, editorState: EditorState): Promise<EditorState> {
     return new Promise((resolve, reject) => {
 

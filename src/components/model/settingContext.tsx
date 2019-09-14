@@ -2,13 +2,8 @@ import React, { Component, useContext } from "react";
 import { Category, Post } from "./interfaces";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { getURL } from "../setting/settings";
-import { t } from "@lingui/macro";
-import { promisify } from "util";
-import { EditorContext } from "./editorContext";
-import { computeUploadProgress } from "./utils/uploadUtils";
 
 const fs = (window as any).require("fs");
-const readFile = promisify(fs.readFile);
 
 interface SettingState {
   open: boolean;
@@ -46,7 +41,6 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
     }
   }
 
-
   addCategory = (category: Category) => {
     let categories = this.state.categories;
     categories.push(category);
@@ -58,7 +52,7 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   };
 
   closeSetting = () => {
-    this.setState({  open: false});
+    this.setState({ open: false });
   };
 
   render() {

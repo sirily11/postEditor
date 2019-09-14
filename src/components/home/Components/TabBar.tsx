@@ -15,6 +15,7 @@ export default function TabBar() {
           style={{ position: "sticky", top: 70, zIndex: 1000 }}
         >
           <Tabs
+            id="category-selector"
             value={value}
             onChange={(e, value) => onChange(value)}
             className="mx-auto"
