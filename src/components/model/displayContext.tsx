@@ -88,7 +88,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
       });
     } catch (err) {
       this.setState({
-        progess: 100,
+        progress: 100,
         errMsg: err.toString()
       });
     }
@@ -132,7 +132,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
 }
 
 const context: DisplayState = {
-  value: 0,
+  value: -1,
   searchWord: "",
   progress: 0,
   onChange: (newValue: number) => {},

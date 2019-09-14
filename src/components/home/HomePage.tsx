@@ -28,7 +28,7 @@ export default function HomePage() {
   const displayContext = useContext(DisplayContext);
   const { progress, errMsg, postsResult, fetch, fetchMore } = displayContext;
 
-  if (progress < 100) {
+  if (progress < 100 && !errMsg) {
     return (
       <div className="d-flex h-100">
         <div className="mx-auto my-auto">

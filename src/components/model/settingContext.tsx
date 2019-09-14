@@ -1,5 +1,5 @@
 import React, { Component, useContext } from "react";
-import { Category, Post } from "./interfaces";
+import { Category, Post, Result } from "./interfaces";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { getURL } from "../setting/settings";
 
@@ -32,9 +32,9 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   async componentWillMount() {
     try {
       let response = await axios.get(getURL("category/"));
-      let categories: Category[] | undefined = response.data.results;
-      if (categories) {
-        this.setState({ categories: categories });
+      let categories: Result<Category> = response.data;
+      if (categories.results) {
+        this.setState({ categories: categories.results });
       }
     } catch (err) {
       console.error(err);

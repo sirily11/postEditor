@@ -85,13 +85,13 @@ app.on("activate", () => {
   }
 });
 
-ipcMain.on("get-image", (imagePath: string) => {
-  let data = fs.readFileSync(imagePath, { encoding: "base64" })
-  console.log("Got the image", imagePath)
-  if (mainWindow) {
-    mainWindow.webContents.send("preview-image", data)
-  }
-})
+// ipcMain.on("get-image", (imagePath: string) => {
+//   let data = fs.readFileSync(imagePath, { encoding: "base64" })
+//   console.log("Got the image", imagePath)
+//   if (mainWindow) {
+//     mainWindow.webContents.send("preview-image", data)
+//   }
+// })
 
 ipcMain.on("hello", () => {
   if (mainWindow) {

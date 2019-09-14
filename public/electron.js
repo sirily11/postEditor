@@ -2,7 +2,6 @@
 exports.__esModule = true;
 var electron_1 = require("electron");
 var path = require("path");
-var fs = require("fs");
 var isDev = require("electron-is-dev");
 var mainWindow;
 var menu = electron_1.Menu.buildFromTemplate([
@@ -73,13 +72,13 @@ electron_1.app.on("activate", function () {
         createWindow();
     }
 });
-electron_1.ipcMain.on("get-image", function (imagePath) {
-    var data = fs.readFileSync(imagePath, { encoding: "base64" });
-    console.log("Got the image", imagePath);
-    if (mainWindow) {
-        mainWindow.webContents.send("preview-image", data);
-    }
-});
+// ipcMain.on("get-image", (imagePath: string) => {
+//   let data = fs.readFileSync(imagePath, { encoding: "base64" })
+//   console.log("Got the image", imagePath)
+//   if (mainWindow) {
+//     mainWindow.webContents.send("preview-image", data)
+//   }
+// })
 electron_1.ipcMain.on("hello", function () {
     if (mainWindow) {
         mainWindow.webContents.send("helloback", "hello");
