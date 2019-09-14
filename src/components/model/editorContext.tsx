@@ -111,7 +111,7 @@ export class MainEditorProvider extends React.Component<
   actions: Action[] = [
     {
       text: i18n._(t`Save`),
-      icon: <SaveAltIcon />,
+      icon: <SaveIcon />,
       action: async () => {
         await this.save();
       }
@@ -160,7 +160,7 @@ export class MainEditorProvider extends React.Component<
     },
     {
       text: i18n._(t`Delete from cloud`),
-      icon: <CloudOffIcon />,
+      icon: <DeleteIcon />,
       action: async () => {
         await this.deleteFromCloud();
       }

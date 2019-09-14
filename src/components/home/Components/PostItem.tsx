@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import {
   ListItem,
   ListItemAvatar,
@@ -31,8 +31,8 @@ let getPath = (urlSrc?: string) => {
 
 export default function PostItem(props: Props) {
   return (
-    <div>
-      <ListItem alignItems="flex-start">
+    <Link to={`/edit/${props.post.id}`}>
+      <ListItem alignItems="flex-start" button>
         <ListItemAvatar>
           <Avatar alt={props.post.title} src={props.post.image_url} />
         </ListItemAvatar>
@@ -57,12 +57,10 @@ export default function PostItem(props: Props) {
           secondary={props.post.content.substring(0, 150)}
         />
         <IconButton>
-          <Link to={`/edit/${props.post.id}`}>
-            <NavigateNextIcon />
-          </Link>
+          <NavigateNextIcon />
         </IconButton>
       </ListItem>
       <Divider variant="inset" />
-    </div>
+    </Link>
   );
 }

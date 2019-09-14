@@ -15,10 +15,17 @@ export default function TabBar() {
           style={{ position: "sticky", top: 70, zIndex: 1000 }}
         >
           <Tabs
-            value={value === -1 ? 1 : value}
-            onChange={onChange}
+            value={value}
+            onChange={(e, value) => onChange(value)}
             className="mx-auto"
           >
+            <Tab
+              label="All"
+              value={-1}
+              disableFocusRipple
+              disableRipple
+              disableTouchRipple
+            ></Tab>
             {settingContext.categories.map((category) => {
               return (
                 <Tab

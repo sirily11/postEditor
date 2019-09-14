@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
@@ -12,6 +12,7 @@ import { t, Trans } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
 import chinese from "../../../locales/zh/messages";
 import { SettingConext } from "../../model/settingContext";
+import { DisplayContext } from "../../model/displayContext";
 
 const i18n = setupI18n({
   catalogs: {
@@ -42,13 +43,12 @@ const useStyles = makeStyles(
   })
 );
 
-interface Props {
-  onSearchTextChange: any;
-  refeash: any;
-}
+interface Props {}
 
 export default function SearchBar(props: Props) {
   const classes = useStyles();
+  const displayContext = useContext(DisplayContext);
+  const { fetch, searchWord, onSearch } = displayContext;
 
   return (
     <Paper
@@ -60,14 +60,14 @@ export default function SearchBar(props: Props) {
         <IconButton
           className={classes.iconButton}
           aria-label="Menu"
-          onClick={props.refeash}
+          onClick={fetch}
         >
           <RefeashIcon />
         </IconButton>
         <InputBase
           className={classes.input}
           placeholder={i18n._(t`Search Post`)}
-          onChange={props.onSearchTextChange}
+          onChange={onSearch}
         />
         <IconButton className={classes.iconButton} aria-label="Search" disabled>
           <SearchIcon />

@@ -39,6 +39,13 @@ interface RouterProps {
     isLocal?: string;
 }
 
+export interface Result<T>{
+    count: number;
+    next?: string
+    previous? : string
+    results: T[]
+}
+
 export interface EditorProps extends RouteComponentProps<RouterProps> {
     insertImage(imagePath: string): void
 }

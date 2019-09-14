@@ -1,12 +1,11 @@
 import { app, BrowserWindow, ipcMain, Menu, remote } from "electron";
 import * as path from "path";
 import * as fs from 'fs';
+import * as  contextMenu from "electron-context-menu"
 
 const isDev = require("electron-is-dev");
 
 let mainWindow: Electron.BrowserWindow | undefined;
-
-
 
 
 var menu = Menu.buildFromTemplate([
