@@ -42,6 +42,7 @@ export default function SettingCardContent(props: Props) {
   const settingContext = useContext(SettingConext);
   const [openCategory, setOpenCategory] = useState(false);
 
+  const [loading, setLoading] = useState(false);
   const { categories, open, closeSetting } = settingContext;
   const { setCover, post, create } = editorContext;
 
@@ -67,18 +68,18 @@ export default function SettingCardContent(props: Props) {
             <Grid.Column width={4}>
               <Tooltip title={<Trans>Add Post Cover Image</Trans>}>
                 <Button
+                  loading={loading}
                   icon="file image"
                   onClick={async () => {
-                    let result:
-                      | string
-                      | undefined = await dialog.showOpenDialog({
+                    let result: any | undefined = await dialog.showOpenDialog({
                       filters: [
                         { name: "Images", extensions: ["jpg", "png", "gif"] }
                       ]
                     });
                     if (result !== undefined) {
-                      // console.log(result);
-                      setCover(result[0]);
+                      setLoading(true);
+                      await setCover(result.filePaths[0]);
+                      setLoading(false);
                     }
                   }}
                 ></Button>

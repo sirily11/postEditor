@@ -1,8 +1,8 @@
 export function getURL(path?: string): string {
     let base = "http://0.0.0.0/blog"
-    let production = "https://sirileepage.com/api_blog"
+    let production = "http://54.152.207.25/blog"
     if (path !== undefined) {
-        return `${base}/${path}`
+        return `${production}/${path}`
     } else {
         return base
     }
