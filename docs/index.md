@@ -12,7 +12,7 @@
 - 增加类别选择功能
 - 增加load more 按钮
 
-## Introduct
+## Introduction
 
 Post Editor is the editing tool building with Electron and react. It can let you edit your post with it directly without any knowledge about markdown.
 
