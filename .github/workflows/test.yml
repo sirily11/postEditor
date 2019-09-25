@@ -5,6 +5,7 @@ on:
     paths:
       - "*"
       - "!*.md"
+      - "!*.yml"
     branches:
       - master
 jobs:

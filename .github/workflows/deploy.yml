@@ -29,6 +29,7 @@ jobs:
           # APP_VERSION_NUMBER: 0.5.9
         run: yarn build
       - name: Build Electron
+        timeout-minutes: 10
         env:
           ELECTRON: true
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
