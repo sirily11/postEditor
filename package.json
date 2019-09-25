@@ -84,6 +84,7 @@
   },
   "build": {
     "appId": "app.test",
+    "artifactName": "PostEditor.${ext}",
     "mac": {
       "category": "admin"
     }
