@@ -1,4 +1,4 @@
-const Remarkable = require("remarkable");
+const { Remarkable } = require("remarkable");
 const TRAILING_NEW_LINE = /\n$/;
 
 // In DraftJS, string lengths are calculated differently than in JS itself (due
@@ -51,7 +51,7 @@ const DefaultBlockTypes = {
       type: "code-block",
       text: (item.content || "").replace(TRAILING_NEW_LINE, ""), // remarkable seems to always append an erronious trailing newline to its codeblock content, so we need to trim it out.
       data: {
-        language: "javascript",
+        language: "javascript"
       },
       entityRanges: [],
       inlineStyleRanges: []
@@ -152,7 +152,7 @@ function parseInline(inlineItem, BlockEntities, BlockStyles) {
 
       // Edge case hack because code items don't have inline content or open/close, unlike everything else
       if (child.type === "code") {
-        console.log(child)
+        console.log(child);
         styleBlock.length = strlen(child.content);
         content += child.content;
       }
@@ -203,7 +203,7 @@ function parseInline(inlineItem, BlockEntities, BlockStyles) {
 export default function markdownToDraft(string, options = {}) {
   const md = new Remarkable(options.remarkableOptions);
 
-  // If users want to define custom remarkable plugins for custom markdown, 
+  // If users want to define custom remarkable plugins for custom markdown,
   // they can be added here
   if (options.remarkablePlugins) {
     options.remarkablePlugins.forEach(function(plugin) {

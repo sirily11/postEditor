@@ -26,7 +26,7 @@ interface DisplayProps {}
 
 const searchAPIDebounced = AwesomeDebouncePromise(
   (keyword: string) => searchPost(keyword),
-  500
+  400
 );
 
 export class DisplayProvider extends Component<DisplayProps, DisplayState> {
@@ -109,7 +109,10 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
         );
       }
     });
-
+    /// for animation
+    setTimeout(() => {
+      this.setState({ progress: 100.00001 });
+    }, 500);
     return response.data;
   }
 

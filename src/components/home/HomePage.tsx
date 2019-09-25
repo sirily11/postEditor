@@ -3,7 +3,8 @@ import {
   List,
   Collapse,
   CircularProgress,
-  IconButton
+  IconButton,
+  Fade
 } from "@material-ui/core";
 import PostItem from "./Components/PostItem";
 import { createMuiTheme } from "@material-ui/core/styles";
@@ -28,24 +29,6 @@ export default function HomePage() {
   const displayContext = useContext(DisplayContext);
   const { progress, errMsg, postsResult, fetch, fetchMore } = displayContext;
 
-  if (progress < 100 && !errMsg) {
-    return (
-      <div className="d-flex h-100">
-        <div className="mx-auto my-auto">
-          <CircularProgress
-            id="progress-bar"
-            variant="determinate"
-            color="primary"
-            value={progress}
-          >
-            {" "}
-          </CircularProgress>
-          <div>{progress} %</div>
-        </div>
-      </div>
-    );
-  }
-
   if (errMsg) {
     return (
       <div className="d-flex h-100">
@@ -68,32 +51,60 @@ export default function HomePage() {
   return (
     <ThemeProvider theme={theme}>
       <Collapse in={true} timeout={1000}>
-        <div className="container-fluid">
+        <div className="container-fluid h-100">
           <Navs />
           <SearchBar />
           <TabBar />
-          <List id="post-list">
-            {postsResult &&
-              postsResult.results.map((post) => {
-                return (
-                  <Collapse in={true}>
-                    <PostItem post={post} key={`post-${post.id}`} />
-                  </Collapse>
-                );
-              })}
-          </List>
-          <Grid>
-            <Grid.Row centered>
-              <Button
-                id="load-btn"
-                color="primary"
-                disabled={!(postsResult && postsResult.next)}
-                onClick={() => fetchMore()}
-              >
-                Load More
-              </Button>
-            </Grid.Row>
-          </Grid>
+          <Collapse
+            in={progress <= 100 && !errMsg}
+            mountOnEnter
+            timeout={{ enter: 500, exit: 1000 }}
+          >
+            <div className="d-flex h-100">
+              <div className="mx-auto my-auto">
+                <CircularProgress
+                  id="progress-bar"
+                  variant="determinate"
+                  color="primary"
+                  value={progress}
+                >
+                  {" "}
+                </CircularProgress>
+                <div>{progress.toFixed(0)} %</div>
+              </div>
+            </div>
+          </Collapse>
+          <Fade
+            in={!(progress < 100 && !errMsg)}
+            mountOnEnter
+            unmountOnExit
+            timeout={1000}
+          >
+            <div>
+              <List id="post-list">
+                {postsResult &&
+                  postsResult.results.map((post) => {
+                    return (
+                      <Collapse in={true}>
+                        <PostItem post={post} key={`post-${post.id}`} />
+                      </Collapse>
+                    );
+                  })}
+              </List>
+              <Grid>
+                <Grid.Row centered>
+                  <Button
+                    id="load-btn"
+                    color="primary"
+                    disabled={!(postsResult && postsResult.next)}
+                    onClick={() => fetchMore()}
+                  >
+                    Load More
+                  </Button>
+                </Grid.Row>
+              </Grid>
+            </div>
+          </Fade>
         </div>
         <SettingCard isCreated={true} />
       </Collapse>
