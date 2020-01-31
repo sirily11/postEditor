@@ -22,10 +22,7 @@ export default class Title extends Component {
     return (
       <EditorContext.Consumer>
         {({ post, setTitle }) => (
-          <Paper
-            elevation={0}
-            // style={{ top: 0, position: "sticky", zIndex: 1000 }}
-          >
+          <Paper elevation={0}>
             <div className="mx-4">
               <Breadcrumbs>
                 <Link to="/home">

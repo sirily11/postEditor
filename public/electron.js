@@ -4,12 +4,19 @@ var electron_1 = require("electron");
 var path = require("path");
 var isDev = require("electron-is-dev");
 var mainWindow;
+var uploadWindow;
 var menu = electron_1.Menu.buildFromTemplate([
     {
         label: 'Menu'
     }, {
         label: "File",
         submenu: [
+            {
+                label: 'Upload Video', click: function () {
+                    var _a;
+                    (_a = uploadWindow) === null || _a === void 0 ? void 0 : _a.show();
+                }
+            },
             {
                 label: 'Log out', click: function () {
                     if (mainWindow) {
@@ -43,7 +50,16 @@ function createWindow() {
             webSecurity: false
         }
     });
-    console.log("Starting the webserver");
+    uploadWindow = new electron_1.BrowserWindow({
+        width: 400,
+        height: 600,
+        titleBarStyle: "hidden",
+        show: false,
+        webPreferences: {
+            nodeIntegration: true,
+            webSecurity: false
+        }
+    });
     mainWindow.loadURL(isDev
         ? "http://localhost:3000#/"
         : "file://" + path.join(__dirname, "../build/index.html"));
@@ -52,13 +68,21 @@ function createWindow() {
             mainWindow.show();
         }
     });
+    uploadWindow.loadURL(isDev
+        ? "http://localhost:3000#/upload-video"
+        : "file://" + path.join(__dirname, "../build/index.html#/upload-video"));
     if (isDev) {
         // Open the DevTools.
         //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
         mainWindow.webContents.openDevTools();
+        uploadWindow.webContents.openDevTools();
     }
     mainWindow.on("closed", function () {
         mainWindow = undefined;
+    });
+    uploadWindow.on("close", function () {
+        var _a;
+        (_a = uploadWindow) === null || _a === void 0 ? void 0 : _a.hide();
     });
 }
 electron_1.app.on("ready", createWindow);

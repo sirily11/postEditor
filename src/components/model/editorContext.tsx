@@ -191,7 +191,7 @@ export class MainEditorProvider extends React.Component<
     if (!id) return;
     this.setState({ isLoading: true });
     // get data from internet
-    let response = await axios.get<Post>(getURL("post/" + id), {
+    let response = await axios.get<Post>(getURL("blog/post/" + id), {
       onDownloadProgress: (ProgressEvent) => {
         computeDownloadProgress(ProgressEvent, (progress: number) =>
           this.setState({ progress })
@@ -202,6 +202,7 @@ export class MainEditorProvider extends React.Component<
 
     if (postData) {
       let raw = markdownToDraft(postData.content);
+      // @ts-ignore
       let editorState = EditorState.createWithContent(convertFromRaw(raw));
       let imageURL = postData.image_url ? postData.image_url : "";
       this.setState({
@@ -217,7 +218,7 @@ export class MainEditorProvider extends React.Component<
     let post = this.state.post;
     if (post.id) {
       let token = localStorage.getItem("access");
-      let url = getURL(`post/${post.id}/`);
+      let url = getURL(`blog/post/${post.id}/`);
       let result = await axios.patch<Post>(
         url,
         { category: category.id },
@@ -235,7 +236,7 @@ export class MainEditorProvider extends React.Component<
    */
   setCover = async (cover: string) => {
     let post = this.state.post;
-    let url = getURL(`post/${post.id}/`);
+    let url = getURL(`blog/post/${post.id}/`);
     let token = localStorage.getItem("access");
     let form = new FormData();
     const image: NativeImage = nativeImage.createFromPath(cover);
@@ -318,7 +319,7 @@ export class MainEditorProvider extends React.Component<
       let token = localStorage.getItem("access");
       let post = this.preparePost();
 
-      let url = getURL("post/" + post.id);
+      let url = getURL("blog/post/" + post.id);
       axios.delete(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -336,6 +337,7 @@ export class MainEditorProvider extends React.Component<
     let editorState = this.state.editorState;
     // convert content state to markdown
     let raw = convertToRaw(editorState.getCurrentContent());
+    // @ts-ignore
     let content = draftToMarkdown(raw, undefined);
 
     let post = this.state.post;
@@ -350,7 +352,7 @@ export class MainEditorProvider extends React.Component<
   create = async (): Promise<boolean> => {
     try {
       let token = localStorage.getItem("access");
-      let url = getURL("post/");
+      let url = getURL("blog/post/");
       let data = this.preparePost();
       delete data.id;
       console.log(data);
@@ -380,7 +382,7 @@ export class MainEditorProvider extends React.Component<
       let data = this.preparePost();
       console.log(data);
 
-      let url = getURL(`post/${data.id}/`);
+      let url = getURL(`blog/post/${data.id}/`);
       let response = await axios.patch<Post>(url, data, {
         onUploadProgress: (evt) => {
           computeUploadProgress(evt, (progress: number) => {

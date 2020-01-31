@@ -31,7 +31,7 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
 
   async componentWillMount() {
     try {
-      let response = await axios.get(getURL("category/"));
+      let response = await axios.get(getURL("blog/category/"));
       let categories: Result<Category> = response.data;
       if (categories.results) {
         this.setState({ categories: categories.results });

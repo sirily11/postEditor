@@ -99,7 +99,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
    */
   private async fetchPosts(category?: number): Promise<Result<Post>> {
     let token = localStorage.getItem("access");
-    let url = category ? getURL("post/?category=" + category) : getURL("post");
+    let url = category ? getURL("blog/post/?category=" + category) : getURL("blog/post");
 
     let response = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` },

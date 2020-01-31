@@ -46,21 +46,19 @@ export default class EditorPage extends Component<EditorProps, State> {
   close = () => {
     this.setState({
       open: false,
-      files: [],
+      files: []
     });
   };
 
   render() {
-    const {
-      open,
-      files
-    } = this.state;
+    const { open, files } = this.state;
     return (
       <EditorContext.Consumer>
         {({ initEditor, clear, progress, isLoading }) => {
           return (
             <div>
               <SideController />
+
               <div className="content">
                 <Title />
                 <MainEditor
