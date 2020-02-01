@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain, Menu, remote} from "electron";
+import { app, BrowserWindow, ipcMain, Menu, remote } from "electron";
 import * as path from "path";
 import * as fs from 'fs';
 import * as  contextMenu from "electron-context-menu"
@@ -39,6 +39,18 @@ let menu = Menu.buildFromTemplate([
                 },
             }
         ]
+    },
+    {
+        label: "Edit",
+        submenu: [
+            { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+            { type: "separator" },
+            { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+            { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+            { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+            { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+        ]
     }
 ]);
 Menu.setApplicationMenu(menu);
@@ -55,8 +67,8 @@ function createWindow() {
     });
 
     uploadWindow = new BrowserWindow({
-        width: 400,
-        height: 600,
+        width: 1200,
+        height: 1200,
         titleBarStyle: "hidden",
         show: false,
         webPreferences: {
@@ -92,7 +104,8 @@ function createWindow() {
         mainWindow = undefined;
     });
 
-    uploadWindow.on("close", () => {
+    uploadWindow.on("close", (e) => {
+        e.preventDefault()
         uploadWindow?.hide()
     })
 }

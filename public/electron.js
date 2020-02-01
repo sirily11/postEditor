@@ -37,6 +37,18 @@ var menu = electron_1.Menu.buildFromTemplate([
                 }
             }
         ]
+    },
+    {
+        label: "Edit",
+        submenu: [
+            { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+            { type: "separator" },
+            { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+            { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+            { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+            { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+        ]
     }
 ]);
 electron_1.Menu.setApplicationMenu(menu);
@@ -80,8 +92,9 @@ function createWindow() {
     mainWindow.on("closed", function () {
         mainWindow = undefined;
     });
-    uploadWindow.on("close", function () {
+    uploadWindow.on("close", function (e) {
         var _a;
+        e.preventDefault();
         (_a = uploadWindow) === null || _a === void 0 ? void 0 : _a.hide();
     });
 }
