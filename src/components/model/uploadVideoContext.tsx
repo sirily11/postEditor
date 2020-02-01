@@ -308,9 +308,7 @@ export class UploadVideoProvider extends Component<
         video_4k: video4k
       };
       let url = getURL(`blog/video/`);
-      //   let token = localStorage.getItem("access");
-      let token =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgwNjgzMDY1LCJqdGkiOiI2YWY1ZGU3YjdlOTg0MzdiYTVmMjNkNjc4ZDE5OTI1NiIsInVzZXJfaWQiOjF9.v1L5WdieccxcRCLTe72gYs6ke4Gs9BwisOAkcUhQRPc";
+      let token = localStorage.getItem("access");
       let response = await axios.post(url, data, {
         headers: { Authorization: `Bearer ${token}` }
       });
