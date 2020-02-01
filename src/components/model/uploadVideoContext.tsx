@@ -1,5 +1,5 @@
 import React, { Component, useContext } from "react";
-
+import axios, { AxiosResponse } from "axios";
 import { getURL } from "../setting/settings";
 import * as path from "path";
 import { FfmpegCommand, Codec } from "fluent-ffmpeg";
@@ -72,15 +72,17 @@ export class UploadVideoProvider extends Component<
   }
 
   componentWillMount() {
-    let access = localStorage.getItem("access");
+    let access = localStorage.getItem("access_id");
     let secret = localStorage.getItem("secret");
     let bucket = localStorage.getItem("bucket");
-    if (access && secret && bucket) {
-      this.setState({
-        access_id: access,
-        secret_id: secret,
-        bucket_name: bucket
-      });
+    if (access) {
+      this.setState({ access_id: access });
+    }
+    if (secret) {
+      this.setState({ secret_id: secret });
+    }
+    if (bucket) {
+      this.setState({ bucket_name: bucket });
     }
   }
 
@@ -111,7 +113,7 @@ export class UploadVideoProvider extends Component<
     ) {
       alert("Value should not be empty");
     } else {
-      localStorage.setItem("access", access_id);
+      localStorage.setItem("access_id", access_id);
       localStorage.setItem("secret", secret_id);
       localStorage.setItem("bucket", bucket_name);
       localStorage.setItem("region", region);
@@ -121,15 +123,19 @@ export class UploadVideoProvider extends Component<
           await this.transcode(f, info);
         }
 
-        await this.uploadToAws(
+        let result = await this.uploadToAws(
           f,
           access_id,
           secret_id,
           bucket_name,
+          region
+        );
+        await this.uploadToDatabase(
           title,
           content,
           category,
-          region
+          result.originalURL,
+          result.transcodedURL
         );
       }
     }
@@ -210,15 +216,14 @@ export class UploadVideoProvider extends Component<
     access_id: string,
     secret_id: string,
     bucket_name: string,
-    title?: string,
-    content?: string,
-    category?: number,
     region?: string
-  ): Promise<void> => {
+  ): Promise<{ originalURL: string; transcodedURL: string[] }> => {
     let parentFolder = path.join(path.dirname(file.file.path), "transcode");
     const { uploadFiles } = this.state;
     return new Promise(async (resolve, reject) => {
       try {
+        let originalFileUploadedURL = "";
+        let transcodedFilesUploadURL: string[] = [];
         let s3 = new AWS.S3({
           accessKeyId: access_id,
           secretAccessKey: secret_id,
@@ -228,11 +233,18 @@ export class UploadVideoProvider extends Component<
         this.setState({ uploadFiles });
         // upload original video
         let fileContent = fs.readFileSync(file.file.path);
-        let upload = s3.upload({
-          Bucket: bucket_name,
-          Key: path.join("original", file.file.name),
-          Body: fileContent
-        });
+        let upload: AWS.S3.ManagedUpload = s3
+          .upload({
+            Bucket: bucket_name,
+            Key: path.join("original", file.file.name),
+            Body: fileContent
+          })
+          .on("httpUploadProgress", (progress) => {
+            file.progress = (progress.loaded / progress.total) * 100;
+            this.setState({ uploadFiles });
+          });
+        let data = await upload.promise();
+        originalFileUploadedURL = data.Location;
 
         // Upload transcoded video
         file.task_description = "Uploading transcoded files to AWS";
@@ -254,19 +266,58 @@ export class UploadVideoProvider extends Component<
               Key: path.join("transcoding", f),
               Body: fileContent
             });
-            await upload.promise();
+            let data = await upload.promise();
+            if (data.Location.includes(".m3u8")) {
+              transcodedFilesUploadURL.push(data.Location);
+            }
             index += 1;
             file.progress = (index / matchedFiles.length) * 100;
             this.setState({ uploadFiles });
           }
-
-          // upload to database
-          resolve();
+          resolve({
+            originalURL: originalFileUploadedURL,
+            transcodedURL: transcodedFilesUploadURL
+          });
         });
       } catch (err) {
         alert(err);
       }
     });
+  };
+
+  uploadToDatabase = async (
+    title: string,
+    content: string,
+    category: number,
+    originalURL: string,
+    transcodedURL: string[]
+  ): Promise<void> => {
+    try {
+      let video480p = transcodedURL.find((v) => v.includes("480"));
+      let video720p = transcodedURL.find((v) => v.includes("720"));
+      let video1080p = transcodedURL.find((v) => v.includes("1080"));
+      let video4k = transcodedURL.find((v) => v.includes("4k"));
+      let data = {
+        title: title,
+        content: content,
+        category: category,
+        original_video: originalURL,
+        video_480p: video480p,
+        video_720p: video720p,
+        video_1080p: video1080p,
+        video_4k: video4k
+      };
+      let url = getURL(`blog/video/`);
+      //   let token = localStorage.getItem("access");
+      let token =
+        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgwNjgzMDY1LCJqdGkiOiI2YWY1ZGU3YjdlOTg0MzdiYTVmMjNkNjc4ZDE5OTI1NiIsInVzZXJfaWQiOjF9.v1L5WdieccxcRCLTe72gYs6ke4Gs9BwisOAkcUhQRPc";
+      let response = await axios.post(url, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert("Upload success");
+    } catch (err) {
+      alert(err);
+    }
   };
 
   render() {

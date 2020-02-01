@@ -67,8 +67,8 @@ function createWindow() {
     });
 
     uploadWindow = new BrowserWindow({
-        width: 1200,
-        height: 1200,
+        width: 1000,
+        height: 800,
         titleBarStyle: "hidden",
         show: false,
         webPreferences: {

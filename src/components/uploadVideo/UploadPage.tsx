@@ -6,6 +6,7 @@ import { UploadFileList } from "./components/uploadFileList";
 export function UploadPage() {
   return (
     <Container fluid>
+      <h2>Upload</h2>
       <Grid style={{ width: "100%" }}>
         <Grid.Column width={8}>
           <UploadField />
