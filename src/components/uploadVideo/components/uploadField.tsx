@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Header, Icon, Segment } from "semantic-ui-react";
+import { Header, Icon, Segment, Select } from "semantic-ui-react";
 import { UploadFile, UploadVideoConext } from "../../model/uploadVideoContext";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import {
@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   FormGroup
 } from "@material-ui/core";
+import { SettingConext } from "../../model/settingContext";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,12 +25,26 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const awsRegion = [
+  { text: "Asia Pacific (Hong Kong)", value: "ap-east-1" },
+  { text: "US East (N. Virginia)", value: "us-east-1" },
+  { text: "Asia Pacific (Tokyo)", value: "ap-northeast-1" },
+  { text: "US West (N. California)", value: "us-west-1" }
+];
+
 export function UploadField() {
   const uploadVideoContext = useContext(UploadVideoConext);
+  const settingContext = useContext(SettingConext);
   const classes = useStyles();
   const [access_id, setAccess] = useState(uploadVideoContext.access_id);
   const [secret_id, setSecret] = useState(uploadVideoContext.secret_id);
   const [bucket, setBucket] = useState(uploadVideoContext.bucket_name);
+  const [category, setCategory] = useState<number>();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [region, setRegion] = useState(
+    localStorage.getItem("region") ?? awsRegion[0].value
+  );
   const [will_transcode, setWillTransCode] = useState(false);
 
   return (
@@ -55,6 +70,42 @@ export function UploadField() {
           label="Bucket Name"
           variant="outlined"
           onChange={(e) => setBucket(e.target.value)}
+        />
+        <Select
+          value={region}
+          placeholder={"AWS Region"}
+          onChange={(e, { value }) => {
+            setRegion(value as string);
+          }}
+          options={awsRegion}
+        />
+      </form>
+      <form className={classes.root} noValidate autoComplete="off">
+        <TextField
+          value={title}
+          id="outlined-basic"
+          label="Title"
+          variant="outlined"
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <TextField
+          value={content}
+          id="outlined-basic"
+          label="Content"
+          multiline
+          rows={3}
+          variant="outlined"
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <Select
+          value={category}
+          placeholder={"Category"}
+          onChange={(e, { value }) => {
+            setCategory(value as number);
+          }}
+          options={settingContext.categories.map((c) => {
+            return { text: c.category, value: c.id };
+          })}
         />
       </form>
       <FormGroup row>
@@ -102,7 +153,11 @@ export function UploadField() {
             access_id,
             secret_id,
             bucket,
-            will_transcode
+            will_transcode,
+            title,
+            content,
+            category,
+            region
           );
         }}
       >

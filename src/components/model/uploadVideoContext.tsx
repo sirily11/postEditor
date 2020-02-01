@@ -4,6 +4,7 @@ import { getURL } from "../setting/settings";
 import * as path from "path";
 import { FfmpegCommand, Codec } from "fluent-ffmpeg";
 import { bool } from "aws-sdk/clients/signer";
+import AWS from "aws-sdk";
 const fs = (window as any).require("fs");
 const ffmpeg = (window as any).require("fluent-ffmpeg");
 const getDimensions = (window as any).require("get-video-dimensions");
@@ -28,7 +29,11 @@ interface UploadVideoState {
     access_id?: string,
     secret_id?: string,
     bucket_name?: string,
-    will_transcode?: boolean
+    will_transcode?: boolean,
+    title?: string,
+    content?: string,
+    category?: number,
+    region?: string
   ): Promise<void>;
 
   upload(files: UploadFile[]): Promise<void>;
@@ -88,21 +93,44 @@ export class UploadVideoProvider extends Component<
     access_id?: string,
     secret_id?: string,
     bucket_name?: string,
-    will_transcode?: boolean
+    will_transcode?: boolean,
+    title?: string,
+    content?: string,
+    category?: number,
+    region?: string
   ) => {
     const { uploadFiles } = this.state;
-    if (!access_id || !secret_id || !bucket_name) {
+    if (
+      !access_id ||
+      !secret_id ||
+      !bucket_name ||
+      !title ||
+      !content ||
+      !category ||
+      !region
+    ) {
       alert("Value should not be empty");
     } else {
       localStorage.setItem("access", access_id);
       localStorage.setItem("secret", secret_id);
       localStorage.setItem("bucket", bucket_name);
+      localStorage.setItem("region", region);
       for (let f of this.state.uploadFiles) {
         if (f.will_transcode || will_transcode) {
-          //   let info = await this.getVideoMaxResolution(f);
-          //   await this.transcode(f, info);
+          let info = await this.getVideoMaxResolution(f);
+          await this.transcode(f, info);
         }
-        await this.uploadToAws(f, access_id, secret_id, bucket_name);
+
+        await this.uploadToAws(
+          f,
+          access_id,
+          secret_id,
+          bucket_name,
+          title,
+          content,
+          category,
+          region
+        );
       }
     }
   };
@@ -117,13 +145,13 @@ export class UploadVideoProvider extends Component<
   };
 
   transcode = async (file: UploadFile, resolution: number): Promise<void> => {
-    let finalResolutions = ["640x480"];
+    let finalResolutions = ["?x480"];
     if (resolution >= 720) {
-      finalResolutions.push("1280x720");
+      finalResolutions.push("?x720");
     } else if (resolution >= 1080) {
-      finalResolutions.push("1920x1080");
+      finalResolutions.push("?x1080");
     } else if (resolution >= 2160) {
-      finalResolutions.push("3840x2160");
+      finalResolutions.push("?x2160");
     }
 
     const { uploadFiles } = this.state;
@@ -136,7 +164,10 @@ export class UploadVideoProvider extends Component<
       fs.mkdirSync(path.join(path.dirname(file.file.path), "transcode"));
     }
     for (let resolution of finalResolutions) {
-      let outputFileName = `${parentFolder}_${resolution}.m3u8`;
+      let outputFileName = `${parentFolder}_${resolution.replace(
+        "?x",
+        ""
+      )}.m3u8`;
       file.task_description = `Transcoding: ${resolution}`;
       this.setState({ uploadFiles });
       await this.transcodeSingle(
@@ -173,32 +204,68 @@ export class UploadVideoProvider extends Component<
         .run();
     });
   };
-
+  // Upload to aws and database
   uploadToAws = async (
     file: UploadFile,
     access_id: string,
     secret_id: string,
-    bucket_name: string
+    bucket_name: string,
+    title?: string,
+    content?: string,
+    category?: number,
+    region?: string
   ): Promise<void> => {
     let parentFolder = path.join(path.dirname(file.file.path), "transcode");
+    const { uploadFiles } = this.state;
     return new Promise(async (resolve, reject) => {
-      // upload original video
+      try {
+        let s3 = new AWS.S3({
+          accessKeyId: access_id,
+          secretAccessKey: secret_id,
+          region: region
+        });
+        file.task_description = "Uploading original file to AWS";
+        this.setState({ uploadFiles });
+        // upload original video
+        let fileContent = fs.readFileSync(file.file.path);
+        let upload = s3.upload({
+          Bucket: bucket_name,
+          Key: path.join("original", file.file.name),
+          Body: fileContent
+        });
 
-      // Upload transcoded video
-      fs.readdir(parentFolder, async (err: any, files: string[]) => {
-        let baseNameWithoutExt = path.basename(
-          file.file.name,
-          path.extname(file.file.name)
-        );
-        for (let f of files) {
-          if (f.includes(baseNameWithoutExt)) {
-            console.log(f);
+        // Upload transcoded video
+        file.task_description = "Uploading transcoded files to AWS";
+        this.setState({ uploadFiles });
+        fs.readdir(parentFolder, async (err: any, files: string[]) => {
+          let baseNameWithoutExt = path.basename(
+            file.file.name,
+            path.extname(file.file.name)
+          );
+          let index = 0;
+          let matchedFiles = files.filter((f) =>
+            f.includes(baseNameWithoutExt)
+          );
+          for (let f of matchedFiles) {
+            let filePath = path.join(parentFolder, f);
+            let fileContent = fs.readFileSync(filePath);
+            let upload = s3.upload({
+              Bucket: bucket_name,
+              Key: path.join("transcoding", f),
+              Body: fileContent
+            });
+            await upload.promise();
+            index += 1;
+            file.progress = (index / matchedFiles.length) * 100;
+            this.setState({ uploadFiles });
           }
-        }
 
-        // upload to database
-        resolve();
-      });
+          // upload to database
+          resolve();
+        });
+      } catch (err) {
+        alert(err);
+      }
     });
   };
 

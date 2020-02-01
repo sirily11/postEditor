@@ -63,8 +63,8 @@ function createWindow() {
         }
     });
     uploadWindow = new electron_1.BrowserWindow({
-        width: 400,
-        height: 600,
+        width: 1200,
+        height: 1200,
         titleBarStyle: "hidden",
         show: false,
         webPreferences: {
