@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -15,6 +15,7 @@ import Container from "@material-ui/core/Container";
 import { UserContext } from "../model/userContext";
 import { Redirect } from "react-router-dom";
 import { Trans } from "@lingui/macro";
+import { DisplayContext } from "../model/displayContext";
 
 const useStyles = makeStyles((theme) => ({
   "@global": {
@@ -43,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Login() {
   const classes = useStyles();
+  const displayContext = useContext(DisplayContext);
 
   return (
     <UserContext.Consumer>
@@ -114,7 +116,10 @@ export default function Login() {
                     variant="contained"
                     color="primary"
                     className={classes.submit}
-                    onClick={login}
+                    onClick={async () => {
+                      await login();
+                      await displayContext.fetch();
+                    }}
                   >
                     <Trans>Sign In</Trans>
                   </Button>

@@ -120,6 +120,7 @@ export class UploadVideoProvider extends Component<
       for (let f of this.state.uploadFiles) {
         if (f.will_transcode || will_transcode) {
           let info = await this.getVideoMaxResolution(f);
+          console.log(info);
           await this.transcode(f, info);
         }
 
@@ -154,9 +155,11 @@ export class UploadVideoProvider extends Component<
     let finalResolutions = ["?x480"];
     if (resolution >= 720) {
       finalResolutions.push("?x720");
-    } else if (resolution >= 1080) {
+    }
+    if (resolution >= 1080) {
       finalResolutions.push("?x1080");
-    } else if (resolution >= 2160) {
+    }
+    if (resolution >= 2160) {
       finalResolutions.push("?x2160");
     }
 
@@ -173,7 +176,7 @@ export class UploadVideoProvider extends Component<
       let outputFileName = `${parentFolder}_${resolution.replace(
         "?x",
         ""
-      )}.m3u8`;
+      )}_.m3u8`;
       file.task_description = `Transcoding: ${resolution}`;
       this.setState({ uploadFiles });
       await this.transcodeSingle(
@@ -263,7 +266,7 @@ export class UploadVideoProvider extends Component<
             let fileContent = fs.readFileSync(filePath);
             let upload = s3.upload({
               Bucket: bucket_name,
-              Key: path.join("transcoding", f),
+              Key: path.join("transcoding", baseNameWithoutExt, f),
               Body: fileContent
             });
             let data = await upload.promise();

@@ -39,13 +39,27 @@ interface RouterProps {
     isLocal?: string;
 }
 
-export interface Result<T>{
+export interface Result<T> {
     count: number;
     next?: string
-    previous? : string
+    previous?: string
     results: T[]
 }
 
 export interface EditorProps extends RouteComponentProps<RouterProps> {
     insertImage(imagePath: string): void
+}
+
+
+export interface Video {
+    id: number;
+    title: string;
+    content: string;
+    category: number;
+    original_video: string;
+    video_480p?: string;
+    video_720p?: string;
+    video_1080p?: string;
+    video_4k?: string;
+    video_category: Category
 }

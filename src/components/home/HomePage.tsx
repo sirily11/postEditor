@@ -18,6 +18,7 @@ import TabBar from "./Components/TabBar";
 import SettingCard from "../setting/SettingCard";
 import { Grid } from "semantic-ui-react";
 import { Button } from "@material-ui/core";
+import VideoPage from "../video/VideoPage";
 
 const theme = createMuiTheme({
   palette: {
@@ -53,58 +54,65 @@ export default function HomePage() {
       <Collapse in={true} timeout={1000}>
         <div className="container-fluid h-100">
           <Navs />
-          <SearchBar />
-          <TabBar />
-          <Collapse
-            in={progress <= 100 && !errMsg}
-            mountOnEnter
-            timeout={{ enter: 500, exit: 1000 }}
-          >
-            <div className="d-flex h-100">
-              <div className="mx-auto my-auto">
-                <CircularProgress
-                  id="progress-bar"
-                  variant="determinate"
-                  color="primary"
-                  value={progress}
-                >
-                  {" "}
-                </CircularProgress>
-                <div>{progress.toFixed(0)} %</div>
-              </div>
-            </div>
-          </Collapse>
-          <Fade
-            in={!(progress < 100 && !errMsg)}
-            mountOnEnter
-            unmountOnExit
-            timeout={1000}
-          >
+          {displayContext.currentPage === 0 ? (
             <div>
-              <List id="post-list">
-                {postsResult &&
-                  postsResult.results.map((post) => {
-                    return (
-                      <Collapse in={true}>
-                        <PostItem post={post} key={`post-${post.id}`} />
-                      </Collapse>
-                    );
-                  })}
-              </List>
-              <Grid>
-                <Grid.Row centered>
-                  <Button
-                    id="load-btn"
-                    color="primary"
-                    disabled={!(postsResult && postsResult.next)}
-                    onClick={() => fetchMore()}
-                  >
-                    Load More
-                  </Button>
-                </Grid.Row>
-              </Grid>
+              {" "}
+              <SearchBar />
+              <TabBar />
+              <Collapse
+                in={progress <= 100 && !errMsg}
+                mountOnEnter
+                timeout={{ enter: 500, exit: 1000 }}
+              >
+                <div className="d-flex h-100">
+                  <div className="mx-auto my-auto">
+                    <CircularProgress
+                      id="progress-bar"
+                      variant="determinate"
+                      color="primary"
+                      value={progress}
+                    >
+                      {" "}
+                    </CircularProgress>
+                    <div>{progress.toFixed(0)} %</div>
+                  </div>
+                </div>
+              </Collapse>
+              <Fade
+                in={!(progress < 100 && !errMsg)}
+                mountOnEnter
+                unmountOnExit
+                timeout={1000}
+              >
+                <div>
+                  <List id="post-list">
+                    {postsResult &&
+                      postsResult.results.map((post) => {
+                        return (
+                          <Collapse in={true}>
+                            <PostItem post={post} key={`post-${post.id}`} />
+                          </Collapse>
+                        );
+                      })}
+                  </List>
+                  <Grid>
+                    <Grid.Row centered>
+                      <Button
+                        id="load-btn"
+                        color="primary"
+                        disabled={!(postsResult && postsResult.next)}
+                        onClick={() => fetchMore()}
+                      >
+                        Load More
+                      </Button>
+                    </Grid.Row>
+                  </Grid>
+                </div>
+              </Fade>
             </div>
-          </Fade>
+          ) : (
+            <VideoPage />
+          )}
         </div>
         <SettingCard isCreated={true} />
       </Collapse>

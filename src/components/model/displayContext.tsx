@@ -11,6 +11,8 @@ interface Tab {
 }
 
 interface DisplayState {
+  currentPage: number;
+  setCurrentPage(page: number): void;
   value: number;
   onChange(value: number): any;
   searchWord: string;
@@ -34,18 +36,24 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
     super(props);
     this.state = {
       value: -1,
+      currentPage: 0,
       progress: 0,
       searchWord: "",
       onChange: this.onChange,
       onSearch: this.onSearch,
       fetch: this.fetch,
-      fetchMore: this.fetchMore
+      fetchMore: this.fetchMore,
+      setCurrentPage: this.setCurrentPage
     };
   }
 
-  async componentDidMount() {
-    await this.fetch();
-  }
+  setCurrentPage = async (page: number) => {
+    this.setState({ currentPage: page });
+  };
+
+  // async componentDidMount() {
+  //   await this.fetch();
+  // }
 
   fetchMore = async () => {
     let postResult = this.state.postsResult;
@@ -99,7 +107,9 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
    */
   private async fetchPosts(category?: number): Promise<Result<Post>> {
     let token = localStorage.getItem("access");
-    let url = category ? getURL("blog/post/?category=" + category) : getURL("blog/post");
+    let url = category
+      ? getURL("blog/post/?category=" + category)
+      : getURL("blog/post");
 
     let response = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` },
@@ -141,7 +151,9 @@ const context: DisplayState = {
   onChange: (newValue: number) => {},
   onSearch: (e: React.ChangeEvent<{}>) => {},
   fetch: () => {},
-  fetchMore: () => {}
+  fetchMore: () => {},
+  setCurrentPage: (p: number) => {},
+  currentPage: 0
 };
 
 export const DisplayContext = React.createContext(context);

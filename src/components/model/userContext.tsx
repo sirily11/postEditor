@@ -13,7 +13,7 @@ interface User {
   saveLoginInfo: boolean;
   onChangePassword(password: string): void;
   onChangeUserName(userName: string): void;
-  login(): void;
+  login(): Promise<void>;
   saveLogin(value: boolean): void;
 }
 
@@ -25,7 +25,7 @@ const context: User = {
   saveLoginInfo: false,
   onChangePassword: () => {},
   onChangeUserName: () => {},
-  login: () => {},
+  login: async () => {},
   saveLogin: () => {}
 };
 
