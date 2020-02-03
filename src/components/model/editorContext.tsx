@@ -23,6 +23,8 @@ import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draf
 import { Post, Category } from "./interfaces";
 import { IpcRenderer, NativeImage } from "electron";
 import { insertImageBlock } from "./utils/insertImageBlock";
+import { RawDraftContentState } from "draft-js";
+import { deleteImage } from "./utils/uploadUtils";
 import {
   computeDownloadProgress,
   computeUploadProgress,
@@ -57,6 +59,7 @@ interface MainEditorState {
   post: Post;
   // editor's state
   editorState: EditorState;
+  prevState?: EditorState;
   // number of changes to indicate whether to do the auto save
   handleKeyCommand: any;
   // side bar actions
@@ -79,7 +82,7 @@ interface MainEditorState {
   // change category
   setCategory(category: Category): void;
   // insert inline image
-  insertImage(imagePath: string): void;
+  insertImage(imagePath: string, imageID: number): void;
 }
 
 interface MainEditorProps {}
@@ -188,12 +191,16 @@ export class MainEditorProvider extends React.Component<
   };
 
   // this will insert image with image url
-  insertImage = async (imagePath: string) => {
+  insertImage = async (imagePath: string, imageID: number) => {
     let newEditorState = await insertImageBlock(
       imagePath,
-      this.state.editorState
+      this.state.editorState,
+      imageID
     );
-    this.setState({ editorState: newEditorState });
+    this.setState({ editorState: newEditorState, prevState: newEditorState });
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
   };
 
   initEditor = async (id: string | undefined) => {
@@ -222,7 +229,8 @@ export class MainEditorProvider extends React.Component<
         isLoading: false,
         progress: 0,
         post: postData,
-        editorState: editorState
+        editorState: editorState,
+        prevState: editorState
       });
     }
   };
@@ -329,6 +337,24 @@ export class MainEditorProvider extends React.Component<
     this.setState({ selected: selected });
   };
 
+  private getDeletedImages(
+    prevState: RawDraftContentState,
+    currentState: RawDraftContentState
+  ): { id: number; src: string }[] {
+    let images: any[] = [];
+    let currentStateBlockKey = currentState.blocks.map((b) => b.key);
+    let deletedBlocks = prevState.blocks.filter(
+      (b) => !currentStateBlockKey.includes(b.key) && b.type === "atomic"
+    );
+    for (let block of deletedBlocks) {
+      let entity = prevState.entityMap[block.entityRanges[0].key];
+      if (entity.type === "image") {
+        images.push(entity.data);
+      }
+    }
+    return images;
+  }
+
   private async deleteFromCloud() {
     try {
       let token = localStorage.getItem("access");
@@ -395,6 +421,18 @@ export class MainEditorProvider extends React.Component<
   private async save() {
     try {
       this.setState({ isLoading: true, progress: 0 });
+      if (this.state.prevState) {
+        let deletedImages = this.getDeletedImages(
+          convertToRaw(this.state.prevState.getCurrentContent()),
+          convertToRaw(this.state.editorState.getCurrentContent())
+        );
+        for (let image of deletedImages) {
+          await deleteImage(image.id, (progress) =>
+            this.setState({ progress: progress })
+          );
+        }
+      }
+
       let token = localStorage.getItem("access");
       let data = this.preparePost();
 
@@ -411,7 +449,11 @@ export class MainEditorProvider extends React.Component<
     } catch (err) {
       this.showMessage(err.toString());
     } finally {
-      this.setState({ isLoading: false, progress: 0 });
+      this.setState({
+        isLoading: false,
+        progress: 0,
+        prevState: this.state.editorState
+      });
     }
   }
 
@@ -423,10 +465,7 @@ export class MainEditorProvider extends React.Component<
     if ((command as any) === "save") {
       this.save();
     }
-    if (command === "backspace") {
-      console.log(convertToRaw(editorState.getCurrentContent()));
-      console.log(editorState.getSelection().getAnchorKey());
-    }
+
     if (newState) {
       this.onChange(newState);
       return "handled";

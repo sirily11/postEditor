@@ -1,6 +1,7 @@
 import axios from "axios"
 import { NativeImage } from "electron";
 import { getURL } from "../../setting/settings";
+import { number } from '@lingui/core';
 const electron = (window as any).require("electron");
 const nativeImage = electron.nativeImage;
 
@@ -16,6 +17,22 @@ export const uploadImage = async (imageFile: File, pid: string, onUpload: (progr
         form.append('pid', pid.toString())
 
         let result = await axios.post(url, form, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data"
+            },
+            onUploadProgress: (evt) => computeUploadProgress(evt, onUpload)
+        });
+        resolve(result.data)
+    })
+}
+
+export const deleteImage = async (imageID: number, onUpload: (progress: number) => void) => {
+    return new Promise(async (resolve, reject) => {
+        let url = getURL(`blog/post-image/${imageID}`)
+        let token = localStorage.getItem("access");
+       
+        let result = await axios.delete(url, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "multipart/form-data"

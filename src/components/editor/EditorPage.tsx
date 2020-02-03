@@ -6,9 +6,6 @@ import { EditorContext } from "../model/editorContext";
 import MessageBar from "./components/MessageBar";
 import { EditorProps } from "../model/interfaces";
 import SettingCard from "../setting/SettingCard";
-import { S3 } from "aws-sdk";
-import { uploadImage } from "../model/utils/uploadUtils";
-import { t } from "@lingui/macro";
 import UploadDialog from "./components/UploadDialog";
 import {
   LinearProgress,

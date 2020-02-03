@@ -33,7 +33,16 @@ export default function UploadDialog(props: Props) {
 
   return (
     <div>
-      <Dialog open={props.open} fullWidth onClose={props.close}>
+      <Dialog
+        open={props.open}
+        fullWidth
+        onClose={() => {
+          setNumFinished(0);
+          setCurrentProgress(0);
+          setCurrentProgress(0);
+          props.close();
+        }}
+      >
         <DialogTitle>
           <Trans>Uploading Images</Trans>
         </DialogTitle>
@@ -72,9 +81,14 @@ export default function UploadDialog(props: Props) {
                   editContext.post.id as string,
                   (progress) => setCurrentProgress(progress)
                 );
-                editContext.insertImage(image.image);
+
+                editContext.insertImage(image.image, image.id);
                 setNumFinished(numFinished + 1);
               }
+              setNumFinished(0);
+              setCurrentProgress(0);
+              setCurrentProgress(0);
+              props.close();
               props.close();
             }}
           >
