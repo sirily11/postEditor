@@ -1,27 +1,46 @@
 import React, { Component } from "react";
 import Dropzone from "react-dropzone";
-import Prism from 'prismjs';
+import Prism from "prismjs";
 import Editor, { composeDecorators } from "draft-js-plugins-editor";
 import { EditorContext } from "../model/editorContext";
+import { getDefaultKeyBinding, KeyBindingUtil, convertToRaw } from "draft-js";
+import {
+  ItalicButton,
+  BoldButton,
+  UnderlineButton,
+  CodeButton
+} from "draft-js-buttons";
+/// plugins
 import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
 import createSideToolbarPlugin from "draft-js-side-toolbar-plugin";
-import createImagePlugin from "./plugin/image";
+import createImagePlugin from "draft-js-image-plugin";
 import createBlockDndPlugin from "draft-js-drag-n-drop-plugin";
 import createFocusPlugin from "draft-js-focus-plugin";
-import createPrismPlugin from 'draft-js-prism-plugin';
+import createPrismPlugin from "draft-js-prism-plugin";
+import createAlignmentPlugin from "draft-js-alignment-plugin";
+import createResizeablePlugin from "draft-js-resizeable-plugin";
+import createLinkPlugin from "draft-js-anchor-plugin";
+
+/// ends of plugins
 import { t } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
 import { Fade } from "@material-ui/core";
 import chinese from "../../locales/zh/messages";
+// css
 import "prismjs/themes/prism.css";
 import "draft-js/dist/Draft.css";
 import "draft-js-inline-toolbar-plugin/lib/plugin.css";
 import "draft-js-side-toolbar-plugin/lib/plugin.css";
+import "draft-js-alignment-plugin/lib/plugin.css";
+import "draft-js-linkify-plugin/lib/plugin.css";
 
 import { Redirect } from "react-router";
 import CustomImageBlock from "./components/CustomImageBlock";
 
+const linkPlugin = createLinkPlugin();
+const resizeablePlugin = createResizeablePlugin();
 const inlineToolbarPlugin = createInlineToolbarPlugin();
+const alignmentPlugin = createAlignmentPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
   position: "right"
 });
@@ -32,12 +51,15 @@ const focusPlugin = createFocusPlugin();
 const blockDndPlugin = createBlockDndPlugin();
 const decorator = composeDecorators(
   focusPlugin.decorator,
-  blockDndPlugin.decorator
+  blockDndPlugin.decorator,
+  alignmentPlugin.decorator,
+  resizeablePlugin.decorator
 );
 const imagePlugin = createImagePlugin({ decorator });
 
 const { InlineToolbar } = inlineToolbarPlugin;
 const { SideToolbar } = sideToolbarPlugin;
+const { AlignmentTool } = alignmentPlugin;
 
 const i18n = setupI18n({
   catalogs: {
@@ -54,11 +76,19 @@ export default class MainEditor extends Component {
     this.props.clear();
   }
 
-  myBlockRenderer(contentBlock){
-    const type = contentBlock.getType();
-    if(type === "code-block"){
-      // console.log(contentBlock)
+  // myBlockRenderer(contentBlock){
+  //   const type = contentBlock.getType();
+  //   if(type === "code-block"){
+  //     // console.log(contentBlock)
+  //   }
+  // }
+
+  myKeyBindingFn(e) {
+    const { hasCommandModifier } = KeyBindingUtil;
+    if (e.keyCode === 83 /* `S` key */ && hasCommandModifier(e)) {
+      return "save";
     }
+    return getDefaultKeyBinding(e);
   }
 
   render() {
@@ -95,6 +125,7 @@ export default class MainEditor extends Component {
                         editorState={editorState}
                         onChange={onChange}
                         onFocus={onFocus}
+                        keyBindingFn={this.myKeyBindingFn}
                         handleKeyCommand={handleKeyCommand}
                         autoCorrect="on"
                         autoCapitalize="on"
@@ -107,10 +138,26 @@ export default class MainEditor extends Component {
                           imagePlugin,
                           blockDndPlugin,
                           focusPlugin,
-                          prismPlugin
+                          prismPlugin,
+                          alignmentPlugin,
+                          resizeablePlugin,
+                          linkPlugin
                         ]}
                       />
-                      <InlineToolbar />
+                      <AlignmentTool />
+                      <InlineToolbar>
+                        {(externalProps) => {
+                          return (
+                            <React.Fragment>
+                              <BoldButton {...externalProps} />
+                              <ItalicButton {...externalProps} />
+                              <UnderlineButton {...externalProps} />
+                              <CodeButton {...externalProps} />
+                              <linkPlugin.LinkButton {...externalProps} />
+                            </React.Fragment>
+                          );
+                        }}
+                      </InlineToolbar>
                       <SideToolbar />
                     </div>
                   )}

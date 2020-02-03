@@ -100,9 +100,10 @@ function createWindow() {
 }
 electron_1.app.on("ready", createWindow);
 electron_1.app.on("window-all-closed", function () {
-    if (process.platform !== "darwin") {
-        electron_1.app.quit();
-    }
+    // if (process.platform !== "darwin") {
+    //     app.quit();
+    // }
+    electron_1.app.quit();
 });
 electron_1.app.on("activate", function () {
     if (mainWindow === null) {

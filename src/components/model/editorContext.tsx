@@ -61,16 +61,24 @@ interface MainEditorState {
   handleKeyCommand: any;
   // side bar actions
   actions: Action[];
+  // handle keyboard's input
   onChange: any;
+  // when editor is clicked
   onFocus: any;
-  setTitle: any;
+  // change pst's title
+  setTitle(newTitle: string): any;
   selected: string[];
-  hideMessage: any;
+  hideMessage(): any;
+  // clear
   clear(): void;
+  // create post
   create(): Promise<boolean>;
   initEditor(_id: string, isLocal: boolean): void;
+  // change cover
   setCover(cover: string): void;
+  // change category
   setCategory(category: Category): void;
+  // insert inline image
   insertImage(imagePath: string): void;
 }
 
@@ -179,6 +187,7 @@ export class MainEditorProvider extends React.Component<
     });
   };
 
+  // this will insert image with image url
   insertImage = async (imagePath: string) => {
     let newEditorState = await insertImageBlock(
       imagePath,
@@ -201,10 +210,14 @@ export class MainEditorProvider extends React.Component<
     let postData = response.data;
 
     if (postData) {
-      let raw = markdownToDraft(postData.content);
+      // let raw = markdownToDraft(postData.content);
       // @ts-ignore
-      let editorState = EditorState.createWithContent(convertFromRaw(raw));
-      let imageURL = postData.image_url ? postData.image_url : "";
+      let editorState = EditorState.createWithContent(
+        convertFromRaw(
+          postData.content !== "" ? JSON.parse(postData.content) : {}
+        )
+      );
+      let imageURL = postData.image_url ?? "";
       this.setState({
         isLoading: false,
         progress: 0,
@@ -284,7 +297,9 @@ export class MainEditorProvider extends React.Component<
   onFocus = () => {
     const style = this.state.editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
+    const isList = style.has("unordered-list-item");
     this.toggle("Bold", isBold);
+    this.toggle("unordered-list-item", isList);
   };
 
   /**
@@ -338,24 +353,27 @@ export class MainEditorProvider extends React.Component<
     // convert content state to markdown
     let raw = convertToRaw(editorState.getCurrentContent());
     // @ts-ignore
-    let content = draftToMarkdown(raw, undefined);
+    // let content = draftToMarkdown(raw, undefined);
+    let content = JSON.stringify(raw);
 
     let post = this.state.post;
     return {
       id: post.id,
       title: post.title === "" ? "New Post" : post.title,
-      content: content === "" ? "New Post" : content,
+      content: content,
       category: post.post_category && post.post_category.id
     };
   }
 
+  /**
+   * Create New Post
+   */
   create = async (): Promise<boolean> => {
     try {
       let token = localStorage.getItem("access");
       let url = getURL("blog/post/");
       let data = this.preparePost();
       delete data.id;
-      console.log(data);
       let result = await axios.post<Post>(url, data, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -369,7 +387,6 @@ export class MainEditorProvider extends React.Component<
       console.log(err);
       return false;
     }
-    return false;
   };
 
   /**
@@ -380,7 +397,6 @@ export class MainEditorProvider extends React.Component<
       this.setState({ isLoading: true, progress: 0 });
       let token = localStorage.getItem("access");
       let data = this.preparePost();
-      console.log(data);
 
       let url = getURL(`blog/post/${data.id}/`);
       let response = await axios.patch<Post>(url, data, {
@@ -399,17 +415,24 @@ export class MainEditorProvider extends React.Component<
     }
   }
 
-  handleKeyCommand(
+  handleKeyCommand = (
     command: DraftEditorCommand,
     editorState: EditorState
-  ): string {
+  ): string => {
     const newState = RichUtils.handleKeyCommand(editorState, command);
+    if ((command as any) === "save") {
+      this.save();
+    }
+    if (command === "backspace") {
+      console.log(convertToRaw(editorState.getCurrentContent()));
+      console.log(editorState.getSelection().getAnchorKey());
+    }
     if (newState) {
       this.onChange(newState);
       return "handled";
     }
     return "not-handled";
-  }
+  };
 
   render() {
     return (

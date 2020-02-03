@@ -7,7 +7,7 @@ const nativeImage = electron.nativeImage;
 
 export const uploadImage = async (imageFile: File, pid: string, onUpload: (progress: number) => void) => {
     return new Promise(async (resolve, reject) => {
-        let url = getURL("post-image/")
+        let url = getURL("blog/post-image/")
         let token = localStorage.getItem("access");
         let form = new FormData();
         // const image: NativeImage = nativeImage.createFromPath(imageFile.path);

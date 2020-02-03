@@ -12,6 +12,12 @@ import {
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { Trans } from "@lingui/macro";
 import { Post } from "../../model/interfaces";
+import {
+  Editor,
+  EditorState,
+  convertFromRaw,
+  RawDraftContentState
+} from "draft-js";
 import * as path from "path";
 
 interface Props {
@@ -30,6 +36,11 @@ let getPath = (urlSrc?: string) => {
 };
 
 export default function PostItem(props: Props) {
+  let content: RawDraftContentState = JSON.parse(props.post.content);
+  content.blocks = content.blocks.slice(
+    0,
+    content.blocks.length > 3 ? 3 : content.blocks.length
+  );
   return (
     <Link to={`/edit/${props.post.id}`}>
       <ListItem alignItems="flex-start" button>
@@ -54,7 +65,17 @@ export default function PostItem(props: Props) {
               />
             </div>
           }
-          secondary={props.post.content.substring(0, 150)}
+          secondary={
+            <div style={{ maxHeight: "200px" }}>
+              <Editor
+                onChange={(c) => {}}
+                readOnly
+                editorState={EditorState.createWithContent(
+                  convertFromRaw(content)
+                )}
+              />
+            </div>
+          }
         />
         <IconButton>
           <NavigateNextIcon />

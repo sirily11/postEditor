@@ -76,7 +76,8 @@ export default function SettingCardContent(props: Props) {
                         { name: "Images", extensions: ["jpg", "png", "gif"] }
                       ]
                     });
-                    if (result !== undefined) {
+
+                    if (!result.canceled) {
                       setLoading(true);
                       await setCover(result.filePaths[0]);
                       setLoading(false);
