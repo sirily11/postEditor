@@ -12,15 +12,15 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: "flex",
-      flexWrap: "wrap"
+      flexWrap: "wrap",
     },
     formControl: {
       margin: theme.spacing(4),
-      width: "90%"
+      width: "90%",
     },
     selectEmpty: {
-      marginTop: theme.spacing(2)
-    }
+      marginTop: theme.spacing(2),
+    },
   })
 );
 
@@ -41,6 +41,7 @@ export default function CategorySelect(props: Props) {
         onChange={async (event) => {
           const category = categories.find((c) => c.id === event.target.value);
           if (category) {
+            console.log("set catrgory", category);
             await setCategory(category);
           }
         }}

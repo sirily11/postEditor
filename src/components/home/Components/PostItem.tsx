@@ -7,7 +7,7 @@ import {
   ListItemText,
   Divider,
   Chip,
-  IconButton
+  IconButton,
 } from "@material-ui/core";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { Trans } from "@lingui/macro";
@@ -16,7 +16,7 @@ import {
   Editor,
   EditorState,
   convertFromRaw,
-  RawDraftContentState
+  RawDraftContentState,
 } from "draft-js";
 import * as path from "path";
 
@@ -41,6 +41,7 @@ export default function PostItem(props: Props) {
     0,
     content.blocks.length > 3 ? 3 : content.blocks.length
   );
+  let plaintext = convertFromRaw(content).getPlainText();
   return (
     <Link to={`/edit/${props.post.id}`}>
       <ListItem alignItems="flex-start" button>
@@ -66,22 +67,14 @@ export default function PostItem(props: Props) {
             </div>
           }
           secondary={
-            <div style={{ maxHeight: "200px" }}>
-              <Editor
-                onChange={(c) => {}}
-                readOnly
-                editorState={EditorState.createWithContent(
-                  convertFromRaw(content)
-                )}
-              />
-            </div>
+            <p className="text">{convertFromRaw(content).getPlainText()}</p>
           }
         />
         <IconButton>
           <NavigateNextIcon />
         </IconButton>
       </ListItem>
-      <Divider variant="inset" />
+      <Divider style={{ marginTop: 10 }} variant="inset" />
     </Link>
   );
 }

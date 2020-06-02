@@ -6,19 +6,14 @@ import * as  contextMenu from "electron-context-menu"
 const isDev = require("electron-is-dev");
 
 let mainWindow: Electron.BrowserWindow | undefined;
-let uploadWindow: Electron.BrowserWindow | undefined;
 
-let menu = Menu.buildFromTemplate([
+
+var menu = Menu.buildFromTemplate([
     {
         label: 'Menu',
     }, {
         label: "File",
         submenu: [
-            {
-                label: 'Upload Video', click: () => {
-                    uploadWindow?.show();
-                }
-            },
             {
                 label: 'Log out', click: () => {
                     if (mainWindow) {
@@ -39,20 +34,8 @@ let menu = Menu.buildFromTemplate([
                 },
             }
         ]
-    },
-    {
-        label: "Edit",
-        submenu: [
-            { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
-            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
-            { type: "separator" },
-            { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
-            { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
-            { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-            { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
-        ]
     }
-]);
+])
 Menu.setApplicationMenu(menu);
 
 function createWindow() {
@@ -65,17 +48,7 @@ function createWindow() {
             webSecurity: false,
         },
     });
-
-    uploadWindow = new BrowserWindow({
-        width: 1000,
-        height: 800,
-        titleBarStyle: "hidden",
-        show: false,
-        webPreferences: {
-            nodeIntegration: true,
-            webSecurity: false,
-        },
-    });
+    console.log("Starting the webserver")
     mainWindow.loadURL(
         isDev
             ? "http://localhost:3000#/"
@@ -86,37 +59,24 @@ function createWindow() {
         if (mainWindow) {
             mainWindow.show()
         }
-    });
-
-    uploadWindow.loadURL(
-        isDev
-            ? "http://localhost:3000#/upload-video"
-            : `file://${path.join(__dirname, "../build/index.html#/upload-video")}`
-    );
+    })
 
     if (isDev) {
         // Open the DevTools.
         //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
         mainWindow.webContents.openDevTools();
-        uploadWindow.webContents.openDevTools();
     }
     mainWindow.on("closed", () => {
         mainWindow = undefined;
-    });
-
-    uploadWindow.on("close", (e) => {
-        e.preventDefault()
-        uploadWindow?.hide()
     })
 }
 
 app.on("ready", createWindow);
 
 app.on("window-all-closed", () => {
-    // if (process.platform !== "darwin") {
-    //     app.quit();
-    // }
-    app.quit()
+    if (process.platform !== "darwin") {
+        app.quit();
+    }
 });
 
 app.on("activate", () => {
@@ -124,18 +84,3 @@ app.on("activate", () => {
         createWindow();
     }
 });
-
-// ipcMain.on("get-image", (imagePath: string) => {
-//   let data = fs.readFileSync(imagePath, { encoding: "base64" })
-//   console.log("Got the image", imagePath)
-//   if (mainWindow) {
-//     mainWindow.webContents.send("preview-image", data)
-//   }
-// })
-
-ipcMain.on("hello", () => {
-    if (mainWindow) {
-        mainWindow.webContents.send("helloback", "hello")
-    }
-});
-

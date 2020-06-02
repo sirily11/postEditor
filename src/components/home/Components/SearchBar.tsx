@@ -16,8 +16,8 @@ import { DisplayContext } from "../../model/displayContext";
 
 const i18n = setupI18n({
   catalogs: {
-    zh: chinese
-  }
+    zh: chinese,
+  },
 });
 
 const useStyles = makeStyles(
@@ -26,20 +26,20 @@ const useStyles = makeStyles(
       padding: "2px 4px",
       display: "flex",
       alignItems: "center",
-      width: 400
+      width: 400,
     },
     input: {
       marginLeft: 8,
-      flex: 1
+      flex: 1,
     },
     iconButton: {
-      padding: 10
+      padding: 10,
     },
     divider: {
       width: 1,
       height: 28,
-      margin: 4
-    }
+      margin: 4,
+    },
   })
 );
 

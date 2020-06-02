@@ -3,6 +3,7 @@ import { NativeImage } from "electron";
 import { getURL } from "../../setting/settings";
 import { number } from '@lingui/core';
 const electron = (window as any).require("electron");
+
 const nativeImage = electron.nativeImage;
 
 
@@ -31,7 +32,7 @@ export const deleteImage = async (imageID: number, onUpload: (progress: number) 
     return new Promise(async (resolve, reject) => {
         let url = getURL(`blog/post-image/${imageID}`)
         let token = localStorage.getItem("access");
-       
+
         let result = await axios.delete(url, {
             headers: {
                 Authorization: `Bearer ${token}`,

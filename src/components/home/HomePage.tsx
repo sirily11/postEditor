@@ -4,10 +4,14 @@ import {
   Collapse,
   CircularProgress,
   IconButton,
-  Fade
+  Fade,
 } from "@material-ui/core";
 import PostItem from "./Components/PostItem";
-import { createMuiTheme } from "@material-ui/core/styles";
+import {
+  createMuiTheme,
+  createStyles,
+  makeStyles,
+} from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import lightBlue from "@material-ui/core/colors/lightBlue";
 import SearchBar from "./Components/SearchBar";
@@ -20,13 +24,14 @@ import { Grid } from "semantic-ui-react";
 import { Button } from "@material-ui/core";
 import VideoPage from "../video/VideoPage";
 
-const theme = createMuiTheme({
-  palette: {
-    primary: lightBlue
-  }
+const useStyles = makeStyles({
+  body: {
+    marginLeft: 300,
+  },
 });
 
 export default function HomePage() {
+  const classes = useStyles();
   const displayContext = useContext(DisplayContext);
   const { progress, errMsg, postsResult, fetch, fetchMore } = displayContext;
 
@@ -47,13 +52,10 @@ export default function HomePage() {
     );
   }
 
-  // if (!this.state.isLogin) return <Redirect to="/" />;
-
   return (
-    <ThemeProvider theme={theme}>
+    <div className={classes.body}>
       <Collapse in={true} timeout={1000}>
         <div className="container-fluid h-100">
-          <Navs />
           {displayContext.currentPage === 0 ? (
             <div>
               {" "}
@@ -71,9 +73,7 @@ export default function HomePage() {
                       variant="determinate"
                       color="primary"
                       value={progress}
-                    >
-                      {" "}
-                    </CircularProgress>
+                    />
                     <div>{progress.toFixed(0)} %</div>
                   </div>
                 </div>
@@ -116,6 +116,6 @@ export default function HomePage() {
         </div>
         <SettingCard isCreated={true} />
       </Collapse>
-    </ThemeProvider>
+    </div>
   );
 }

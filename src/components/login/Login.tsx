@@ -18,28 +18,23 @@ import { Trans } from "@lingui/macro";
 import { DisplayContext } from "../model/displayContext";
 
 const useStyles = makeStyles((theme) => ({
-  "@global": {
-    body: {
-      backgroundColor: theme.palette.common.white
-    }
-  },
   paper: {
     paddingTop: theme.spacing(12),
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(0),
-    backgroundColor: theme.palette.secondary.main
+    backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2)
-  }
+    margin: theme.spacing(3, 0, 2),
+  },
 }));
 
 export default function Login() {
@@ -56,14 +51,13 @@ export default function Login() {
         login,
         isLogin,
         saveLogin,
-        saveLoginInfo
+        saveLoginInfo,
       }) => {
         if (isLogin) {
           return <Redirect to="/home" />;
         } else {
           return (
             <Container component="main" maxWidth="xs">
-              <CssBaseline />
               <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
                   <LockOutlinedIcon />

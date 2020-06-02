@@ -13,8 +13,8 @@ import { SettingConext } from "../model/settingContext";
 const i18n = setupI18n({
   language: "zh",
   catalogs: {
-    zh: chinese
-  }
+    zh: chinese,
+  },
 });
 
 export default class Title extends Component {
@@ -58,7 +58,7 @@ export default class Title extends Component {
 
               <FloatButton />
             </div>
-            <Divider className="m-4" />
+            <Divider style={{ marginTop: 30 }} className="m-4" />
           </Paper>
         )}
       </EditorContext.Consumer>

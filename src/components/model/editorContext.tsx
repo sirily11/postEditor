@@ -32,6 +32,7 @@ import {
 } from "./utils/uploadUtils";
 
 const electron = (window as any).require("electron");
+const ColorThief = (window as any).require("colorthief");
 const nativeImage = electron.nativeImage;
 
 const i18n = setupI18n({
@@ -258,16 +259,31 @@ export class MainEditorProvider extends React.Component<
   setCover = async (cover: string) => {
     let post = this.state.post;
     let url = getURL(`blog/post/${post.id}/`);
+    let colorURL = getURL("blog/cover-color/");
+    const [red, green, blue] = await ColorThief.getColor(cover);
+
     let token = localStorage.getItem("access");
     let form = new FormData();
     const image: NativeImage = nativeImage.createFromPath(cover);
     const dataURL = image.toDataURL();
-    form.append("image_url", dataURItoBlob(dataURL), "cover.jpg");
-
+    form.append("image_url", dataURItoBlob(dataURL), `cover-${post.id}.jpg`);
+    /// set cover color
     let result = await axios.patch<Post>(url, form, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data"
+      }
+    });
+
+    let colorData = {
+      post: post.id,
+      red: red,
+      blue: blue,
+      green: green
+    };
+    await axios.post(colorURL, colorData, {
+      headers: {
+        Authorization: `Bearer ${token}`
       }
     });
     this.setState({ post: result.data });

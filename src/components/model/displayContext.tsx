@@ -16,9 +16,9 @@ interface DisplayState {
   value: number;
   onChange(value: number): any;
   searchWord: string;
-  onSearch(e: React.ChangeEvent<HTMLInputElement>): void;
-  fetch(): void;
-  fetchMore(): void;
+  onSearch(e: React.ChangeEvent<HTMLInputElement>): Promise<void>;
+  fetch(): Promise<void>;
+  fetchMore(): Promise<void>;
   postsResult?: Result<Post>;
   progress: number;
   errMsg?: string;
@@ -43,7 +43,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
       onSearch: this.onSearch,
       fetch: this.fetch,
       fetchMore: this.fetchMore,
-      setCurrentPage: this.setCurrentPage
+      setCurrentPage: this.setCurrentPage,
     };
   }
 
@@ -51,9 +51,9 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
     this.setState({ currentPage: page });
   };
 
-  // async componentDidMount() {
-  //   await this.fetch();
-  // }
+  async componentDidMount() {
+    await this.fetch();
+  }
 
   fetchMore = async () => {
     let postResult = this.state.postsResult;
@@ -92,12 +92,12 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
       this.setState({
         progress: 100,
         postsResult: post,
-        errMsg: undefined
+        errMsg: undefined,
       });
     } catch (err) {
       this.setState({
         progress: 100,
-        errMsg: err.toString()
+        errMsg: err.toString(),
       });
     }
   };
@@ -117,7 +117,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
         computeDownloadProgress(progressEvent, (progress: number) =>
           this.setState({ progress })
         );
-      }
+      },
     });
     /// for animation
     setTimeout(() => {
@@ -144,16 +144,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
   }
 }
 
-const context: DisplayState = {
-  value: -1,
-  searchWord: "",
-  progress: 0,
-  onChange: (newValue: number) => {},
-  onSearch: (e: React.ChangeEvent<{}>) => {},
-  fetch: () => {},
-  fetchMore: () => {},
-  setCurrentPage: (p: number) => {},
-  currentPage: 0
-};
+//@ts-ignore
+const context: DisplayState = {};
 
 export const DisplayContext = React.createContext(context);

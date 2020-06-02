@@ -2,6 +2,7 @@ import React, { Component, useContext } from "react";
 import { Category, Post, Result } from "./interfaces";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { getURL } from "../setting/settings";
+import Axios from "axios";
 
 const fs = (window as any).require("fs");
 
@@ -12,6 +13,7 @@ interface SettingState {
   openSetting: any;
   closeSetting: any;
   addCategory(category: Category): void;
+  updateCategory(category: Category): Promise<void>;
 }
 
 interface SettingProps {}
@@ -25,7 +27,8 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
       categories: [],
       openSetting: this.openSetting,
       closeSetting: this.closeSetting,
-      addCategory: this.addCategory
+      addCategory: this.addCategory,
+      updateCategory: this.updateCategory,
     };
   }
 
@@ -47,6 +50,18 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
     this.setState({ categories });
   };
 
+  updateCategory = async (category: Category) => {
+    let result = await Axios.patch(getURL(`blog/category/${category.id}/`), {
+      category: category.category,
+    });
+    let { categories } = this.state;
+    let oldResult = categories.findIndex((c) => c.id === category.id);
+    if (oldResult > -1) {
+      categories[oldResult] = result.data;
+      this.setState({ categories: categories });
+    }
+  };
+
   openSetting = () => {
     this.setState({ open: true });
   };
@@ -64,13 +79,14 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   }
 }
 
+//@ts-ignore
 const context: SettingState = {
   open: false,
   language: -1,
   categories: [],
   openSetting: () => {},
   closeSetting: () => {},
-  addCategory: () => {}
+  addCategory: () => {},
 };
 
 export const SettingConext = React.createContext(context);

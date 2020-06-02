@@ -11,7 +11,7 @@ import {
   LinearProgress,
   Collapse,
   Snackbar,
-  SnackbarContent
+  SnackbarContent,
 } from "@material-ui/core";
 
 interface State {
@@ -26,7 +26,7 @@ export default class EditorPage extends Component<EditorProps, State> {
     this.state = {
       files: [],
       open: false,
-      _id: ""
+      _id: "",
     };
   }
 
@@ -43,7 +43,7 @@ export default class EditorPage extends Component<EditorProps, State> {
   close = () => {
     this.setState({
       open: false,
-      files: []
+      files: [],
     });
   };
 
@@ -69,7 +69,7 @@ export default class EditorPage extends Component<EditorProps, State> {
                   open={isLoading}
                   anchorOrigin={{
                     vertical: "top",
-                    horizontal: "right"
+                    horizontal: "right",
                   }}
                 >
                   <SnackbarContent

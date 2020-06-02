@@ -1,44 +1,56 @@
 import React, { useContext } from "react";
 import { DisplayProvider, DisplayContext } from "../../model/displayContext";
-import { Tabs, Tab, Paper } from "@material-ui/core";
+import {
+  Tabs,
+  Tab,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+} from "@material-ui/core";
 import { SettingConext } from "../../model/settingContext";
+import { makeStyles } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
+
+const useStyles = makeStyles({
+  drawer: {
+    marginTop: 20,
+    width: 300,
+  },
+});
 
 export default function TabBar() {
   const settingContext = useContext(SettingConext);
+  const classes = useStyles();
   return (
     <DisplayContext.Consumer>
       {({ value, onChange }) => (
-        <Paper
-          className="row"
-          id="tabbar-container"
-          elevation={0}
-          style={{ position: "sticky", top: 70, zIndex: 1000 }}
-        >
-          <Tabs
-            id="category-selector"
-            value={value}
-            onChange={(e, value) => onChange(value)}
-            className="mx-auto"
-          >
-            <Tab
-              label="All"
-              value={-1}
-              disableFocusRipple
-              disableRipple
-              disableTouchRipple
-            ></Tab>
+        <Drawer id="tabbar-container" elevation={0} variant="permanent">
+          <List className={classes.drawer}>
+            <ListItem
+              button
+              selected={value === -1}
+              onClick={() => {
+                onChange(-1);
+              }}
+            >
+              <ListItemText primary={"All"} />
+            </ListItem>
             {settingContext.categories.map((category) => {
               return (
-                <Tab
-                  key={category.id}
-                  label={category.category}
-                  value={category.id}
-                  disableFocusRipple
-                />
+                <ListItem
+                  button
+                  selected={value === category.id}
+                  onClick={() => {
+                    onChange(category.id);
+                  }}
+                >
+                  <ListItemText primary={category.category} />
+                </ListItem>
               );
             })}
-          </Tabs>
-        </Paper>
+          </List>
+        </Drawer>
       )}
     </DisplayContext.Consumer>
   );
