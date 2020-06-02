@@ -104,6 +104,6 @@ pre {
   -webkit-box-orient: vertical;
 }
 
-span {
+.DraftEditor-editorContainer {
   font-size: medium;
 }

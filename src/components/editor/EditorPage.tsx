@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import SideController from "./SideController";
 import Title from "./Title";
@@ -12,6 +14,8 @@ import {
   Collapse,
   Snackbar,
   SnackbarContent,
+  AppBar,
+  Toolbar,
 } from "@material-ui/core";
 
 interface State {
@@ -55,9 +59,10 @@ export default class EditorPage extends Component<EditorProps, State> {
           return (
             <div>
               <SideController />
-
-              <div className="content">
-                <Title />
+              <Title />
+              <div
+                className="content"
+                style={{ marginTop: 150, marginBottom: 70 }}>
                 <MainEditor
                   initEditor={initEditor}
                   _id={this.state._id}
@@ -70,11 +75,9 @@ export default class EditorPage extends Component<EditorProps, State> {
                   anchorOrigin={{
                     vertical: "top",
                     horizontal: "right",
-                  }}
-                >
+                  }}>
                   <SnackbarContent
-                    message={`Progress:${progress}%`}
-                  ></SnackbarContent>
+                    message={`Progress:${progress}%`}></SnackbarContent>
                 </Snackbar>
               </div>
               <SettingCard isCreated={false} />

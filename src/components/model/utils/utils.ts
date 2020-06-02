@@ -8,7 +8,7 @@ import axios from 'axios';
  * @param keyword Search Keyword
  */
 export async function searchPost(keyword: string): Promise<Result<Post>> {
-    let url = getURL("post/?search=" + encodeURIComponent(keyword));
+    let url = getURL("blog/post/?search=" + encodeURIComponent(keyword));
     let result = await axios.get<Result<Post>>(url);
     return result.data
 }

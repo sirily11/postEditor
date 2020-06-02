@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component, useContext, useState } from "react";
 import {
   Dialog,
@@ -54,21 +56,8 @@ export default function SettingCardContent(props: Props) {
       </DialogTitle>
       <DialogContent>
         <Grid container>
-          <Grid item xs={8}>
+          <Grid item xs={11}>
             <CategorySelect> </CategorySelect>
-          </Grid>
-          <Grid item xs={1}>
-            {!post.post_category ? (
-              <IconBtn
-                icon="add"
-                onClick={() => setOpenCategory(true)}
-              ></IconBtn>
-            ) : (
-              <IconBtn
-                icon="edit"
-                onClick={() => setOpenEditCategory(true)}
-              ></IconBtn>
-            )}
           </Grid>
           {!props.isCreate && (
             <Grid item xs={1}>
@@ -88,8 +77,7 @@ export default function SettingCardContent(props: Props) {
                       await setCover(result.filePaths[0]);
                       setLoading(false);
                     }
-                  }}
-                ></IconBtn>
+                  }}></IconBtn>
               </Tooltip>
             </Grid>
           )}
@@ -107,6 +95,9 @@ export default function SettingCardContent(props: Props) {
         </Collapse>
       </DialogContent>
       <DialogActions>
+        <Button onClick={closeSetting}>
+          <Trans>Cancel</Trans>
+        </Button>
         <Button
           onClick={async () => {
             if (props.isCreate) {
@@ -117,25 +108,10 @@ export default function SettingCardContent(props: Props) {
             }
             closeSetting();
           }}
-          disabled={post.post_category === undefined}
-        >
+          disabled={post.post_category === undefined}>
           OK
         </Button>
-        <Button onClick={closeSetting}>
-          <Trans>Cancel</Trans>
-        </Button>
       </DialogActions>
-      <NewCategoryDialog
-        open={openCategory}
-        close={() => setOpenCategory(false)}
-      ></NewCategoryDialog>
-      {post.post_category && (
-        <UpdateCategoryDialog
-          open={openEditCategory}
-          originalCategory={post.post_category}
-          close={() => setOpenEditCategory(false)}
-        />
-      )}
     </Dialog>
   );
 }

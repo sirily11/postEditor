@@ -1,3 +1,5 @@
+/** @format */
+
 import {
   EditorState,
   RichUtils,
@@ -5,7 +7,7 @@ import {
   convertToRaw,
   convertFromRaw,
   genKey,
-  ContentBlock
+  ContentBlock,
 } from "draft-js";
 import React from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -28,8 +30,11 @@ import { deleteImage } from "./utils/uploadUtils";
 import {
   computeDownloadProgress,
   computeUploadProgress,
-  dataURItoBlob
+  dataURItoBlob,
 } from "./utils/uploadUtils";
+//@ts-ignore
+import { v4 as uuidv4 } from "uuid";
+import AwesomeDebouncePromise from "awesome-debounce-promise";
 
 const electron = (window as any).require("electron");
 const ColorThief = (window as any).require("colorthief");
@@ -37,8 +42,8 @@ const nativeImage = electron.nativeImage;
 
 const i18n = setupI18n({
   catalogs: {
-    zh: chinese
-  }
+    zh: chinese,
+  },
 });
 
 export interface Action {
@@ -49,6 +54,7 @@ export interface Action {
 }
 
 interface MainEditorState {
+  hasInit: boolean;
   // Indicate if the post is loading
   isLoading: boolean;
   //Progress
@@ -79,7 +85,7 @@ interface MainEditorState {
   create(): Promise<boolean>;
   initEditor(_id: string, isLocal: boolean): void;
   // change cover
-  setCover(cover: string): void;
+  setCover(cover: string): Promise<void>;
   // change category
   setCategory(category: Category): void;
   // insert inline image
@@ -92,6 +98,7 @@ export class MainEditorProvider extends React.Component<
   MainEditorProps,
   MainEditorState
 > {
+  saveAPIDebounced: () => any;
   constructor(props: MainEditorProps) {
     super(props);
     this.state = {
@@ -100,11 +107,12 @@ export class MainEditorProvider extends React.Component<
       isLoading: false,
       post: {
         title: "New Post",
-        content: "New Post"
+        content: "New Post",
       },
       snackBarMessage: "",
       selected: [],
       editorState: EditorState.createEmpty(),
+      hasInit: false,
       actions: this.actions,
       onChange: this.onChange,
       onFocus: this.onFocus,
@@ -116,8 +124,13 @@ export class MainEditorProvider extends React.Component<
       insertImage: this.insertImage,
       clear: this.clear,
       setCover: this.setCover,
-      create: this.create
+      create: this.create,
     };
+
+    this.saveAPIDebounced = AwesomeDebouncePromise(
+      async () => await this.save(),
+      1000
+    );
   }
 
   actions: Action[] = [
@@ -126,33 +139,33 @@ export class MainEditorProvider extends React.Component<
       icon: <SaveIcon />,
       action: async () => {
         await this.save();
-      }
+      },
     },
     {
       text: "Divider 1",
       icon: <div />,
-      action: () => {}
+      action: () => {},
     },
 
     {
       text: "Header 1",
       icon: <div>H1</div>,
-      action: () => {}
+      action: () => {},
     },
     {
       text: "Header 2",
       icon: <div>H2</div>,
-      action: () => {}
+      action: () => {},
     },
     {
       text: "Header 3",
       icon: <div>H3</div>,
-      action: () => {}
+      action: () => {},
     },
     {
       text: "Divider 2",
       icon: <div />,
-      action: () => {}
+      action: () => {},
     },
     {
       text: "Bold",
@@ -163,31 +176,33 @@ export class MainEditorProvider extends React.Component<
           "BOLD"
         );
         this.setState({ editorState: newState });
-      }
+      },
     },
     {
       text: "Divider 3",
       icon: <div />,
-      action: async () => {}
+      action: async () => {},
     },
     {
       text: i18n._(t`Delete from cloud`),
       icon: <DeleteIcon />,
       action: async () => {
         await this.deleteFromCloud();
-      }
-    }
+      },
+    },
   ];
 
   clear = () => {
     this.setState({
       isRedirect: false,
+      hasInit: false,
       post: {
+        id: undefined,
         title: "",
         content: "",
-        post_category: undefined
+        post_category: undefined,
       },
-      editorState: EditorState.createEmpty()
+      editorState: EditorState.createEmpty(),
     });
   };
 
@@ -213,7 +228,7 @@ export class MainEditorProvider extends React.Component<
         computeDownloadProgress(ProgressEvent, (progress: number) =>
           this.setState({ progress })
         );
-      }
+      },
     });
     let postData = response.data;
 
@@ -231,7 +246,7 @@ export class MainEditorProvider extends React.Component<
         progress: 0,
         post: postData,
         editorState: editorState,
-        prevState: editorState
+        prevState: editorState,
       });
     }
   };
@@ -266,25 +281,30 @@ export class MainEditorProvider extends React.Component<
     let form = new FormData();
     const image: NativeImage = nativeImage.createFromPath(cover);
     const dataURL = image.toDataURL();
-    form.append("image_url", dataURItoBlob(dataURL), `cover-${post.id}.jpg`);
+
+    form.append(
+      "image_url",
+      dataURItoBlob(dataURL),
+      `${uuidv4()}-cover-${post.id}.jpg`
+    );
     /// set cover color
     let result = await axios.patch<Post>(url, form, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data"
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
 
     let colorData = {
       post: post.id,
       red: red,
       blue: blue,
-      green: green
+      green: green,
     };
     await axios.post(colorURL, colorData, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
     this.setState({ post: result.data });
   };
@@ -305,12 +325,21 @@ export class MainEditorProvider extends React.Component<
    * @param editorState Editor state produced by draft js
    */
   onChange = async (editorState: EditorState) => {
+    const { post, hasInit } = this.state;
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
     this.toggle("Bold", isBold);
     this.setState({
-      editorState: editorState
+      editorState: editorState,
     });
+    if (post.id) {
+      if (hasInit) {
+        await this.saveAPIDebounced();
+      }
+      if (!hasInit) {
+        this.setState({ hasInit: true });
+      }
+    }
   };
 
   /**
@@ -373,15 +402,18 @@ export class MainEditorProvider extends React.Component<
 
   private async deleteFromCloud() {
     try {
-      let token = localStorage.getItem("access");
-      let post = this.preparePost();
+      let confirm = window.confirm("Do you want to delete?");
+      if (confirm) {
+        let token = localStorage.getItem("access");
+        let post = this.preparePost();
 
-      let url = getURL("blog/post/" + post.id);
-      axios.delete(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        let url = getURL("blog/post/" + post.id);
+        axios.delete(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      this.setState({ isRedirect: true });
+        this.setState({ isRedirect: true });
+      }
     } catch (err) {}
   }
 
@@ -403,7 +435,7 @@ export class MainEditorProvider extends React.Component<
       id: post.id,
       title: post.title === "" ? "New Post" : post.title,
       content: content,
-      category: post.post_category && post.post_category.id
+      category: post.post_category && post.post_category.id,
     };
   }
 
@@ -417,7 +449,7 @@ export class MainEditorProvider extends React.Component<
       let data = this.preparePost();
       delete data.id;
       let result = await axios.post<Post>(url, data, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (result.status === 201) {
         this.setState({ post: result.data });
@@ -459,7 +491,7 @@ export class MainEditorProvider extends React.Component<
             this.setState({ progress });
           });
         },
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       this.showMessage("Updated");
     } catch (err) {
@@ -468,7 +500,7 @@ export class MainEditorProvider extends React.Component<
       this.setState({
         isLoading: false,
         progress: 0,
-        prevState: this.state.editorState
+        prevState: this.state.editorState,
       });
     }
   }
@@ -498,30 +530,7 @@ export class MainEditorProvider extends React.Component<
   }
 }
 
-const context: MainEditorState = {
-  isRedirect: false,
-  isLoading: false,
-  snackBarMessage: "",
-  post: {
-    title: "",
-    content: ""
-  },
-  editorState: EditorState.createEmpty(),
-  onChange: () => {},
-  handleKeyCommand: () => {},
-  onFocus: () => {},
-  setTitle: (newTitle: string) => {},
-  hideMessage: () => {},
-  setCover: (cover: string) => {},
-  initEditor: (id, isLocal) => {},
-  setCategory: (category: Category) => {},
-  clear: () => {},
-  insertImage: () => {},
-  create: () => {
-    return Promise.resolve(false);
-  },
-  actions: [],
-  selected: []
-};
+//@ts-ignore
+const context: MainEditorState = {};
 
 export const EditorContext = React.createContext(context);

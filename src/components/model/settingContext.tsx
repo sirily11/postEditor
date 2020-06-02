@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component, useContext } from "react";
 import { Category, Post, Result } from "./interfaces";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
@@ -14,6 +16,7 @@ interface SettingState {
   closeSetting: any;
   addCategory(category: Category): void;
   updateCategory(category: Category): Promise<void>;
+  deleteCategory(category: Category): Promise<void>;
 }
 
 interface SettingProps {}
@@ -29,6 +32,7 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
       closeSetting: this.closeSetting,
       addCategory: this.addCategory,
       updateCategory: this.updateCategory,
+      deleteCategory: this.deleteCategory,
     };
   }
 
@@ -50,14 +54,24 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
     this.setState({ categories });
   };
 
+  deleteCategory = async (category: Category) => {
+    let result = await Axios.delete(getURL(`blog/category/${category.id}/`));
+    let { categories } = this.state;
+    let removeIndex = categories.findIndex((c) => c.id === category.id);
+    if (removeIndex > -1) {
+      categories.splice(removeIndex, 1);
+      this.setState({ categories: categories });
+    }
+  };
+
   updateCategory = async (category: Category) => {
     let result = await Axios.patch(getURL(`blog/category/${category.id}/`), {
       category: category.category,
     });
     let { categories } = this.state;
-    let oldResult = categories.findIndex((c) => c.id === category.id);
-    if (oldResult > -1) {
-      categories[oldResult] = result.data;
+    let updateIndex = categories.findIndex((c) => c.id === category.id);
+    if (updateIndex > -1) {
+      categories[updateIndex] = result.data;
       this.setState({ categories: categories });
     }
   };

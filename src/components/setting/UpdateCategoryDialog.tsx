@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useContext, useEffect } from "react";
 import {
   Dialog,
@@ -5,14 +7,15 @@ import {
   DialogContent,
   DialogActions,
   DialogTitle,
+  Button,
 } from "@material-ui/core";
-import { Form, Checkbox, Button } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import axios from "axios";
 import { getURL } from "./settings";
 import { SettingConext } from "../model/settingContext";
 import { Category } from "../model/interfaces";
 import { DisplayContext } from "../model/displayContext";
+import TextField from "@material-ui/core/TextField";
 interface Props {
   originalCategory: Category;
   open: boolean;
@@ -32,14 +35,16 @@ export default function UpdateCategoryDialog(props: Props) {
   return (
     <Dialog open={open} onClose={close} fullWidth>
       <DialogTitle>Add New Category</DialogTitle>
-      <Form style={{ margin: 30 }}>
-        <Form.Input
-          placeholder="Category"
+      <DialogContent style={{ margin: 30 }}>
+        <TextField
+          fullWidth
+          variant="filled"
+          label="Category"
           name="category"
           value={category}
-          onChange={(e, { name, value }) => setCategory(value)}
+          onChange={(e) => setCategory(e.target.value)}
         />
-      </Form>
+      </DialogContent>
       <DialogActions>
         <Button onClick={close}>close</Button>
         <Button
@@ -48,8 +53,7 @@ export default function UpdateCategoryDialog(props: Props) {
             await updateCategory({ ...originalCategory, category: category });
             await fetch();
             close();
-          }}
-        >
+          }}>
           update
         </Button>
       </DialogActions>

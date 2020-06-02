@@ -1,3 +1,5 @@
+/** @format */
+
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
@@ -8,6 +10,8 @@ import {
   Divider,
   Chip,
   IconButton,
+  CardMedia,
+  Card,
 } from "@material-ui/core";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { Trans } from "@lingui/macro";
@@ -45,8 +49,13 @@ export default function PostItem(props: Props) {
   return (
     <Link to={`/edit/${props.post.id}`}>
       <ListItem alignItems="flex-start" button>
-        <ListItemAvatar>
-          <Avatar alt={props.post.title} src={props.post.image_url} />
+        <ListItemAvatar style={{ marginRight: 10 }}>
+          <Card>
+            <CardMedia
+              image={props.post.image_url}
+              style={{ width: 100, height: 100 }}
+            />
+          </Card>
         </ListItemAvatar>
         <ListItemText
           primary={

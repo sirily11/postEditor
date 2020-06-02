@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { InputBase, Divider, Breadcrumbs } from "@material-ui/core";
@@ -22,44 +24,56 @@ export default class Title extends Component {
     return (
       <EditorContext.Consumer>
         {({ post, setTitle }) => (
-          <Paper elevation={0}>
-            <div className="mx-4">
-              <Breadcrumbs>
-                <Link to="/home">
-                  <Trans>Home</Trans>
-                </Link>
-                <div>{post.title}</div>
-              </Breadcrumbs>
-            </div>
-            <div className="row mx-4 my-2 sticky-top">
-              <InputBase
-                value={post.title}
-                className="title-input-text"
-                style={{ fontSize: "30px" }}
-                placeholder={i18n._(t`Enter your title here`)}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+          <div style={{ position: "fixed", top: 0, width: "100%", zIndex: 10 }}>
+            <Paper
+              elevation={0}
+              square
+              style={{
+                padding: 10,
+                marginBottom: 10,
+                marginRight: 0,
+                marginLeft: 60,
+              }}>
+              <div className="mx-4">
+                <Breadcrumbs>
+                  <Link to="/home">
+                    <Trans>Home</Trans>
+                  </Link>
+                  <div>{post.title}</div>
+                </Breadcrumbs>
+              </div>
+              <div className="row mx-4 my-2">
+                <InputBase
+                  value={post.title}
+                  className="title-input-text"
+                  style={{ fontSize: "30px" }}
+                  placeholder={i18n._(t`Enter your title here`)}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
 
-              <UserContext.Consumer>
-                {({ userName }) => {
-                  return (
-                    <div style={{ alignSelf: "flex-end" }}>
-                      <h6>
-                        <Trans>By</Trans>: {userName}
-                      </h6>
-                      <h6>
-                        <Trans>Category</Trans>:{" "}
-                        {post.post_category ? post.post_category.category : ""}
-                      </h6>
-                    </div>
-                  );
-                }}
-              </UserContext.Consumer>
+                <UserContext.Consumer>
+                  {({ userName }) => {
+                    return (
+                      <div style={{ alignSelf: "flex-end" }}>
+                        <h6>
+                          <Trans>By</Trans>: {userName}
+                        </h6>
+                        <h6>
+                          <Trans>Category</Trans>:{" "}
+                          {post.post_category
+                            ? post.post_category.category
+                            : ""}
+                        </h6>
+                      </div>
+                    );
+                  }}
+                </UserContext.Consumer>
 
-              <FloatButton />
-            </div>
-            <Divider style={{ marginTop: 30 }} className="m-4" />
-          </Paper>
+                <FloatButton />
+              </div>
+              <Divider style={{ marginTop: 30 }} className="m-4" />
+            </Paper>
+          </div>
         )}
       </EditorContext.Consumer>
     );

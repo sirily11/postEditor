@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useContext } from "react";
 import {
   List,
@@ -26,7 +28,7 @@ import VideoPage from "../video/VideoPage";
 
 const useStyles = makeStyles({
   body: {
-    marginLeft: 300,
+    marginLeft: 250,
   },
 });
 
@@ -41,8 +43,7 @@ export default function HomePage() {
         <div
           className="mx-auto my-auto"
           style={{ alignItems: "center" }}
-          id="err-msg"
-        >
+          id="err-msg">
           <IconButton onClick={fetch}>
             <RefeashIcon />
           </IconButton>
@@ -64,8 +65,7 @@ export default function HomePage() {
               <Collapse
                 in={progress <= 100 && !errMsg}
                 mountOnEnter
-                timeout={{ enter: 500, exit: 1000 }}
-              >
+                timeout={{ enter: 500, exit: 1000 }}>
                 <div className="d-flex h-100">
                   <div className="mx-auto my-auto">
                     <CircularProgress
@@ -82,8 +82,7 @@ export default function HomePage() {
                 in={!(progress < 100 && !errMsg)}
                 mountOnEnter
                 unmountOnExit
-                timeout={1000}
-              >
+                timeout={1000}>
                 <div>
                   <List id="post-list">
                     {postsResult &&
@@ -101,8 +100,7 @@ export default function HomePage() {
                         id="load-btn"
                         color="primary"
                         disabled={!(postsResult && postsResult.next)}
-                        onClick={() => fetchMore()}
-                      >
+                        onClick={() => fetchMore()}>
                         Load More
                       </Button>
                     </Grid.Row>

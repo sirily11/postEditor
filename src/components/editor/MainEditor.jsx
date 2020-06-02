@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import Dropzone from "react-dropzone";
 import Prism from "prismjs";
@@ -8,7 +10,7 @@ import {
   ItalicButton,
   BoldButton,
   UnderlineButton,
-  CodeButton
+  CodeButton,
 } from "draft-js-buttons";
 /// plugins
 import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
@@ -42,10 +44,10 @@ const resizeablePlugin = createResizeablePlugin();
 const inlineToolbarPlugin = createInlineToolbarPlugin();
 const alignmentPlugin = createAlignmentPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
-  position: "right"
+  position: "right",
 });
 const prismPlugin = createPrismPlugin({
-  prism: Prism
+  prism: Prism,
 });
 const focusPlugin = createFocusPlugin();
 const blockDndPlugin = createBlockDndPlugin();
@@ -63,8 +65,8 @@ const { AlignmentTool } = alignmentPlugin;
 
 const i18n = setupI18n({
   catalogs: {
-    zh: chinese
-  }
+    zh: chinese,
+  },
 });
 
 export default class MainEditor extends Component {
@@ -101,7 +103,7 @@ export default class MainEditor extends Component {
             onFocus,
             handleKeyCommand,
             isLoading,
-            isRedirect
+            isRedirect,
           }) => {
             if (isRedirect) {
               return <Redirect to="/home" />;
@@ -113,8 +115,7 @@ export default class MainEditor extends Component {
                   id="dropZone"
                   type="file"
                   accept="image/*"
-                  onDrop={this.props.upload}
-                >
+                  onDrop={this.props.upload}>
                   {({ getRootProps, getInputProps }) => (
                     <div {...getRootProps()}>
                       <input
@@ -141,7 +142,7 @@ export default class MainEditor extends Component {
                           prismPlugin,
                           alignmentPlugin,
                           resizeablePlugin,
-                          linkPlugin
+                          linkPlugin,
                         ]}
                       />
                       <AlignmentTool />
