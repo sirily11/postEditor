@@ -47,8 +47,13 @@ export default function PostItem(props: Props) {
   );
   let plaintext = convertFromRaw(content).getPlainText();
   return (
-    <Link to={`/edit/${props.post.id}`}>
-      <ListItem alignItems="flex-start" button>
+    <div>
+      <ListItem
+        alignItems="flex-start"
+        button
+        onClick={() => {
+          window.location.href = `#/edit/${props.post.id}`;
+        }}>
         <ListItemAvatar style={{ marginRight: 10 }}>
           <Card>
             <CardMedia
@@ -75,15 +80,13 @@ export default function PostItem(props: Props) {
               />
             </div>
           }
-          secondary={
-            <p className="text">{convertFromRaw(content).getPlainText()}</p>
-          }
+          secondary={<p className="text">{plaintext}</p>}
         />
         <IconButton>
           <NavigateNextIcon />
         </IconButton>
       </ListItem>
-      <Divider style={{ marginTop: 10 }} variant="inset" />
-    </Link>
+      <Divider style={{ marginTop: 10, marginBottom: 10 }} variant="inset" />
+    </div>
   );
 }

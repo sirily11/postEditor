@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import { Post, Result, Category } from "./interfaces";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
@@ -51,9 +53,9 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
     this.setState({ currentPage: page });
   };
 
-  async componentDidMount() {
-    await this.fetch();
-  }
+  // async componentDidMount() {
+  //   await this.fetch();
+  // }
 
   fetchMore = async () => {
     let postResult = this.state.postsResult;

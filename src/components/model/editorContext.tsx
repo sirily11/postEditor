@@ -129,7 +129,7 @@ export class MainEditorProvider extends React.Component<
 
     this.saveAPIDebounced = AwesomeDebouncePromise(
       async () => await this.save(),
-      1000
+      2000
     );
   }
 
@@ -325,7 +325,7 @@ export class MainEditorProvider extends React.Component<
    * @param editorState Editor state produced by draft js
    */
   onChange = async (editorState: EditorState) => {
-    const { post, hasInit } = this.state;
+    const { post, hasInit, prevState } = this.state;
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
     this.toggle("Bold", isBold);
@@ -334,7 +334,13 @@ export class MainEditorProvider extends React.Component<
     });
     if (post.id) {
       if (hasInit) {
-        await this.saveAPIDebounced();
+        let prev = prevState
+          ? convertToRaw(prevState.getCurrentContent())
+          : undefined;
+        let current = convertToRaw(editorState.getCurrentContent());
+        if (JSON.stringify(prev) !== JSON.stringify(current)) {
+          await this.saveAPIDebounced();
+        }
       }
       if (!hasInit) {
         this.setState({ hasInit: true });

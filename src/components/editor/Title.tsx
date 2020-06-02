@@ -11,6 +11,7 @@ import { EditorContext } from "../model/editorContext";
 import FloatButton from "./FloatButton";
 import { Paper } from "@material-ui/core";
 import { SettingConext } from "../model/settingContext";
+import Grid from "@material-ui/core/Grid";
 
 const i18n = setupI18n({
   language: "zh",
@@ -34,44 +35,50 @@ export default class Title extends Component {
                 marginRight: 0,
                 marginLeft: 60,
               }}>
-              <div className="mx-4">
-                <Breadcrumbs>
-                  <Link to="/home">
-                    <Trans>Home</Trans>
-                  </Link>
-                  <div>{post.title}</div>
-                </Breadcrumbs>
-              </div>
-              <div className="row mx-4 my-2">
-                <InputBase
-                  value={post.title}
-                  className="title-input-text"
-                  style={{ fontSize: "30px" }}
-                  placeholder={i18n._(t`Enter your title here`)}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-
-                <UserContext.Consumer>
-                  {({ userName }) => {
-                    return (
-                      <div style={{ alignSelf: "flex-end" }}>
-                        <h6>
-                          <Trans>By</Trans>: {userName}
-                        </h6>
-                        <h6>
-                          <Trans>Category</Trans>:{" "}
-                          {post.post_category
-                            ? post.post_category.category
-                            : ""}
-                        </h6>
-                      </div>
-                    );
-                  }}
-                </UserContext.Consumer>
-
-                <FloatButton />
-              </div>
-              <Divider style={{ marginTop: 30 }} className="m-4" />
+              <Grid container style={{ margin: 10 }}>
+                <Grid container>
+                  <Breadcrumbs>
+                    <Link to="/home">
+                      <Trans>Home</Trans>
+                    </Link>
+                    <div>{post.title}</div>
+                  </Breadcrumbs>
+                </Grid>
+                <Grid container>
+                  <Grid item xs={7}>
+                    <InputBase
+                      value={post.title}
+                      className="title-input-text"
+                      style={{ fontSize: "30px" }}
+                      placeholder={i18n._(t`Enter your title here`)}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                  </Grid>
+                  <UserContext.Consumer>
+                    {({ userName }) => {
+                      return (
+                        <Grid item xs={3} style={{ alignSelf: "flex-end" }}>
+                          <h6>
+                            <Trans>By</Trans>: {userName}
+                          </h6>
+                          <h6>
+                            <Trans>Category</Trans>:{" "}
+                            {post.post_category
+                              ? post.post_category.category
+                              : ""}
+                          </h6>
+                        </Grid>
+                      );
+                    }}
+                  </UserContext.Consumer>
+                  <Grid item xs={2}>
+                    <FloatButton />
+                  </Grid>
+                </Grid>
+                <Grid container>
+                  <Divider style={{ marginTop: 30 }} className="m-4" />
+                </Grid>
+              </Grid>
             </Paper>
           </div>
         )}

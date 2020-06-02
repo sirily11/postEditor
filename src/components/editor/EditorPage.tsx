@@ -62,7 +62,7 @@ export default class EditorPage extends Component<EditorProps, State> {
               <Title />
               <div
                 className="content"
-                style={{ marginTop: 150, marginBottom: 70 }}>
+                style={{ marginTop: 170, marginBottom: 70 }}>
                 <MainEditor
                   initEditor={initEditor}
                   _id={this.state._id}
