@@ -45,8 +45,9 @@ export default class Title extends Component {
                   </Breadcrumbs>
                 </Grid>
                 <Grid container>
-                  <Grid item xs={7}>
+                  <Grid item xs={8}>
                     <InputBase
+                      fullWidth
                       value={post.title}
                       className="title-input-text"
                       style={{ fontSize: "30px" }}
@@ -57,7 +58,7 @@ export default class Title extends Component {
                   <UserContext.Consumer>
                     {({ userName }) => {
                       return (
-                        <Grid item xs={3} style={{ alignSelf: "flex-end" }}>
+                        <Grid item xs={2} style={{ alignSelf: "flex-end" }}>
                           <h6>
                             <Trans>By</Trans>: {userName}
                           </h6>

@@ -2,6 +2,7 @@ import axios from "axios"
 import { NativeImage } from "electron";
 import { getURL } from "../../setting/settings";
 import { number } from '@lingui/core';
+import { convertFromRaw } from "draft-js";
 const electron = (window as any).require("electron");
 
 const nativeImage = electron.nativeImage;
@@ -16,6 +17,8 @@ export const uploadImage = async (imageFile: File, pid: string, onUpload: (progr
         // const dataURL = image.toDataURL();
         form.append("image", imageFile);
         form.append('pid', pid.toString())
+
+       
 
         let result = await axios.post(url, form, {
             headers: {
