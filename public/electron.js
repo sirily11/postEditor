@@ -4,35 +4,38 @@ var electron_1 = require("electron");
 var path = require("path");
 var isDev = require("electron-is-dev");
 var mainWindow;
+electron_1.app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
 var menu = electron_1.Menu.buildFromTemplate([
     {
-        label: 'Menu'
+        label: "Menu"
     },
     {
         label: "File",
         submenu: [
             {
-                label: 'Log out',
+                label: "Log out",
                 click: function () {
                     if (mainWindow) {
-                        mainWindow.webContents.send('logout');
+                        mainWindow.webContents.send("logout");
                     }
                 }
-            }, {
+            },
+            {
                 label: "Reload",
                 click: function () {
                     if (mainWindow) {
                         mainWindow.reload();
                     }
                 }
-            }, {
+            },
+            {
                 label: "Debug",
                 click: function () {
                     if (mainWindow) {
                         mainWindow.webContents.openDevTools();
                     }
                 }
-            }
+            },
         ]
     },
     {
@@ -44,9 +47,9 @@ var menu = electron_1.Menu.buildFromTemplate([
             { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
             { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
             { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
-            { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" }
+            { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" },
         ]
-    }
+    },
 ]);
 electron_1.Menu.setApplicationMenu(menu);
 function createWindow() {

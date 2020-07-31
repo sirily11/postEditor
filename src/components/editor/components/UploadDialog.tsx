@@ -10,7 +10,7 @@ import {
   ListItemText,
   Divider,
   DialogActions,
-  Button
+  Button,
 } from "@material-ui/core";
 import AttachmentIcon from "@material-ui/icons/Attachment";
 import { Trans } from "@lingui/macro";
@@ -27,6 +27,7 @@ export default function UploadDialog(props: Props) {
   const [numFinished, setNumFinished] = useState(0);
   const [currentUpload, setCurrentUpload] = useState<string>();
   const [currentProgress, setCurrentProgress] = useState<number>(0);
+  const [] = useState<{ index: number; content: string }[]>();
   const editContext = useContext(EditorContext);
 
   const isUploadEnd = numFinished === props.files.length;
@@ -41,15 +42,12 @@ export default function UploadDialog(props: Props) {
           setCurrentProgress(0);
           setCurrentProgress(0);
           props.close();
-        }}
-      >
+        }}>
         <DialogTitle>
-          <Trans>Uploading Images</Trans>
+          <Trans>Uploading Files</Trans>
         </DialogTitle>
         <DialogContent>
-          <h6>
-            <Trans>Current: {currentUpload}</Trans>
-          </h6>
+          <h6>Current: {currentUpload}</h6>
           <div>
             {numFinished}/{props.files.length}{" "}
           </div>
@@ -81,7 +79,6 @@ export default function UploadDialog(props: Props) {
                   editContext.post.id as string,
                   (progress) => setCurrentProgress(progress)
                 );
-
                 editContext.insertImage(image.image, image.id);
                 setNumFinished(numFinished + 1);
               }
@@ -90,9 +87,8 @@ export default function UploadDialog(props: Props) {
               setCurrentProgress(0);
               props.close();
               props.close();
-            }}
-          >
-            Insert Images
+            }}>
+            Insert Files
           </Button>
           <Button onClick={props.close}>Cancel</Button>
         </DialogActions>

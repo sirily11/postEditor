@@ -8,13 +8,12 @@ import {
   convertFromRaw,
   genKey,
   ContentBlock,
+  CompositeDecorator,
 } from "draft-js";
 import React from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
-import SaveAltIcon from "@material-ui/icons/SaveAlt";
-import CloudOffIcon from "@material-ui/icons/CloudOff";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import AttachmentIcon from "@material-ui/icons/Attachment";
 import { t, Trans } from "@lingui/macro";
 import { setupI18n, number } from "@lingui/core";
 import { draftToMarkdown } from "../editor/plugin/markdown-draft-js";
@@ -24,7 +23,7 @@ import { getURL } from "../setting/settings";
 import markdownToDraft from "../editor/plugin/markdown-draft-js/markdown-to-draft";
 import { Post, Category } from "./interfaces";
 import { IpcRenderer, NativeImage } from "electron";
-import { insertImageBlock } from "./utils/insertImageBlock";
+import { insertImageBlock, insertAudioBlock } from "./utils/insertImageBlock";
 import { RawDraftContentState } from "draft-js";
 import { deleteImage } from "./utils/uploadUtils";
 import {
@@ -35,9 +34,11 @@ import {
 //@ts-ignore
 import { v4 as uuidv4 } from "uuid";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
+import path from "path";
 
 const electron = (window as any).require("electron");
 const ColorThief = (window as any).require("colorthief");
+const fs = (window as any).require("fs").promises;
 const nativeImage = electron.nativeImage;
 
 const i18n = setupI18n({
@@ -75,6 +76,8 @@ interface MainEditorState {
   onChange: any;
   // when editor is clicked
   onFocus: any;
+  showUploadFileDialog: boolean;
+  setShowUploadFileDialog(v: boolean): void;
   // change pst's title
   setTitle(newTitle: string): any;
   selected: string[];
@@ -85,11 +88,12 @@ interface MainEditorState {
   create(): Promise<boolean>;
   initEditor(_id: string, isLocal: boolean): void;
   // change cover
-  setCover(cover: string): Promise<void>;
+  setCover(cover: File): Promise<void>;
   // change category
   setCategory(category: Category): void;
   // insert inline image
   insertImage(imagePath: string, imageID: number): void;
+  insertAudio(audioPath: string): void;
 }
 
 interface MainEditorProps {}
@@ -114,6 +118,8 @@ export class MainEditorProvider extends React.Component<
       editorState: EditorState.createEmpty(),
       hasInit: false,
       actions: this.actions,
+      showUploadFileDialog: false,
+      setShowUploadFileDialog: this.setShowUploadFileDialog,
       onChange: this.onChange,
       onFocus: this.onFocus,
       setTitle: this.setTitle,
@@ -125,6 +131,7 @@ export class MainEditorProvider extends React.Component<
       clear: this.clear,
       setCover: this.setCover,
       create: this.create,
+      insertAudio: this.insertAudio,
     };
 
     this.saveAPIDebounced = AwesomeDebouncePromise(
@@ -146,27 +153,14 @@ export class MainEditorProvider extends React.Component<
       icon: <div />,
       action: () => {},
     },
+    {
+      text: "Insert files",
+      icon: <AttachmentIcon />,
+      action: () => {
+        this.setShowUploadFileDialog(true);
+      },
+    },
 
-    {
-      text: "Header 1",
-      icon: <div>H1</div>,
-      action: () => {},
-    },
-    {
-      text: "Header 2",
-      icon: <div>H2</div>,
-      action: () => {},
-    },
-    {
-      text: "Header 3",
-      icon: <div>H3</div>,
-      action: () => {},
-    },
-    {
-      text: "Divider 2",
-      icon: <div />,
-      action: () => {},
-    },
     {
       text: "Bold",
       icon: <div>B</div>,
@@ -192,6 +186,12 @@ export class MainEditorProvider extends React.Component<
     },
   ];
 
+  setShowUploadFileDialog = (v: boolean) => {
+    this.setState({
+      showUploadFileDialog: v,
+    });
+  };
+
   clear = () => {
     this.setState({
       isRedirect: false,
@@ -212,6 +212,18 @@ export class MainEditorProvider extends React.Component<
       imagePath,
       this.state.editorState,
       imageID
+    );
+    this.setState({ editorState: newEditorState, prevState: newEditorState });
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
+  };
+
+  // this will insert audio
+  insertAudio = async (audioPath: string) => {
+    let newEditorState = await insertAudioBlock(
+      audioPath,
+      this.state.editorState
     );
     this.setState({ editorState: newEditorState, prevState: newEditorState });
     setTimeout(async () => {
@@ -271,42 +283,42 @@ export class MainEditorProvider extends React.Component<
   /**
    * Set post cover
    */
-  setCover = async (cover: string) => {
+  setCover = async (cover: File) => {
     let post = this.state.post;
+    let filename = `${uuidv4()}${path.extname(cover.name)}`;
     let url = getURL(`blog/post/${post.id}/`);
     let colorURL = getURL("blog/cover-color/");
-    const [red, green, blue] = await ColorThief.getColor(cover);
+    const [red, green, blue] = await ColorThief.getColor(cover.path);
+    console.log(red, green, blue);
 
     let token = localStorage.getItem("access");
     let form = new FormData();
-    const image: NativeImage = nativeImage.createFromPath(cover);
-    const dataURL = image.toDataURL();
 
-    form.append(
-      "image_url",
-      dataURItoBlob(dataURL),
-      `${uuidv4()}-cover-${post.id}.jpg`
-    );
-    /// set cover color
-    let result = await axios.patch<Post>(url, form, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    form.append("image_url", cover, filename);
 
-    let colorData = {
-      post: post.id,
-      red: red,
-      blue: blue,
-      green: green,
-    };
-    await axios.post(colorURL, colorData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    this.setState({ post: result.data });
+    try {
+      let result = await axios.patch<Post>(url, form, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      /// set cover color
+      let colorData = {
+        post: post.id,
+        red: red,
+        blue: blue,
+        green: green,
+      };
+      await axios.post(colorURL, colorData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      this.setState({ post: result.data });
+    } catch (err) {
+      console.log(err);
+      window.alert("Cannot upload!");
+    }
   };
 
   /**
@@ -326,12 +338,14 @@ export class MainEditorProvider extends React.Component<
    */
   onChange = async (editorState: EditorState) => {
     const { post, hasInit, prevState } = this.state;
+    // toggle bold
     const style = editorState.getCurrentInlineStyle();
     const isBold = style.has("BOLD");
     this.toggle("Bold", isBold);
     this.setState({
       editorState: editorState,
     });
+
     if (post.id) {
       if (hasInit) {
         let prev = prevState

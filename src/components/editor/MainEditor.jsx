@@ -22,6 +22,7 @@ import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
 import createLinkPlugin from "draft-js-anchor-plugin";
+import createAudioPlugin from "./plugin/audio";
 
 /// ends of plugins
 import { t } from "@lingui/macro";
@@ -39,6 +40,7 @@ import "draft-js-linkify-plugin/lib/plugin.css";
 import { Redirect } from "react-router";
 import CustomImageBlock from "./components/CustomImageBlock";
 
+const audioPlugin = createAudioPlugin();
 const linkPlugin = createLinkPlugin();
 const resizeablePlugin = createResizeablePlugin();
 const inlineToolbarPlugin = createInlineToolbarPlugin();
@@ -77,13 +79,6 @@ export default class MainEditor extends Component {
   componentWillUnmount() {
     this.props.clear();
   }
-
-  // myBlockRenderer(contentBlock){
-  //   const type = contentBlock.getType();
-  //   if(type === "code-block"){
-  //     // console.log(contentBlock)
-  //   }
-  // }
 
   myKeyBindingFn(e) {
     const { hasCommandModifier } = KeyBindingUtil;
@@ -131,11 +126,11 @@ export default class MainEditor extends Component {
                         autoCorrect="on"
                         autoCapitalize="on"
                         spellCheck={true}
-                        blockRendererFn={this.myBlockRenderer}
                         placeholder={i18n._(t`Enter your post here`)}
                         plugins={[
                           inlineToolbarPlugin,
                           sideToolbarPlugin,
+                          audioPlugin,
                           imagePlugin,
                           blockDndPlugin,
                           focusPlugin,

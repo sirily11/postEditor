@@ -1807,6 +1807,11 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.6.tgz#c880579e087d7a0db13777ff8af689f4ffc7b0d5"
   integrity sha512-wHNBMnkoEBiRAd3s8KTKwIuO9biFtTf0LehITzBhSco+HQI0xkXZbLOD55SW3Aqw3oUkHstkm5SPv58yaAdFPQ==
 
+"@types/uuid@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.0.0.tgz#165aae4819ad2174a17476dbe66feebd549556c0"
+  integrity sha512-xSQfNcvOiE5f9dyd4Kzxbof1aTrLobL278pGLKOZI6esGfZ7ts9Ka16CzIN6Y8hFHE1C7jIBZokULhK1bOgjRw==
+
 "@types/yargs-parser@*":
   version "15.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-15.0.0.tgz#cb3f9f741869e20cce330ffbeb9271590483882d"
@@ -4645,7 +4650,7 @@ draft-js-image-plugin@^2.0.6:
   dependencies:
     clsx "^1.0.4"
 
-draft-js-inline-toolbar-plugin@^3.0.0:
+draft-js-inline-toolbar-plugin@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/draft-js-inline-toolbar-plugin/-/draft-js-inline-toolbar-plugin-3.0.1.tgz#2fc9da3d64c4b932c1edcccf6e32ace85de7c983"
   integrity sha512-x3DyHKOnjTWHTn73Cb8ahfncKZvNECU+uuUOCq5LYCekCR7PFoHQnYIWXjoM6Mo+b7MBAsEY0uatW1N/KxinMw==
@@ -4710,10 +4715,10 @@ draft-js-video-plugin@^2.0.1:
   dependencies:
     prop-types "^15.5.8"
 
-draft-js@^0.11.1:
-  version "0.11.4"
-  resolved "https://registry.yarnpkg.com/draft-js/-/draft-js-0.11.4.tgz#e48782b96b90a5c14f2cb34c164c2a1a359d8a48"
-  integrity sha512-BLZ59s0vkDj/zI8UPo9Nit/hPsl11ztDejxDCQlVbvEXJSWrTXqO6ZYgdw3hXLtuojq/URqq3wTrpnb3dvzvLA==
+draft-js@^0.11.6:
+  version "0.11.6"
+  resolved "https://registry.yarnpkg.com/draft-js/-/draft-js-0.11.6.tgz#a2b54c211674d10ed65a2234c2ddd12f824cc709"
+  integrity sha512-H8OaophZecxm0L/C0LvOo6IZrbMb+s0txPXF7DW3E2oUjSo5ufvWvWb3B/0K2wRqBnwJrRxApqljD899i0fZMA==
   dependencies:
     fbjs "^1.0.0"
     immutable "~3.7.4"
@@ -12569,10 +12574,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@^3.9.0:
-  version "3.9.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.3.tgz#d3ac8883a97c26139e42df5e93eeece33d610b8a"
-  integrity sha512-D/wqnB2xzNFIcoBG9FG8cXRDjiqSTbG2wd8DMZeQyJlP1vfTkIxH4GKveWaEBYySKIg+USu+E+EDIR47SqnaMQ==
+typescript@^3.9.7:
+  version "3.9.7"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.7.tgz#98d600a5ebdc38f40cb277522f12dc800e9e25fa"
+  integrity sha512-BLbiRkiBzAwsjut4x/dsibSTB6yWpwT5qWmC2OfuCg3GgVQCSgMs4vEctYPhsaGtd0AeuuHMkjZ2h2WG8MSzRw==
 
 ua-parser-js@^0.7.18:
   version "0.7.21"

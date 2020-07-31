@@ -11,6 +11,7 @@ import {
   LinearProgress,
   Button,
   Grid,
+  CircularProgress,
 } from "@material-ui/core";
 import { Trans } from "@lingui/macro";
 import CategorySelect from "./CategorySelect";
@@ -56,32 +57,33 @@ export default function SettingCardContent(props: Props) {
       </DialogTitle>
       <DialogContent>
         <Grid container>
-          <Grid item xs={11}>
+          <Grid item xs={12}>
             <CategorySelect> </CategorySelect>
           </Grid>
           {!props.isCreate && (
-            <Grid item xs={1}>
-              <Tooltip title={<Trans>Add Post Cover Image</Trans>}>
-                <IconBtn
-                  loading={loading}
-                  icon="file image"
-                  onClick={async () => {
-                    let result: any | undefined = await dialog.showOpenDialog({
-                      filters: [
-                        { name: "Images", extensions: ["jpg", "png", "gif"] },
-                      ],
-                    });
-
-                    if (!result.canceled) {
-                      setLoading(true);
-                      await setCover(result.filePaths[0]);
-                      setLoading(false);
+            <Grid item xs={12}>
+              <form>
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  onChange={async (e) => {
+                    if (e.target.files) {
+                      try {
+                        setLoading(true);
+                        await setCover(e.target.files[0]);
+                      } catch (err) {
+                      } finally {
+                        setLoading(false);
+                      }
                     }
-                  }}></IconBtn>
-              </Tooltip>
+                  }}></input>
+              </form>
             </Grid>
           )}
         </Grid>
+        <Collapse in={loading} mountOnEnter unmountOnExit>
+          <LinearProgress />
+        </Collapse>
         <Collapse in={post.image_url !== undefined} mountOnEnter unmountOnExit>
           <div
             className="mx-auto"
