@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
-import {CardMedia, Theme, Typography, withStyles} from "@material-ui/core";
+import {Theme, Typography, withStyles} from "@material-ui/core";
 import {LinkProps} from "../../utils/interfaces";
+import {defaultTheme} from "../../theme";
 
 const propTypes = {
     className: PropTypes.string,
@@ -31,13 +32,13 @@ const Link = ({children, className, entityKey, getEditorState, target}) => {
 
     return (
         <HtmlTooltip title={<React.Fragment>
-            <Typography variant="h6">{entityData?.title}</Typography>
-            {entityData?.image && <CardMedia image={entityData?.image} style={{height: 200}}/>}
+            <Typography variant="h6">{entityData?.title ?? "No data"}</Typography>
+            {entityData?.image && <img src={entityData?.image} alt={""} height={200} crossOrigin={"anonymous"}/>}
             <Typography>{entityData?.summary}</Typography>
             <span>{entityData?.link}</span>
         </React.Fragment>}>
             <a
-                className={className}
+                style={defaultTheme.link}
                 href={entityData?.link}
                 target={target}
                 rel="noopener noreferrer"
