@@ -21,7 +21,7 @@ import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
-import createLinkPlugin from "draft-js-anchor-plugin";
+import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
 import createAudioPlugin from "./plugin/audio";
 
 /// ends of plugins
