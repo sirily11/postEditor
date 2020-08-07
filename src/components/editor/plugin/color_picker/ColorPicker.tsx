@@ -3,7 +3,7 @@ import {CirclePicker} from 'react-color';
 import DoneIcon from '@material-ui/icons/Done';
 import ClearIcon from '@material-ui/icons/Clear';
 import {EditorState, Modifier, RichUtils} from 'draft-js';
-import {Grid} from "@material-ui/core";
+import {Grid, ClickAwayListener} from "@material-ui/core";
 import {styleMap} from "../../editorStyle/styleMap";
 
 interface Props {
@@ -25,9 +25,7 @@ export default function ColorPicker(props: Props) {
     const [color, setColor] = React.useState<string>()
 
     React.useEffect(() => {
-        setTimeout(() => {
-            window.addEventListener('click', () => props.onOverrideContent(undefined));
-        });
+
         const editorState = props.getEditorState()
         const currentStyle = editorState.getCurrentInlineStyle();
         currentStyle.forEach((k) => {
@@ -35,59 +33,56 @@ export default function ColorPicker(props: Props) {
                 setColor(k)
             }
         })
-
-        return () => {
-            window.removeEventListener("click", () => props.onOverrideContent(undefined))
-        }
     }, [])
 
     return (
-        <div>
-            <Grid container>
-                <div style={{marginLeft: "auto", marginRight: "auto"}}>
-                    <CirclePicker width={"200px"} colors={colors} color={color} onChangeComplete={(color) => {
-                        setColor(color.hex)
-                    }}/>
-                </div>
-            </Grid>
-            <Grid container>
-                <button className={theme.button} onClick={() => onOverrideContent(undefined)}><ClearIcon/></button>
-                <button className={theme.button} onClick={() => {
-                    if (color) {
-                        const editorState = props.getEditorState()
-                        const selection = editorState.getSelection();
-                        const nextContentState = Object.keys(styleMap)
-                            .reduce((contentState, color) => {
-                                return Modifier.removeInlineStyle(contentState, selection, color)
-                            }, editorState.getCurrentContent());
-                        let nextEditorState = EditorState.push(
-                            editorState,
-                            nextContentState,
-                            'change-inline-style'
-                        );
-                        const currentStyle = editorState.getCurrentInlineStyle();
-                        if (selection.isCollapsed()) {
-                            nextEditorState = currentStyle.reduce((state, color) => {
-                                //@ts-ignore
-                                return RichUtils.toggleInlineStyle(state, color);
-                            }, nextEditorState);
-                        }
-                        if (color !== "#ededed") {
-                            // set colorl
-                            if (!currentStyle.has(color)) {
-                                nextEditorState = RichUtils.toggleInlineStyle(
-                                    nextEditorState,
-                                    color
-                                );
+        <ClickAwayListener onClickAway={()=>{props.onOverrideContent(undefined)}}>
+            <div>
+                <Grid container>
+                    <div style={{marginLeft: "auto", marginRight: "auto"}}>
+                        <CirclePicker width={"200px"} colors={colors} color={color} onChangeComplete={(color) => {
+                            setColor(color.hex)
+                        }}/>
+                    </div>
+                </Grid>
+                <Grid container>
+                    <button className={theme.button} onClick={() => onOverrideContent(undefined)}><ClearIcon/></button>
+                    <button className={theme.button} onClick={() => {
+                        if (color) {
+                            const editorState = props.getEditorState()
+                            const selection = editorState.getSelection();
+                            const nextContentState = Object.keys(styleMap)
+                                .reduce((contentState, color) => {
+                                    return Modifier.removeInlineStyle(contentState, selection, color)
+                                }, editorState.getCurrentContent());
+                            let nextEditorState = EditorState.push(
+                                editorState,
+                                nextContentState,
+                                'change-inline-style'
+                            );
+                            const currentStyle = editorState.getCurrentInlineStyle();
+                            if (selection.isCollapsed()) {
+                                nextEditorState = currentStyle.reduce((state, color) => {
+                                    //@ts-ignore
+                                    return RichUtils.toggleInlineStyle(state, color);
+                                }, nextEditorState);
                             }
+                            if (color !== "#ededed") {
+                                // set colorl
+                                if (!currentStyle.has(color)) {
+                                    nextEditorState = RichUtils.toggleInlineStyle(
+                                        nextEditorState,
+                                        color
+                                    );
+                                }
+                            }
+                            props.setEditorState(nextEditorState)
                         }
-                        props.setEditorState(nextEditorState)
-                    }
-                    onOverrideContent(undefined)
-                }}><DoneIcon/>
-                </button>
-            </Grid>
-
-        </div>
+                        onOverrideContent(undefined)
+                    }}><DoneIcon/>
+                    </button>
+                </Grid>
+            </div>
+        </ClickAwayListener>
     );
 }
