@@ -24,7 +24,6 @@ import {computeDownloadProgress, computeUploadProgress, deleteImage} from "./uti
 import {v4 as uuidv4} from "uuid";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import path from "path";
-import PaletteIcon from '@material-ui/icons/Palette';
 
 const ColorThief = (window as any).require("colorthief");
 
@@ -64,10 +63,9 @@ interface MainEditorState {
     // when editor is clicked
     onFocus: any;
     showUploadFileDialog: boolean;
-    showColorPickerDialog: boolean;
+
     selected: string[];
 
-    setShowColorPickerDialog(v: boolean): void;
 
     setShowUploadFileDialog(v: boolean): void;
 
@@ -118,10 +116,8 @@ export class MainEditorProvider extends React.Component<MainEditorProps,
             editorState: EditorState.createEmpty(),
             hasInit: false,
             actions: this.actions,
-            showColorPickerDialog: false,
             showUploadFileDialog: false,
             setShowUploadFileDialog: this.setShowUploadFileDialog,
-            setShowColorPickerDialog: this.setShowColorPickerDialog,
             onChange: this.onChange,
             onFocus: this.onFocus,
             setTitle: this.setTitle,
@@ -141,12 +137,6 @@ export class MainEditorProvider extends React.Component<MainEditorProps,
             2000
         );
     }
-
-    setShowColorPickerDialog = (v: boolean) => {
-        this.setState({
-            showColorPickerDialog: v,
-        });
-    };
 
     setShowUploadFileDialog = (v: boolean) => {
         this.setState({
@@ -175,13 +165,7 @@ export class MainEditorProvider extends React.Component<MainEditorProps,
                 this.setShowUploadFileDialog(true);
             },
         },
-        {
-            text: "Pick Text Color",
-            icon: <PaletteIcon/>,
-            action: () => {
-                this.setShowColorPickerDialog(true);
-            },
-        },
+
         // {
         //   text: "Bold",
         //   icon: <div>B</div>,

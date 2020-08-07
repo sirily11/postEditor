@@ -1,16 +1,22 @@
 /** @format */
 
-import React, { Component } from "react";
+import React, {Component} from "react";
 import Dropzone from "react-dropzone";
 import Prism from "prismjs";
-import Editor, { composeDecorators } from "draft-js-plugins-editor";
-import { EditorContext } from "../model/editorContext";
-import { getDefaultKeyBinding, KeyBindingUtil, convertToRaw } from "draft-js";
+import Editor, {composeDecorators} from "draft-js-plugins-editor";
+import {EditorContext} from "../model/editorContext";
+import {getDefaultKeyBinding, KeyBindingUtil} from "draft-js";
 import {
-  ItalicButton,
-  BoldButton,
-  UnderlineButton,
-  CodeButton,
+    BlockquoteButton,
+    BoldButton,
+    CodeBlockButton,
+    HeadlineOneButton,
+    HeadlineThreeButton,
+    HeadlineTwoButton,
+    ItalicButton,
+    OrderedListButton,
+    UnderlineButton,
+    UnorderedListButton,
 } from "draft-js-buttons";
 /// plugins
 import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
@@ -25,9 +31,9 @@ import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
 import createAudioPlugin from "./plugin/audio";
 
 /// ends of plugins
-import { t } from "@lingui/macro";
-import { setupI18n } from "@lingui/core";
-import { Fade } from "@material-ui/core";
+import {t} from "@lingui/macro";
+import {setupI18n} from "@lingui/core";
+import {Fade} from "@material-ui/core";
 import chinese from "../../locales/zh/messages";
 // css
 import "prismjs/themes/prism.css";
@@ -37,8 +43,9 @@ import "draft-js-side-toolbar-plugin/lib/plugin.css";
 import "draft-js-alignment-plugin/lib/plugin.css";
 import "draft-js-linkify-plugin/lib/plugin.css";
 
-import { Redirect } from "react-router";
-import CustomImageBlock from "./components/CustomImageBlock";
+import {Redirect} from "react-router";
+import PickColorButton from "./plugin/color_picker/PickColorButton";
+import {styleMap} from "./editorStyle/styleMap";
 
 const audioPlugin = createAudioPlugin();
 const linkPlugin = createLinkPlugin();
@@ -46,123 +53,139 @@ const resizeablePlugin = createResizeablePlugin();
 const inlineToolbarPlugin = createInlineToolbarPlugin();
 const alignmentPlugin = createAlignmentPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
-  position: "right",
+    position: "right",
 });
 const prismPlugin = createPrismPlugin({
-  prism: Prism,
+    prism: Prism,
 });
 const focusPlugin = createFocusPlugin();
 const blockDndPlugin = createBlockDndPlugin();
 const decorator = composeDecorators(
-  focusPlugin.decorator,
-  blockDndPlugin.decorator,
-  alignmentPlugin.decorator,
-  resizeablePlugin.decorator
+    focusPlugin.decorator,
+    blockDndPlugin.decorator,
+    alignmentPlugin.decorator,
+    resizeablePlugin.decorator
 );
-const imagePlugin = createImagePlugin({ decorator });
+const imagePlugin = createImagePlugin({decorator});
 
-const { InlineToolbar } = inlineToolbarPlugin;
-const { SideToolbar } = sideToolbarPlugin;
-const { AlignmentTool } = alignmentPlugin;
+const {InlineToolbar} = inlineToolbarPlugin;
+const {SideToolbar} = sideToolbarPlugin;
+const {AlignmentTool} = alignmentPlugin;
 
 const i18n = setupI18n({
-  catalogs: {
-    zh: chinese,
-  },
+    catalogs: {
+        zh: chinese,
+    },
 });
 
 export default class MainEditor extends Component {
-  componentWillMount() {
-    this.props.initEditor(this.props._id);
-  }
-
-  componentWillUnmount() {
-    this.props.clear();
-  }
-
-  myKeyBindingFn(e) {
-    const { hasCommandModifier } = KeyBindingUtil;
-    if (e.keyCode === 83 /* `S` key */ && hasCommandModifier(e)) {
-      return "save";
+    componentWillMount() {
+        this.props.initEditor(this.props._id);
     }
-    return getDefaultKeyBinding(e);
-  }
 
-  render() {
-    return (
-      <div className="mx-4 mb-1 main-editor h-100">
-        <EditorContext.Consumer>
-          {({
-            editorState,
-            onChange,
-            onFocus,
-            handleKeyCommand,
-            isLoading,
-            isRedirect,
-          }) => {
-            if (isRedirect) {
-              return <Redirect to="/home" />;
-            }
+    componentWillUnmount() {
+        this.props.clear();
+    }
 
-            return (
-              <Fade in={!isLoading} timeout={400}>
-                <Dropzone
-                  id="dropZone"
-                  type="file"
-                  accept="image/*"
-                  onDrop={this.props.upload}>
-                  {({ getRootProps, getInputProps }) => (
-                    <div {...getRootProps()}>
-                      <input
-                        {...getInputProps()}
-                        onClick={(e) => e.preventDefault()}
-                      />
-                      <Editor
-                        editorState={editorState}
-                        onChange={onChange}
-                        onFocus={onFocus}
-                        keyBindingFn={this.myKeyBindingFn}
-                        handleKeyCommand={handleKeyCommand}
-                        autoCorrect="on"
-                        autoCapitalize="on"
-                        spellCheck={true}
-                        placeholder={i18n._(t`Enter your post here`)}
-                        plugins={[
-                          inlineToolbarPlugin,
-                          sideToolbarPlugin,
-                          audioPlugin,
-                          imagePlugin,
-                          blockDndPlugin,
-                          focusPlugin,
-                          prismPlugin,
-                          alignmentPlugin,
-                          resizeablePlugin,
-                          linkPlugin,
-                        ]}
-                      />
-                      <AlignmentTool />
-                      <InlineToolbar>
-                        {(externalProps) => {
-                          return (
-                            <React.Fragment>
-                              <BoldButton {...externalProps} />
-                              <ItalicButton {...externalProps} />
-                              <UnderlineButton {...externalProps} />
-                              <CodeButton {...externalProps} />
-                              <linkPlugin.LinkButton {...externalProps} />
-                            </React.Fragment>
-                          );
-                        }}
-                      </InlineToolbar>
-                      <SideToolbar />
-                    </div>
-                  )}
-                </Dropzone>
-              </Fade>
-            );
-          }}
-        </EditorContext.Consumer>
-      </div>
-    );
-  }
+    myKeyBindingFn(e) {
+        const {hasCommandModifier} = KeyBindingUtil;
+        if (e.keyCode === 83 /* `S` key */ && hasCommandModifier(e)) {
+            return "save";
+        }
+        return getDefaultKeyBinding(e);
+    }
+
+    render() {
+        return (
+            <div className="mx-4 mb-1 main-editor h-100">
+                <EditorContext.Consumer>
+                    {({
+                          editorState,
+                          onChange,
+                          onFocus,
+                          handleKeyCommand,
+                          isLoading,
+                          isRedirect,
+                      }) => {
+                        if (isRedirect) {
+                            return <Redirect to="/home"/>;
+                        }
+
+                        return (
+                            <Fade in={!isLoading} timeout={400}>
+                                <Dropzone
+                                    id="dropZone"
+                                    type="file"
+                                    accept="image/*"
+                                    onDrop={this.props.upload}>
+                                    {({getRootProps, getInputProps}) => (
+                                        <div {...getRootProps()}>
+                                            <input
+                                                {...getInputProps()}
+                                                onClick={(e) => e.preventDefault()}
+                                            />
+                                            <Editor
+                                                editorState={editorState}
+                                                onChange={onChange}
+                                                onFocus={onFocus}
+                                                customStyleMap={styleMap}
+                                                keyBindingFn={this.myKeyBindingFn}
+                                                handleKeyCommand={handleKeyCommand}
+                                                autoCorrect="on"
+                                                autoCapitalize="on"
+                                                spellCheck={true}
+                                                placeholder={i18n._(t`Enter your post here`)}
+                                                plugins={[
+                                                    inlineToolbarPlugin,
+                                                    sideToolbarPlugin,
+                                                    audioPlugin,
+                                                    imagePlugin,
+                                                    blockDndPlugin,
+                                                    focusPlugin,
+                                                    prismPlugin,
+                                                    alignmentPlugin,
+                                                    resizeablePlugin,
+                                                    linkPlugin,
+                                                ]}
+                                            />
+                                            <AlignmentTool/>
+                                            <InlineToolbar>
+                                                {(externalProps) => {
+                                                    return (
+                                                        <React.Fragment>
+                                                            <BoldButton {...externalProps} />
+                                                            <ItalicButton {...externalProps} />
+                                                            <UnderlineButton {...externalProps} />
+                                                            <CodeBlockButton {...externalProps} />
+                                                            <linkPlugin.LinkButton {...externalProps}/>
+                                                            <PickColorButton {...externalProps}/>
+                                                        </React.Fragment>
+                                                    );
+                                                }}
+                                            </InlineToolbar>
+                                            <SideToolbar>
+                                                {(externalProps) => {
+                                                    return (
+                                                        <React.Fragment>
+                                                            <HeadlineOneButton {...externalProps}/>
+                                                            <HeadlineTwoButton {...externalProps}/>
+                                                            <HeadlineThreeButton {...externalProps}/>
+                                                            <BlockquoteButton {...externalProps}/>
+                                                            <UnorderedListButton {...externalProps}/>
+                                                            <OrderedListButton {...externalProps}/>
+                                                            <CodeBlockButton {...externalProps} />
+                                                        </React.Fragment>
+                                                    );
+                                                }}
+                                            </SideToolbar>
+                                        </div>
+                                    )}
+                                </Dropzone>
+                            </Fade>
+                        );
+                    }}
+                </EditorContext.Consumer>
+            </div>
+        );
+    }
 }

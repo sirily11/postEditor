@@ -28,8 +28,6 @@ const Link = ({children, className, entityKey, getEditorState, target}) => {
         .getCurrentContent()
         .getEntity(entityKey);
     const entityData: LinkProps | undefined = entity ? entity.get('data')?.url : undefined;
-    console.log(entityData)
-
     return (
         <HtmlTooltip title={<React.Fragment>
             <Typography variant="h6">{entityData?.title ?? "No data"}</Typography>

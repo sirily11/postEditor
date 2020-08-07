@@ -17,7 +17,7 @@ export default (config: AnchorPluginConfig = {}) => {
     };
 
     const DecoratedDefaultLink = (props: any) => (
-        <DefaultLink {...props} className={theme} target={linkTarget}/>
+        <DefaultLink {...props} style={theme} target={linkTarget}/>
     );
 
 
