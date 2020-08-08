@@ -1,6 +1,8 @@
 import React from "react";
 import PaletteIcon from '@material-ui/icons/Palette';
 import ColorPicker from "./ColorPicker";
+import {ContentBlock} from "draft-js";
+import {styleMap} from "../styleMap";
 
 interface Props {
     getEditorState: any;
@@ -9,7 +11,7 @@ interface Props {
     theme: any
 }
 
-export default function PickColorButton(props: Props) {
+export function PickColorButton(props: Props) {
     const {theme, onOverrideContent} = props;
     return (
         <div className={theme.buttonWrapper} onMouseDown={(e) => {

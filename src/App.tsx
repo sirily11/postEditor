@@ -26,6 +26,9 @@ const darkTheme = createMuiTheme({
   palette: {
     type: "dark",
   },
+  zIndex: {
+    drawer: 0
+  }
 });
 
 class App extends Component {

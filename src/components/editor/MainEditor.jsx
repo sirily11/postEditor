@@ -27,6 +27,7 @@ import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
+import createColorPlugin, { PickColorButton } from './plugin/color_picker'
 import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
 import createAudioPlugin from "./plugin/audio";
 
@@ -44,8 +45,7 @@ import "draft-js-alignment-plugin/lib/plugin.css";
 import "draft-js-linkify-plugin/lib/plugin.css";
 
 import {Redirect} from "react-router";
-import PickColorButton from "./plugin/color_picker/PickColorButton";
-import {styleMap} from "./editorStyle/styleMap";
+import {styleMap} from "./plugin/color_picker/styleMap";
 
 const audioPlugin = createAudioPlugin();
 const linkPlugin = createLinkPlugin();
@@ -60,11 +60,14 @@ const prismPlugin = createPrismPlugin({
 });
 const focusPlugin = createFocusPlugin();
 const blockDndPlugin = createBlockDndPlugin();
+const colorPlugin = createColorPlugin();
+
 const decorator = composeDecorators(
     focusPlugin.decorator,
     blockDndPlugin.decorator,
     alignmentPlugin.decorator,
-    resizeablePlugin.decorator
+    resizeablePlugin.decorator,
+
 );
 const imagePlugin = createImagePlugin({decorator});
 

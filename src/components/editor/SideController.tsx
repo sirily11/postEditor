@@ -9,7 +9,7 @@ export default function SideController() {
     return (
         <div>
             <Drawer variant="permanent" open={true} style={{zIndex: 0}}>
-                <List id="sidebar" style={{overflow: "hidden"}}>
+                <List id="sidebar" style={{overflow: "hidden", zIndex: 0}}>
                     {actions.map((action) => {
                         if (action.text.includes("Divider")) {
                             return <Divider key={action.text}/>;
