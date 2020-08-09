@@ -25,7 +25,7 @@ export default class Title extends Component {
     return (
       <EditorContext.Consumer>
         {({ post, setTitle }) => (
-          <div style={{ position: "fixed", top: 0, width: "100%", zIndex: 1 }}>
+          <div style={{ position: "fixed", top: 0, width: "100%", zIndex: 10 }}>
             <Paper
               elevation={0}
               square

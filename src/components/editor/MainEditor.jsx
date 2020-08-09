@@ -5,7 +5,7 @@ import Dropzone from "react-dropzone";
 import Prism from "prismjs";
 import Editor, {composeDecorators} from "draft-js-plugins-editor";
 import {EditorContext} from "../model/editorContext";
-import {getDefaultKeyBinding, KeyBindingUtil} from "draft-js";
+import {convertToRaw, getDefaultKeyBinding, KeyBindingUtil} from "draft-js";
 import {
     BlockquoteButton,
     BoldButton,
@@ -18,8 +18,9 @@ import {
     UnderlineButton,
     UnorderedListButton,
 } from "draft-js-buttons";
+
 /// plugins
-import createInlineToolbarPlugin from "draft-js-inline-toolbar-plugin";
+import { InlineToolbarPlugin}  from "./plugin/draft-js-inline-toolbar";
 import createSideToolbarPlugin from "draft-js-side-toolbar-plugin";
 import createImagePlugin from "draft-js-image-plugin";
 import createBlockDndPlugin from "draft-js-drag-n-drop-plugin";
@@ -27,9 +28,15 @@ import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
-import createColorPlugin, { PickColorButton } from './plugin/color_picker'
+import {PickColorButton, ColorPickerPlugin} from './plugin/color_picker'
 import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
 import createAudioPlugin from "./plugin/audio";
+import {
+    TextAlignPlugin,
+    TextAlignCenterButton,
+    TextAlignLeftButton,
+    TextAlignRightButton
+} from './plugin/text-align-plugin'
 
 /// ends of plugins
 import {t} from "@lingui/macro";
@@ -45,12 +52,13 @@ import "draft-js-alignment-plugin/lib/plugin.css";
 import "draft-js-linkify-plugin/lib/plugin.css";
 
 import {Redirect} from "react-router";
-import {styleMap} from "./plugin/color_picker/styleMap";
+
+const inlineToolbar = new InlineToolbarPlugin({})
 
 const audioPlugin = createAudioPlugin();
 const linkPlugin = createLinkPlugin();
 const resizeablePlugin = createResizeablePlugin();
-const inlineToolbarPlugin = createInlineToolbarPlugin();
+const inlineToolbarPlugin = inlineToolbar.createPlugin();
 const alignmentPlugin = createAlignmentPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
     position: "right",
@@ -60,18 +68,18 @@ const prismPlugin = createPrismPlugin({
 });
 const focusPlugin = createFocusPlugin();
 const blockDndPlugin = createBlockDndPlugin();
-const colorPlugin = createColorPlugin();
+const colorPlugin = new ColorPickerPlugin().createPlugin();
+const textAlignPlugin = new TextAlignPlugin().createPlugin();
 
 const decorator = composeDecorators(
     focusPlugin.decorator,
     blockDndPlugin.decorator,
     alignmentPlugin.decorator,
     resizeablePlugin.decorator,
-
 );
 const imagePlugin = createImagePlugin({decorator});
 
-const {InlineToolbar} = inlineToolbarPlugin;
+const InlineToobar = inlineToolbar.InlineToolbar;
 const {SideToolbar} = sideToolbarPlugin;
 const {AlignmentTool} = alignmentPlugin;
 
@@ -80,7 +88,6 @@ const i18n = setupI18n({
         zh: chinese,
     },
 });
-
 export default class MainEditor extends Component {
     componentWillMount() {
         this.props.initEditor(this.props._id);
@@ -98,7 +105,9 @@ export default class MainEditor extends Component {
         return getDefaultKeyBinding(e);
     }
 
+
     render() {
+
         return (
             <div className="mx-4 mb-1 main-editor h-100">
                 <EditorContext.Consumer>
@@ -113,7 +122,6 @@ export default class MainEditor extends Component {
                         if (isRedirect) {
                             return <Redirect to="/home"/>;
                         }
-
                         return (
                             <Fade in={!isLoading} timeout={400}>
                                 <Dropzone
@@ -131,16 +139,17 @@ export default class MainEditor extends Component {
                                                 editorState={editorState}
                                                 onChange={onChange}
                                                 onFocus={onFocus}
-                                                customStyleMap={styleMap}
                                                 keyBindingFn={this.myKeyBindingFn}
                                                 handleKeyCommand={handleKeyCommand}
                                                 autoCorrect="on"
                                                 autoCapitalize="on"
                                                 spellCheck={true}
+                                                readOnly={false}
                                                 placeholder={i18n._(t`Enter your post here`)}
                                                 plugins={[
                                                     inlineToolbarPlugin,
                                                     sideToolbarPlugin,
+                                                    colorPlugin,
                                                     audioPlugin,
                                                     imagePlugin,
                                                     blockDndPlugin,
@@ -149,10 +158,11 @@ export default class MainEditor extends Component {
                                                     alignmentPlugin,
                                                     resizeablePlugin,
                                                     linkPlugin,
+                                                    textAlignPlugin,
                                                 ]}
                                             />
                                             <AlignmentTool/>
-                                            <InlineToolbar>
+                                            <InlineToobar>
                                                 {(externalProps) => {
                                                     return (
                                                         <React.Fragment>
@@ -161,11 +171,14 @@ export default class MainEditor extends Component {
                                                             <UnderlineButton {...externalProps} />
                                                             <CodeBlockButton {...externalProps} />
                                                             <linkPlugin.LinkButton {...externalProps}/>
+                                                            <TextAlignLeftButton {...externalProps} />
+                                                            <TextAlignCenterButton {...externalProps} />
+                                                            <TextAlignRightButton {...externalProps} />
                                                             <PickColorButton {...externalProps}/>
                                                         </React.Fragment>
                                                     );
                                                 }}
-                                            </InlineToolbar>
+                                            </InlineToobar>
                                             <SideToolbar>
                                                 {(externalProps) => {
                                                     return (
@@ -181,6 +194,7 @@ export default class MainEditor extends Component {
                                                     );
                                                 }}
                                             </SideToolbar>
+
                                         </div>
                                     )}
                                 </Dropzone>

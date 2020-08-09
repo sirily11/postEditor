@@ -5,14 +5,8 @@ import ClearIcon from '@material-ui/icons/Clear';
 import {EditorState, Modifier, RichUtils} from 'draft-js';
 import {Grid, ClickAwayListener} from "@material-ui/core";
 import {styleMap} from "../styleMap";
+import {ExternalProps} from "../../base-plugin/interfaces";
 
-interface Props {
-    onOverrideContent: any;
-    setEditorState: any;
-    theme: any
-
-    getEditorState(): EditorState;
-}
 
 const colors = ["#f44336", "#e91e63", "#9c27b0",
     "#673ab7", "#3f51b5", "#2196f3", "#03a9f4",
@@ -20,12 +14,11 @@ const colors = ["#f44336", "#e91e63", "#9c27b0",
     "#cddc39", "#ffeb3b", "#ffc107", "#ff9800",
     "#ff5722", "#795548", "#607d8b", "#ededed"];
 
-export default function ColorPicker(props: Props) {
+export default function ColorPicker(props: ExternalProps) {
     const {onOverrideContent, theme} = props;
     const [color, setColor] = React.useState<string>()
 
     React.useEffect(() => {
-
         const editorState = props.getEditorState()
         const currentStyle = editorState.getCurrentInlineStyle();
         currentStyle.forEach((k) => {

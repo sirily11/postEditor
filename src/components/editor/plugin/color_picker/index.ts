@@ -1,9 +1,8 @@
 import {styleMap} from "./styleMap";
+import {BasePlugin} from "../base-plugin";
 
 export {PickColorButton} from "./components/PickColorButton"
 
-export default () => {
-    return {
-        customStyleMap: styleMap,
-    };
-};
+export class ColorPickerPlugin extends BasePlugin{
+    customStyleMap = styleMap;
+}

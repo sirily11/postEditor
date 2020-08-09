@@ -3,15 +3,11 @@ import PaletteIcon from '@material-ui/icons/Palette';
 import ColorPicker from "./ColorPicker";
 import {ContentBlock} from "draft-js";
 import {styleMap} from "../styleMap";
+import {ExternalProps} from "../../base-plugin/interfaces";
 
-interface Props {
-    getEditorState: any;
-    onOverrideContent: any;
-    setEditorState: any;
-    theme: any
-}
 
-export function PickColorButton(props: Props) {
+
+export function PickColorButton(props: ExternalProps) {
     const {theme, onOverrideContent} = props;
     return (
         <div className={theme.buttonWrapper} onMouseDown={(e) => {
@@ -20,7 +16,7 @@ export function PickColorButton(props: Props) {
             <button className={theme.button} onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const content = (props: Props) =>
+                const content = (props: ExternalProps) =>
                     <ColorPicker {...props}/>
                 onOverrideContent(content)
             }}>
