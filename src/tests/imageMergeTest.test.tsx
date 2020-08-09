@@ -10,7 +10,7 @@ import {
   ContentState
 } from "draft-js";
 
-describe("Test insert image", () => {
+describe("Test insert draft-js-image-plugin", () => {
   const initialState: any = {
     entityMap: {
       "0": {
@@ -25,7 +25,7 @@ describe("Test insert image", () => {
       {
         key: "9gm3s",
         text:
-          "You can have images in your text field which are draggable. Hover over the image press down your mouse button and drag it to another position inside the editor.",
+          "You can have images in your text field which are draggable. Hover over the draft-js-image-plugin press down your mouse button and drag it to another position inside the editor.",
         type: "unstyled",
         depth: 0,
         inlineStyleRanges: [],
@@ -55,7 +55,7 @@ describe("Test insert image", () => {
     editorState = EditorState.createWithContent(convertFromRaw(initialState));
   });
 
-  test("Insert image", async () => {
+  test("Insert draft-js-image-plugin", async () => {
     let newState: EditorState = await insertImageBlock(
       "test_image.png",
       editorState

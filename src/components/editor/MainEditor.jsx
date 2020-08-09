@@ -20,7 +20,7 @@ import {
 } from "draft-js-buttons";
 
 /// plugins
-import { InlineToolbarPlugin}  from "./plugin/draft-js-inline-toolbar";
+import {InlineToolbarPlugin} from "./plugin/draft-js-inline-toolbar";
 import createSideToolbarPlugin from "draft-js-side-toolbar-plugin";
 import createImagePlugin from "draft-js-image-plugin";
 import createBlockDndPlugin from "draft-js-drag-n-drop-plugin";
@@ -28,15 +28,15 @@ import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
-import {PickColorButton, ColorPickerPlugin} from './plugin/color_picker'
+import {PickColorButton, ColorPickerPlugin} from './plugin/draft-js-color-plugin'
 import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
-import createAudioPlugin from "./plugin/audio";
+import createAudioPlugin from "./plugin/draft-js-audio-plugin";
 import {
     TextAlignPlugin,
     TextAlignCenterButton,
     TextAlignLeftButton,
     TextAlignRightButton
-} from './plugin/text-align-plugin'
+} from './plugin/draft-js-text-align-plugin'
 
 /// ends of plugins
 import {t} from "@lingui/macro";
@@ -79,7 +79,7 @@ const decorator = composeDecorators(
 );
 const imagePlugin = createImagePlugin({decorator});
 
-const InlineToobar = inlineToolbar.InlineToolbar;
+const InlineToolbar = inlineToolbar.InlineToolbar;
 const {SideToolbar} = sideToolbarPlugin;
 const {AlignmentTool} = alignmentPlugin;
 
@@ -162,7 +162,7 @@ export default class MainEditor extends Component {
                                                 ]}
                                             />
                                             <AlignmentTool/>
-                                            <InlineToobar>
+                                            <InlineToolbar>
                                                 {(externalProps) => {
                                                     return (
                                                         <React.Fragment>
@@ -178,7 +178,7 @@ export default class MainEditor extends Component {
                                                         </React.Fragment>
                                                     );
                                                 }}
-                                            </InlineToobar>
+                                            </InlineToolbar>
                                             <SideToolbar>
                                                 {(externalProps) => {
                                                     return (
@@ -194,7 +194,7 @@ export default class MainEditor extends Component {
                                                     );
                                                 }}
                                             </SideToolbar>
-
+                                            <div>{JSON.stringify(convertToRaw(editorState.getCurrentContent()))}</div>
                                         </div>
                                     )}
                                 </Dropzone>

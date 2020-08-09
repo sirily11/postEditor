@@ -1,9 +1,9 @@
 import { EditorState, convertToRaw, AtomicBlockUtils } from "draft-js";
-import image from "../../editor/plugin/image";
+import image from "../../editor/plugin/draft-js-image-plugin";
 
 /**
- * insert image
- * @param imagePath image path
+ * insert draft-js-image-plugin
+ * @param imagePath draft-js-image-plugin path
  * @param editorState draft editor state
  */
 export function insertImageBlock(

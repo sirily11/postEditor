@@ -260,7 +260,7 @@ export default function markdownToDraft(string, options = {}) {
 
       blockToModify.text = content;
 
-      // No content, we have an image?
+      // No content, we have an draft-js-image-plugin?
       if (content === "") {
         blockToModify.type = "atomic";
         blockToModify.text = " "; // need a blank space?

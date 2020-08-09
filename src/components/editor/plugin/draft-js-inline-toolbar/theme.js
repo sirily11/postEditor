@@ -35,8 +35,6 @@ const buttonStyles = {
 
 const toolbarStyles = {
   toolbar: css`
-    left: 50%;
-    transform: translate(-50%) scale(0);
     position: absolute;
     border: 1px solid #ddd;
     background: #fff;

@@ -15,11 +15,11 @@ export const uploadImage = async (
   onUpload: (progress: number) => void
 ) => {
   return new Promise(async (resolve, reject) => {
-    let url = getURL("blog/post-image/");
+    let url = getURL("blog/post-draft-js-image-plugin/");
     let token = localStorage.getItem("access");
     let form = new FormData();
-    // const image: NativeImage = nativeImage.createFromPath(imageFile.path);
-    // const dataURL = image.toDataURL();
+    // const draft-js-image-plugin: NativeImage = nativeImage.createFromPath(imageFile.path);
+    // const dataURL = draft-js-image-plugin.toDataURL();
     let newFilename = `${uuidv4()}${path.extname(imageFile.path)}`;
     form.append("image", imageFile, newFilename);
     form.append("pid", pid.toString());

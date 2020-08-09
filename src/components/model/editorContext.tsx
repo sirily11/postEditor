@@ -88,7 +88,7 @@ interface MainEditorState {
     // change category
     setCategory(category: Category): void;
 
-    // insert inline image
+    // insert inline draft-js-image-plugin
     insertImage(imagePath: string, imageID: number): void;
 
     insertAudio(audioPath: string): void;
@@ -206,7 +206,7 @@ export class MainEditorProvider extends React.Component<MainEditorProps,
         });
     };
 
-    // this will insert image with image url
+    // this will insert draft-js-image-plugin with draft-js-image-plugin url
     insertImage = async (imagePath: string, imageID: number) => {
         let newEditorState = await insertImageBlock(
             imagePath,
@@ -219,7 +219,7 @@ export class MainEditorProvider extends React.Component<MainEditorProps,
         }, 50);
     };
 
-    // this will insert audio
+    // this will insert draft-js-audio-plugin
     insertAudio = async (audioPath: string) => {
         let newEditorState = await insertAudioBlock(
             audioPath,

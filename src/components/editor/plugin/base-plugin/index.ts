@@ -9,7 +9,7 @@ import {
     DraftHandleValue,
     DraftInlineStyle,
     EditorState, SelectionState,
-    DraftDecorator,
+    DraftDecorator, ContentState,
 } from "draft-js";
 import React, {CSSProperties} from "react";
 
@@ -26,6 +26,18 @@ export interface AdditionalProps {
     getReadOnly(): boolean, // a function returning of the Editor is set to readOnly
     setReadOnly(v: boolean): void, // a function which allows to set the Editor to readOnly
     getEditorRef(): any // a function to get the editor reference
+}
+
+export interface DraftBlockProps<T> {
+    block: ContentBlock;
+    contentState: ContentState
+    blockProps: T
+}
+
+export interface DraftBlockRenderComponent {
+    component: any,
+    editable: boolean,
+    props: any
 }
 
 export abstract class BasePlugin {
@@ -87,7 +99,7 @@ export abstract class BasePlugin {
      * @param block Content block
      * @param additional
      */
-    blockRendererFn = (block?: ContentBlock, additional?: AdditionalProps):  any | NotImplemented | undefined => {
+    blockRendererFn = (block?: ContentBlock, additional?: AdditionalProps): DraftBlockRenderComponent | NotImplemented | undefined => {
         return NotImplementedFunction
     };
 
@@ -97,7 +109,7 @@ export abstract class BasePlugin {
      * @param block
      * @param additional
      */
-    blockStyleFn = (block?: ContentBlock, additional?: AdditionalProps): string |  NotImplemented | undefined => {
+    blockStyleFn = (block?: ContentBlock, additional?: AdditionalProps): string | NotImplemented | undefined => {
         return NotImplementedFunction;
     };
 
@@ -111,45 +123,45 @@ export abstract class BasePlugin {
      * @param eventTimeStamp
      * @param additional
      */
-    handleBeforeInput = (chars?: string, editorState?: EditorState, eventTimeStamp?: number, additional?: AdditionalProps): DraftHandleValue |  NotImplemented | undefined => NotImplementedFunction;
+    handleBeforeInput = (chars?: string, editorState?: EditorState, eventTimeStamp?: number, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
-    handleDrop = (selection?: SelectionState, dataTransfer?: Object, isInternal?: DraftDragType, additional?: AdditionalProps): DraftHandleValue |  NotImplemented | undefined => NotImplementedFunction;
+    handleDrop = (selection?: SelectionState, dataTransfer?: Object, isInternal?: DraftDragType, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
-    handleDroppedFiles = (selection?: SelectionState, files?: Array<Blob>, additional?: AdditionalProps): DraftHandleValue |  NotImplemented | undefined => NotImplementedFunction;
+    handleDroppedFiles = (selection?: SelectionState, files?: Array<Blob>, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
-    handleKeyCommand = (command?: EditorCommand, editorState?: EditorState, eventTimeStamp?: number, additional?: AdditionalProps): DraftHandleValue |  NotImplemented | undefined => NotImplementedFunction;
+    handleKeyCommand = (command?: EditorCommand, editorState?: EditorState, eventTimeStamp?: number, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
-    handlePastedFiles = (files?: Array<Blob>, additional?: AdditionalProps): DraftHandleValue |  NotImplemented | undefined => NotImplementedFunction;
+    handlePastedFiles = (files?: Array<Blob>, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
-    handlePastedText = (text?: string, html?: string | undefined, editorState?: EditorState, additional?: AdditionalProps):  NotImplemented | undefined => NotImplementedFunction;
+    handlePastedText = (text?: string, html?: string | undefined, editorState?: EditorState, additional?: AdditionalProps): NotImplemented | undefined => NotImplementedFunction;
 
-    handleReturn = (e?: SyntheticKeyboardEvent, editorState?: EditorState, additional?: AdditionalProps): DraftHandleValue |  NotImplemented | undefined => NotImplementedFunction;
+    handleReturn = (e?: SyntheticKeyboardEvent, editorState?: EditorState, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
-    keyBindingFn = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): EditorCommand | null |  NotImplemented | undefined => NotImplementedFunction;
+    keyBindingFn = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): EditorCommand | null | NotImplemented | undefined => NotImplementedFunction;
 
-    onBlur = (e?: SyntheticEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onBlur = (e?: SyntheticEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onDownArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onDownArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onEscape = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onEscape = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onFocus = (e?: SyntheticEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onFocus = (e?: SyntheticEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onLeftArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onLeftArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onRightArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onRightArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onTab = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onTab = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onUpArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    onUpArrow = (e?: SyntheticKeyboardEvent, additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    initialize = (additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    initialize = (additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    onChange = (e?: EditorState, additional?: AdditionalProps): EditorState |  NotImplemented | undefined => NotImplementedFunction;
+    onChange = (e?: EditorState, additional?: AdditionalProps): EditorState | NotImplemented | undefined => NotImplementedFunction;
 
-    willUnmount = (additional?: AdditionalProps): void |  NotImplemented | undefined => NotImplementedFunction;
+    willUnmount = (additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    getAccessibilityProps = (additional?: AdditionalProps): { ariaHasPopup: string, ariaExpanded: string } |  NotImplemented | undefined => NotImplementedFunction;
+    getAccessibilityProps = (additional?: AdditionalProps): { ariaHasPopup: string, ariaExpanded: string } | NotImplemented | undefined => NotImplementedFunction;
 
     /**
      * Use Plugin

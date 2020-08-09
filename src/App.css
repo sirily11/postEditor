@@ -105,4 +105,5 @@ pre {
 
 .DraftEditor-editorContainer {
   font-size: medium;
+  height: 100vh;
 }
