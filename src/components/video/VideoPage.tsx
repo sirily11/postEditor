@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { Result, Video } from "../model/interfaces";
-import { getURL } from "../setting/settings";
+import { getURL } from "../model/utils/settings";
 import axios from "axios";
 import {
   makeStyles,

@@ -1,4 +1,4 @@
-import { EditorState, convertToRaw, AtomicBlockUtils } from "draft-js";
+import { EditorState, convertToRaw, AtomicBlockUtils, ContentBlock, Modifier } from 'draft-js';
 import image from "../../editor/plugin/draft-js-image-plugin";
 
 /**
@@ -22,12 +22,12 @@ export function insertImageBlock(
     const newEditorState = EditorState.set(editorState, {
       currentContent: contentStateWithEntity,
     });
+
     const newState = AtomicBlockUtils.insertAtomicBlock(
       newEditorState,
       entityKey,
       " "
     );
-    let raw = convertToRaw(newState.getCurrentContent());
     resolve(newState);
   });
 }
@@ -55,4 +55,13 @@ export function insertAudioBlock(
     let raw = convertToRaw(newState.getCurrentContent());
     resolve(newState);
   });
+}
+
+export function removeBlock(editorState: any, block: ContentBlock, entityKey: string) {
+  const contentState = editorState.getCurrentContent()
+  const newBlockMap = contentState.blockMap.delete(block.getKey())  // this is the important one that actually deletes a block
+  const newContentState = contentState.set('blockMap', newBlockMap)
+  //@ts-ignore
+  const newEditorState = EditorState.push(editorState, newContentState, 'remove-block')
+  return newEditorState
 }

@@ -6,6 +6,7 @@ import * as contextMenu from "electron-context-menu";
 const isDev = require("electron-is-dev");
 
 let mainWindow: Electron.BrowserWindow | undefined;
+let imageWindow: Electron.BrowserWindow | undefined;
 
 app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
 
@@ -25,21 +26,12 @@ var menu = Menu.buildFromTemplate([
         },
       },
       {
-        label: "Reload",
+        label: "Show Images Dialog",
         click: () => {
-          if (mainWindow) {
-            mainWindow.reload();
-          }
-        },
-      },
-      {
-        label: "Debug",
-        click: () => {
-          if (mainWindow) {
-            mainWindow.webContents.openDevTools();
-          }
-        },
-      },
+
+          imageWindow?.show();
+        }
+      }
     ],
   },
   {
@@ -54,10 +46,57 @@ var menu = Menu.buildFromTemplate([
       { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" },
     ],
   },
+  {
+    label: "Debug",
+    submenu: [
+      {
+        label: "Reload",
+        click: () => {
+          if (mainWindow) {
+            mainWindow.reload();
+            imageWindow?.reload();
+          }
+        },
+      },
+      {
+        label: "Debug",
+        click: () => {
+          if (mainWindow) {
+            mainWindow.webContents.openDevTools();
+          }
+        },
+      },
+    ]
+  }
 ]);
 Menu.setApplicationMenu(menu);
 
+function createImageWindow() {
+  imageWindow = new BrowserWindow({
+    height: 600,
+    width: 600,
+    title: "Post Images",
+    webPreferences: {
+      nodeIntegration: true,
+      webSecurity: false,
+    },
+    show: false,
+  });
+
+  imageWindow.loadURL(isDev
+    ? "http://localhost:3000#/images"
+    : `file://${path.join(__dirname, "../build/index.html#/images")}`)
+
+  imageWindow?.on('close', (e) => {
+    e.preventDefault();
+    imageWindow?.hide();
+    return false;
+  })
+
+}
+
 function createWindow() {
+
   mainWindow = new BrowserWindow({
     width: 1080,
     height: 900,
@@ -75,6 +114,7 @@ function createWindow() {
       : `file://${path.join(__dirname, "../build/index.html")}`
   );
 
+
   mainWindow.once("ready-to-show", () => {
     if (mainWindow) {
       mainWindow.show();
@@ -85,13 +125,21 @@ function createWindow() {
     // Open the DevTools.
     //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
     mainWindow.webContents.openDevTools();
+    imageWindow?.webContents.openDevTools();
   }
+
   mainWindow.on("closed", () => {
     mainWindow = undefined;
   });
+
 }
 
-app.on("ready", createWindow);
+function createWindows() {
+  createImageWindow();
+  createWindow();
+}
+
+app.on("ready", createWindows);
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -100,7 +148,25 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-  if (mainWindow === null) {
+  if (mainWindow === null && imageWindow == null) {
     createWindow();
   }
 });
+
+
+ipcMain.on('update-images', (e, arg) => {
+  imageWindow?.webContents.send('update-images', arg)
+})
+
+ipcMain.on('add-images', (e, arg) => {
+  imageWindow?.webContents.send('add-images', arg)
+})
+
+ipcMain.on('delete-image', (e, arg) => {
+  mainWindow?.webContents.send('delete-image', arg)
+})
+
+
+ipcMain.on('add-image-to-content', (e, arg) => {
+  mainWindow?.webContents.send('add-image-to-content', arg)
+})

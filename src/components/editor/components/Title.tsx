@@ -3,14 +3,14 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { InputBase, Divider, Breadcrumbs } from "@material-ui/core";
-import { UserContext } from "../model/userContext";
+import { UserContext } from "../../model/userContext";
 import { t, Trans } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
-import chinese from "../../locales/zh/messages";
-import { EditorContext } from "../model/editorContext";
+import chinese from "../../../locales/zh/messages";
+import { EditorContext } from "../../model/editorContext";
 import FloatButton from "./FloatButton";
 import { Paper } from "@material-ui/core";
-import { SettingConext } from "../model/settingContext";
+import { SettingConext } from "../../model/settingContext";
 import Grid from "@material-ui/core/Grid";
 
 const i18n = setupI18n({

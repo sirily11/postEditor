@@ -1,6 +1,6 @@
 import React, { Component, useContext } from "react";
 import axios, { AxiosResponse } from "axios";
-import { getURL } from "../setting/settings";
+import { getURL } from "./utils/settings";
 import * as path from "path";
 import { FfmpegCommand, Codec } from "fluent-ffmpeg";
 import { bool } from "aws-sdk/clients/signer";

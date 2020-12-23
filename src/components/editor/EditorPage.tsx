@@ -1,8 +1,8 @@
 /** @format */
 
 import React, { Component } from "react";
-import SideController from "./SideController";
-import Title from "./Title";
+import SideController from "./components/SideController";
+import Title from "./components/Title";
 import MainEditor from "./MainEditor";
 import { EditorContext } from "../model/editorContext";
 import MessageBar from "./components/MessageBar";

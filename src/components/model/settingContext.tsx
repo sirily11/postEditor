@@ -3,7 +3,7 @@
 import React, { Component, useContext } from "react";
 import { Category, Post, Result } from "./interfaces";
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-import { getURL } from "../setting/settings";
+import { getURL } from "./utils/settings";
 import Axios from "axios";
 
 const fs = (window as any).require("fs");

@@ -1,11 +1,12 @@
 import axios from "axios";
 import { NativeImage } from "electron";
-import { getURL } from "../../setting/settings";
+import { getURL } from "./settings";
 import { number } from "@lingui/core";
 import { convertFromRaw } from "draft-js";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 const electron = (window as any).require("electron");
+const { ipcRenderer } = (window as any).require("electron");
 
 const nativeImage = electron.nativeImage;
 
@@ -15,7 +16,7 @@ export const uploadImage = async (
   onUpload: (progress: number) => void
 ) => {
   return new Promise(async (resolve, reject) => {
-    let url = getURL("blog/post-draft-js-image-plugin/");
+    let url = getURL(`blog/post-image/`);
     let token = localStorage.getItem("access");
     let form = new FormData();
     // const draft-js-image-plugin: NativeImage = nativeImage.createFromPath(imageFile.path);
@@ -31,6 +32,7 @@ export const uploadImage = async (
       },
       onUploadProgress: (evt) => computeUploadProgress(evt, onUpload),
     });
+    ipcRenderer.send("add-images", [result.data])
     resolve(result.data);
   });
 };
@@ -83,7 +85,7 @@ export function computeDownloadProgress(progressEvent: any, callback?: any) {
   const totalLength = progressEvent.lengthComputable
     ? progressEvent.total
     : progressEvent.target.getResponseHeader("content-length") ||
-      progressEvent.target.getResponseHeader("x-decompressed-content-length");
+    progressEvent.target.getResponseHeader("x-decompressed-content-length");
   if (totalLength !== null) {
     let progress = Math.round((progressEvent.loaded * 100) / totalLength);
     callback(progress);
@@ -94,7 +96,7 @@ export function computeUploadProgress(progressEvent: any, callback?: any) {
   const totalLength = progressEvent.lengthComputable
     ? progressEvent.total
     : progressEvent.target.getResponseHeader("content-length") ||
-      progressEvent.target.getResponseHeader("x-decompressed-content-length");
+    progressEvent.target.getResponseHeader("x-decompressed-content-length");
   if (totalLength !== null) {
     let progress = Math.round((progressEvent.loaded * 100) / totalLength);
     callback(progress);

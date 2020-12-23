@@ -5,7 +5,7 @@ import { Post, Result, Category } from "./interfaces";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import { searchPost } from "./utils/utils";
 import axios from "axios";
-import { getURL } from "../setting/settings";
+import { getURL } from "./utils/settings";
 import { computeDownloadProgress } from "./utils/uploadUtils";
 
 interface Tab {

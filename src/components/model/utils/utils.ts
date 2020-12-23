@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Result, Post } from "../interfaces";
-import { getURL } from "../../setting/settings";
+import { getURL } from "./settings";
 import axios from "axios";
 
 /**

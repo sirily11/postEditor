@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import "./App.css";
 import { HashRouter as Router, Route, Link } from "react-router-dom";
@@ -21,6 +23,7 @@ import { UploadVideoProvider } from "./components/model/uploadVideoContext";
 import VideoPage from "./components/video/VideoPage";
 import { createMuiTheme, ThemeProvider, CssBaseline } from "@material-ui/core";
 import "bootstrap/dist/css/bootstrap.css";
+import PostImagePage from "./components/post_images/PostImagePage";
 
 const darkTheme = createMuiTheme({
   palette: {
@@ -43,8 +46,7 @@ class App extends Component {
                       atEnter={{ opacity: 0 }}
                       atLeave={{ opacity: 0 }}
                       atActive={{ opacity: 1 }}
-                      className="switch-wrapper"
-                    >
+                      className="switch-wrapper">
                       <Route exact path="/" component={LoginPage} />
                       <Route exact path="/video" component={VideoPage} />
                       <Route exact path="/home" component={HomePage} />
@@ -59,6 +61,7 @@ class App extends Component {
                         path="/edit/:_id?/:isLocal?"
                         component={EditorPage}
                       />
+                      <Route exact path="/images" component={PostImagePage} />
                     </AnimatedSwitch>
                   </DisplayProvider>
                 </SettingProvider>

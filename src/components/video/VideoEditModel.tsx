@@ -14,7 +14,7 @@ import {
   MenuItem
 } from "@material-ui/core";
 import { SettingConext } from "../model/settingContext";
-import { getURL } from "../setting/settings";
+import { getURL } from "../model/utils/settings";
 import axios from "axios";
 
 interface Props {

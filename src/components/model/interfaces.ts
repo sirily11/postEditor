@@ -18,6 +18,13 @@ export interface Post {
     post_language?: Language
     // Image URL
     image_url?: string;
+    images: PostImage[]
+}
+
+export interface PostImage {
+    id: number;
+    pid: number;
+    image: string
 }
 
 export interface Author {

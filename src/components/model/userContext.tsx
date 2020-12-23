@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getURL } from "../setting/settings";
+import { getURL } from "./utils/settings";
 import axios, { AxiosResponse } from "axios";
 
 const electron = (window as any).require("electron");

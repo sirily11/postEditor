@@ -21,9 +21,6 @@ import { EditorContext } from "../model/editorContext";
 import { SettingConext } from "../model/settingContext";
 import { Button as IconBtn } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
-import NewCategoryDialog from "./NewCategoryDialog";
-import UpdateCategoryDialog from "./UpdateCategoryDialog";
-const { dialog } = (window as any).require("electron").remote;
 
 interface Props {
   redirect(): void;

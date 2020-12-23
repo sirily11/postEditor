@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import "semantic-ui-css/semantic.min.css";
 import axios from "axios";
-import { getURL } from "./settings";
+import { getURL } from "../model/utils/settings";
 import { SettingConext } from "../model/settingContext";
 import { Category } from "../model/interfaces";
 import { DisplayContext } from "../model/displayContext";

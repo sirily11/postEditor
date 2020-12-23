@@ -4,6 +4,7 @@ var electron_1 = require("electron");
 var path = require("path");
 var isDev = require("electron-is-dev");
 var mainWindow;
+var imageWindow;
 electron_1.app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
 var menu = electron_1.Menu.buildFromTemplate([
     {
@@ -21,21 +22,11 @@ var menu = electron_1.Menu.buildFromTemplate([
                 }
             },
             {
-                label: "Reload",
+                label: "Show Images Dialog",
                 click: function () {
-                    if (mainWindow) {
-                        mainWindow.reload();
-                    }
+                    imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.show();
                 }
-            },
-            {
-                label: "Debug",
-                click: function () {
-                    if (mainWindow) {
-                        mainWindow.webContents.openDevTools();
-                    }
-                }
-            },
+            }
         ]
     },
     {
@@ -50,8 +41,50 @@ var menu = electron_1.Menu.buildFromTemplate([
             { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" },
         ]
     },
+    {
+        label: "Debug",
+        submenu: [
+            {
+                label: "Reload",
+                click: function () {
+                    if (mainWindow) {
+                        mainWindow.reload();
+                        imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.reload();
+                    }
+                }
+            },
+            {
+                label: "Debug",
+                click: function () {
+                    if (mainWindow) {
+                        mainWindow.webContents.openDevTools();
+                    }
+                }
+            },
+        ]
+    }
 ]);
 electron_1.Menu.setApplicationMenu(menu);
+function createImageWindow() {
+    imageWindow = new electron_1.BrowserWindow({
+        height: 600,
+        width: 600,
+        title: "Post Images",
+        webPreferences: {
+            nodeIntegration: true,
+            webSecurity: false
+        },
+        show: false
+    });
+    imageWindow.loadURL(isDev
+        ? "http://localhost:3000#/images"
+        : "file://" + path.join(__dirname, "../build/index.html#/images"));
+    imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.on('close', function (e) {
+        e.preventDefault();
+        imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.hide();
+        return false;
+    });
+}
 function createWindow() {
     mainWindow = new electron_1.BrowserWindow({
         width: 1080,
@@ -76,19 +109,36 @@ function createWindow() {
         // Open the DevTools.
         //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
         mainWindow.webContents.openDevTools();
+        imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.webContents.openDevTools();
     }
     mainWindow.on("closed", function () {
         mainWindow = undefined;
     });
 }
-electron_1.app.on("ready", createWindow);
+function createWindows() {
+    createImageWindow();
+    createWindow();
+}
+electron_1.app.on("ready", createWindows);
 electron_1.app.on("window-all-closed", function () {
     if (process.platform !== "darwin") {
         electron_1.app.quit();
     }
 });
 electron_1.app.on("activate", function () {
-    if (mainWindow === null) {
+    if (mainWindow === null && imageWindow == null) {
         createWindow();
     }
+});
+electron_1.ipcMain.on('update-images', function (e, arg) {
+    imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.webContents.send('update-images', arg);
+});
+electron_1.ipcMain.on('add-images', function (e, arg) {
+    imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.webContents.send('add-images', arg);
+});
+electron_1.ipcMain.on('delete-image', function (e, arg) {
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('delete-image', arg);
+});
+electron_1.ipcMain.on('add-image-to-content', function (e, arg) {
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('add-image-to-content', arg);
 });

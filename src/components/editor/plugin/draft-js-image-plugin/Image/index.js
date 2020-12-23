@@ -1,3 +1,5 @@
+/** @format */
+
 import unionClassNames from "union-class-names";
 import React, { Component } from "react";
 
@@ -21,16 +23,19 @@ export default class Image extends Component {
     const combinedClassName = unionClassNames(theme.image, className);
     const { src } = contentState.getEntity(block.getEntityAt(0)).getData();
     return (
-      <img
-        {...elementProps}
-        alt="PostImage"
-        src={src}
-        role="presentation"
-        className={combinedClassName}
-        style={{
-          maxWidth: "100%"
-        }}
-      />
+      <div>
+        123
+        <img
+          {...elementProps}
+          alt="PostImage"
+          src={src}
+          role="presentation"
+          className={combinedClassName}
+          style={{
+            maxWidth: "100%",
+          }}
+        />
+      </div>
     );
   }
 }
