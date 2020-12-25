@@ -18,7 +18,7 @@ import { setupI18n } from "@lingui/core";
 import chinese from "../../locales/zh/messages";
 import axios from "axios";
 import { getURL } from "./utils/settings";
-import { Category, Post, PostImage } from "./interfaces";
+import { Category, Post, PostImage, Result } from "./interfaces";
 import {
   insertAudioBlock,
   insertImageBlock,
