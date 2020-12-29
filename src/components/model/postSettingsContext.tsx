@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { Component } from "react";
-import { PostContentSettings, DetailSettings } from "./interfaces";
+import { PostContentSettings, DetailSettings, Settings } from "./interfaces";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import axios from "axios";
 import { getURL } from "./utils/settings";
@@ -13,15 +13,12 @@ interface PostSettingState {
   isLoading: boolean;
   showAddSettingsDialog: boolean;
   showAddDetailSettingsDialog: boolean;
-  addSettings(): Promise<void>;
+  addSettings(settings: Settings): Promise<void>;
   addDetailSettingsTo(
     settingsIndex: number,
     detailSettings: DetailSettings
   ): Promise<void>;
-  updateSettings(
-    settingsIndex: number,
-    newSettings: PostContentSettings
-  ): Promise<void>;
+  updateSettings(settingsIndex: number, newSettings: Settings): Promise<void>;
   updateDetailSettings(
     settingsIndex: number,
     detailSettingsIndex: number,
@@ -109,7 +106,13 @@ export class PostSettingProvider extends Component<
   /**
    * Add settings
    */
-  addSettings = async (): Promise<void> => {};
+  addSettings = async (settings: Settings): Promise<void> => {
+    const { postSettings } = this.state;
+    if (postSettings) {
+      postSettings.settings.push(settings);
+      await this.updateToServer(postSettings);
+    }
+  };
 
   /**
    * Add detail settings
@@ -119,7 +122,13 @@ export class PostSettingProvider extends Component<
   addDetailSettingsTo = async (
     settingsIndex: number,
     detailSettings: DetailSettings
-  ): Promise<void> => {};
+  ): Promise<void> => {
+    const { postSettings } = this.state;
+    if (postSettings) {
+      postSettings.settings[settingsIndex].detailSettings.push(detailSettings);
+      await this.updateToServer(postSettings);
+    }
+  };
 
   /**
    * Update settings by index
@@ -128,22 +137,45 @@ export class PostSettingProvider extends Component<
    */
   updateSettings = async (
     settingsIndex: number,
-    newSettings: PostContentSettings
-  ): Promise<void> => {};
+    newSettings: Settings
+  ): Promise<void> => {
+    const { postSettings } = this.state;
+    if (postSettings) {
+      postSettings.settings[settingsIndex] = newSettings;
+      await this.updateToServer(postSettings);
+    }
+  };
 
   /**
-   * Update edetail settings
+   * Update Detail settings
+   * @param settingsIndex Settings' index
+   * @param detailSettingsIndex Detail settings' index
+   * @param detailSettings New Detail settings
    */
   updateDetailSettings = async (
     settingsIndex: number,
     detailSettingsIndex: number,
     detailSettings: DetailSettings
-  ): Promise<void> => {};
+  ): Promise<void> => {
+    const { postSettings } = this.state;
+    if (postSettings) {
+      postSettings.settings[settingsIndex].detailSettings[
+        detailSettingsIndex
+      ] = detailSettings;
+      await this.updateToServer(postSettings);
+    }
+  };
   /**
    * Delete settings by index
    * @param settingsIndex Settings index
    */
-  deleteSettings = async (settingsIndex: number): Promise<void> => {};
+  deleteSettings = async (settingsIndex: number): Promise<void> => {
+    const { postSettings } = this.state;
+    if (postSettings) {
+      postSettings.settings.splice(settingsIndex, 1);
+      await this.updateToServer(postSettings);
+    }
+  };
 
   /**
    * Delete detail settings' index
@@ -153,7 +185,16 @@ export class PostSettingProvider extends Component<
   deleteDetailSettings = async (
     settingsIndex: number,
     detailSettingsIndex: number
-  ): Promise<void> => {};
+  ): Promise<void> => {
+    const { postSettings } = this.state;
+    if (postSettings) {
+      postSettings.settings[settingsIndex].detailSettings.splice(
+        detailSettingsIndex,
+        1
+      );
+      await this.updateToServer(postSettings);
+    }
+  };
 
   render() {
     return (
