@@ -70,3 +70,20 @@ export interface Video {
     video_4k?: string;
     video_category: Category
 }
+
+export interface PostContentSettings {
+    settings: Settings[]
+}
+
+export interface Settings {
+    name: string;
+    description: string;
+    detailSettings: DetailSettings[]
+}
+
+export interface DetailSettings {
+    name: string;
+    description: string;
+    image?: string;
+}
+

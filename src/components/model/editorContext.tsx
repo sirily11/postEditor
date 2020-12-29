@@ -295,6 +295,7 @@ export class MainEditorProvider extends React.Component<
           postData.content !== "" ? JSON.parse(postData.content) : {}
         )
       );
+      ipcRenderer.send('load-post', id)
       ipcRenderer.send("update-images", postData.images);
       this.setState({
         isLoading: false,

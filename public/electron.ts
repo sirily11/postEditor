@@ -7,6 +7,7 @@ const isDev = require("electron-is-dev");
 
 let mainWindow: Electron.BrowserWindow | undefined;
 let imageWindow: Electron.BrowserWindow | undefined;
+let postSettingsWindow: Electron.BrowserWindow | undefined;
 
 app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
 
@@ -30,6 +31,13 @@ var menu = Menu.buildFromTemplate([
         click: () => {
 
           imageWindow?.show();
+        }
+      },
+      {
+        label: "Show Post Settings Dialog",
+        click: () => {
+
+          postSettingsWindow?.show();
         }
       }
     ],
@@ -95,6 +103,30 @@ function createImageWindow() {
 
 }
 
+function createPostSettingsWindow() {
+  postSettingsWindow = new BrowserWindow({
+    height: 1200,
+    width: 600,
+    title: "Post Images",
+    webPreferences: {
+      nodeIntegration: true,
+      webSecurity: false,
+    },
+    show: false,
+  });
+
+  postSettingsWindow.loadURL(isDev
+    ? "http://localhost:3000#/post-settings"
+    : `file://${path.join(__dirname, "../build/index.html#/post-settings")}`)
+
+  postSettingsWindow?.on('close', (e) => {
+    e.preventDefault();
+    postSettingsWindow?.hide();
+    return false;
+  })
+
+}
+
 function createWindow() {
 
   mainWindow = new BrowserWindow({
@@ -137,6 +169,7 @@ function createWindow() {
 function createWindows() {
   createImageWindow();
   createWindow();
+  createPostSettingsWindow();
 }
 
 app.on("ready", createWindows);
@@ -169,4 +202,12 @@ ipcMain.on('delete-image', (e, arg) => {
 
 ipcMain.on('add-image-to-content', (e, arg) => {
   mainWindow?.webContents.send('add-image-to-content', arg)
+})
+
+ipcMain.on("update-post-settings", (e, arg) => {
+  mainWindow?.webContents.send("update-post-settings", arg)
+})
+
+ipcMain.on('load-post', (e, arg) => {
+  postSettingsWindow?.webContents.send('load-post', arg)
 })
