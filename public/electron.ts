@@ -60,18 +60,17 @@ var menu = Menu.buildFromTemplate([
       {
         label: "Reload",
         click: () => {
-          if (mainWindow) {
-            mainWindow.reload();
-            imageWindow?.reload();
-          }
+          mainWindow?.reload();
+          imageWindow?.reload();
+          postSettingsWindow?.reload();
         },
       },
       {
         label: "Debug",
         click: () => {
-          if (mainWindow) {
-            mainWindow.webContents.openDevTools();
-          }
+          mainWindow?.webContents.openDevTools();
+          imageWindow?.webContents.openDevTools();
+          postSettingsWindow?.webContents.openDevTools();
         },
       },
     ]
@@ -87,43 +86,45 @@ function createImageWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
+      enableRemoteModule: true
     },
     show: false,
   });
 
   imageWindow.loadURL(isDev
     ? "http://localhost:3000#/images"
-    : `file://${path.join(__dirname, "../build/index.html#/images")}`)
+    : `file://${path.join(__dirname, "../build/index.html#/images")}`);
 
   imageWindow?.on('close', (e) => {
     e.preventDefault();
     imageWindow?.hide();
     return false;
-  })
+  });
 
 }
 
 function createPostSettingsWindow() {
   postSettingsWindow = new BrowserWindow({
-    height: 1200,
-    width: 600,
+    height: 800,
+    width: 300,
     title: "Post Images",
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
+      enableRemoteModule: true
     },
     show: false,
   });
 
   postSettingsWindow.loadURL(isDev
     ? "http://localhost:3000#/post-settings"
-    : `file://${path.join(__dirname, "../build/index.html#/post-settings")}`)
+    : `file://${path.join(__dirname, "../build/index.html#/post-settings")}`);
 
   postSettingsWindow?.on('close', (e) => {
     e.preventDefault();
     postSettingsWindow?.hide();
     return false;
-  })
+  });
 
 }
 
@@ -137,6 +138,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
+      enableRemoteModule: true
     },
   });
   console.log("Starting the webserver");
@@ -188,26 +190,34 @@ app.on("activate", () => {
 
 
 ipcMain.on('update-images', (e, arg) => {
-  imageWindow?.webContents.send('update-images', arg)
-})
+  imageWindow?.webContents.send('update-images', arg);
+});
 
 ipcMain.on('add-images', (e, arg) => {
-  imageWindow?.webContents.send('add-images', arg)
-})
+  imageWindow?.webContents.send('add-images', arg);
+});
 
 ipcMain.on('delete-image', (e, arg) => {
-  mainWindow?.webContents.send('delete-image', arg)
-})
+  mainWindow?.webContents.send('delete-image', arg);
+});
 
 
 ipcMain.on('add-image-to-content', (e, arg) => {
-  mainWindow?.webContents.send('add-image-to-content', arg)
-})
+  mainWindow?.webContents.send('add-image-to-content', arg);
+});
 
 ipcMain.on("update-post-settings", (e, arg) => {
-  mainWindow?.webContents.send("update-post-settings", arg)
-})
+  mainWindow?.webContents.send("update-post-settings", arg);
+});
 
 ipcMain.on('load-post', (e, arg) => {
-  postSettingsWindow?.webContents.send('load-post', arg)
-})
+  postSettingsWindow?.webContents.send('load-post', arg);
+});
+
+ipcMain.on('show-image', (e, arg) => {
+  imageWindow?.show();
+});
+
+ipcMain.on('show-post-settings', (e, arg) => {
+  postSettingsWindow?.show();
+});

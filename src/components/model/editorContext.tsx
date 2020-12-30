@@ -121,6 +121,7 @@ export class MainEditorProvider extends React.Component<
         title: "New Post",
         content: "New Post",
         images: [],
+        settings: {},
       },
       snackBarMessage: "",
       selected: [],
@@ -209,6 +210,7 @@ export class MainEditorProvider extends React.Component<
         content: "",
         post_category: undefined,
         images: [],
+        settings: {},
       },
       editorState: EditorState.createEmpty(),
     });
@@ -287,6 +289,7 @@ export class MainEditorProvider extends React.Component<
       },
     });
     let postData = response.data;
+    postData.settings = JSON.parse(postData.settings as string);
 
     if (postData) {
       // @ts-ignore
@@ -295,7 +298,7 @@ export class MainEditorProvider extends React.Component<
           postData.content !== "" ? JSON.parse(postData.content) : {}
         )
       );
-      ipcRenderer.send('load-post', id)
+      ipcRenderer.send("load-post", postData);
       ipcRenderer.send("update-images", postData.images);
       this.setState({
         isLoading: false,

@@ -1,24 +1,41 @@
 /** @format */
 
 import React, { Component } from "react";
-import { PostContentSettings, DetailSettings, Settings } from "./interfaces";
-import AwesomeDebouncePromise from "awesome-debounce-promise";
+import {
+  PostContentSettings,
+  DetailSettings,
+  ContentSettings,
+  Post,
+} from "./interfaces";
 import axios from "axios";
 import { getURL } from "./utils/settings";
+import { v4 as uuidv4, v4 } from "uuid";
 const { ipcRenderer } = (window as any).require("electron");
 
 interface PostSettingState {
+  selectedSettings?: ContentSettings;
+  selectedDetailSettings?: DetailSettings;
   postSettings?: PostContentSettings;
-  postId?: number;
+  postId?: number | string;
   isLoading: boolean;
   showAddSettingsDialog: boolean;
   showAddDetailSettingsDialog: boolean;
-  addSettings(settings: Settings): Promise<void>;
+  openSettingsDialog(selectedSettings?: ContentSettings): void;
+  closeSettingsDialog(): void;
+  openDetailSettingsDialog(
+    selectedSettings?: ContentSettings,
+    selectedDetailSettings?: DetailSettings
+  ): void;
+  closeDetailSettingsDialog(): void;
+  addSettings(settings: ContentSettings): Promise<void>;
   addDetailSettingsTo(
     settingsIndex: number,
     detailSettings: DetailSettings
   ): Promise<void>;
-  updateSettings(settingsIndex: number, newSettings: Settings): Promise<void>;
+  updateSettings(
+    settingsIndex: number,
+    newSettings: ContentSettings
+  ): Promise<void>;
   updateDetailSettings(
     settingsIndex: number,
     detailSettingsIndex: number,
@@ -33,11 +50,22 @@ interface PostSettingState {
 
 interface PostSettingProps {}
 
-// const searchAPIDebounced = AwesomeDebouncePromise(
-//   (keyword: string) => ,
-//   400
-// );
-
+const settings: PostContentSettings = {
+  settings: [
+    {
+      id: v4(),
+      name: "Hello",
+      description: "Hello",
+      detailSettings: [
+        {
+          id: v4(),
+          name: "Abc",
+          description: "abcde",
+        },
+      ],
+    },
+  ],
+};
 export class PostSettingProvider extends Component<
   PostSettingProps,
   PostSettingState
@@ -45,9 +73,14 @@ export class PostSettingProvider extends Component<
   constructor(props: PostSettingProps) {
     super(props);
     this.state = {
+      postSettings: settings,
       isLoading: false,
       showAddDetailSettingsDialog: false,
       showAddSettingsDialog: false,
+      openDetailSettingsDialog: this.openDetailSettingsDialog,
+      openSettingsDialog: this.openSettingsDialog,
+      closeDetailSettingsDialog: this.closeDetailSettingsDialog,
+      closeSettingsDialog: this.closeSettingsDialog,
       addSettings: this.addSettings,
       updateSettings: this.updateSettings,
       deleteSettings: this.deleteSettings,
@@ -65,10 +98,42 @@ export class PostSettingProvider extends Component<
       }
     );
 
-    ipcRenderer.on("load-post", (e: any, arg: number) => {
-      this.setState({ postId: arg });
+    ipcRenderer.on("load-post", (e: any, arg: Post) => {
+      if (arg.id) {
+        this.setState({ postId: arg.id, postSettings: arg.settings });
+      }
     });
   }
+
+  openSettingsDialog = (selectedSettings?: ContentSettings): void => {
+    this.setState({
+      selectedSettings: selectedSettings,
+      showAddSettingsDialog: true,
+    });
+  };
+  closeSettingsDialog = (): void => {
+    this.setState({
+      selectedSettings: undefined,
+      showAddSettingsDialog: false,
+    });
+  };
+  openDetailSettingsDialog = (
+    selectedSettings?: ContentSettings,
+    selectedDetailSettings?: DetailSettings
+  ): void => {
+    this.setState({
+      selectedDetailSettings: selectedDetailSettings,
+      selectedSettings: selectedSettings,
+      showAddDetailSettingsDialog: true,
+    });
+  };
+  closeDetailSettingsDialog = (): void => {
+    this.setState({
+      selectedDetailSettings: undefined,
+      selectedSettings: undefined,
+      showAddDetailSettingsDialog: false,
+    });
+  };
 
   /**
    * Will upload the settings to the server. Will send latest settings to main window.
@@ -106,10 +171,15 @@ export class PostSettingProvider extends Component<
   /**
    * Add settings
    */
-  addSettings = async (settings: Settings): Promise<void> => {
+  addSettings = async (settings: ContentSettings): Promise<void> => {
     const { postSettings } = this.state;
     if (postSettings) {
-      postSettings.settings.push(settings);
+      if (postSettings.settings) {
+        postSettings.settings.push(settings);
+      } else {
+        postSettings.settings = [settings];
+      }
+
       await this.updateToServer(postSettings);
     }
   };
@@ -124,7 +194,7 @@ export class PostSettingProvider extends Component<
     detailSettings: DetailSettings
   ): Promise<void> => {
     const { postSettings } = this.state;
-    if (postSettings) {
+    if (postSettings && postSettings.settings) {
       postSettings.settings[settingsIndex].detailSettings.push(detailSettings);
       await this.updateToServer(postSettings);
     }
@@ -137,10 +207,10 @@ export class PostSettingProvider extends Component<
    */
   updateSettings = async (
     settingsIndex: number,
-    newSettings: Settings
+    newSettings: ContentSettings
   ): Promise<void> => {
     const { postSettings } = this.state;
-    if (postSettings) {
+    if (postSettings && postSettings.settings) {
       postSettings.settings[settingsIndex] = newSettings;
       await this.updateToServer(postSettings);
     }
@@ -158,7 +228,7 @@ export class PostSettingProvider extends Component<
     detailSettings: DetailSettings
   ): Promise<void> => {
     const { postSettings } = this.state;
-    if (postSettings) {
+    if (postSettings && postSettings.settings) {
       postSettings.settings[settingsIndex].detailSettings[
         detailSettingsIndex
       ] = detailSettings;
@@ -171,7 +241,7 @@ export class PostSettingProvider extends Component<
    */
   deleteSettings = async (settingsIndex: number): Promise<void> => {
     const { postSettings } = this.state;
-    if (postSettings) {
+    if (postSettings && postSettings.settings) {
       postSettings.settings.splice(settingsIndex, 1);
       await this.updateToServer(postSettings);
     }
@@ -187,7 +257,7 @@ export class PostSettingProvider extends Component<
     detailSettingsIndex: number
   ): Promise<void> => {
     const { postSettings } = this.state;
-    if (postSettings) {
+    if (postSettings && postSettings.settings) {
       postSettings.settings[settingsIndex].detailSettings.splice(
         detailSettingsIndex,
         1

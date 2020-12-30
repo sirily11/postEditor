@@ -87,8 +87,8 @@ export default function HomePage() {
                     {postsResult &&
                       postsResult.results.map((post) => {
                         return (
-                          <Collapse in={true}>
-                            <PostItem post={post} key={`post-${post.id}`} />
+                          <Collapse in={true} key={`post-${post.id}`}>
+                            <PostItem post={post} />
                           </Collapse>
                         );
                       })}

@@ -11,24 +11,25 @@ export interface Post {
     // Content in Markdown Format
     content: string;
     // Category
-    post_category?: Category
+    post_category?: Category;
     // author name
     author?: Author;
     //Language
-    post_language?: Language
+    post_language?: Language;
     // Image URL
     image_url?: string;
-    images: PostImage[]
+    images: PostImage[];
+    settings: PostContentSettings;
 }
 
 export interface PostImage {
     id: number;
     pid: number;
-    image: string
+    image: string;
 }
 
 export interface Author {
-    username: string
+    username: string;
 }
 
 export interface Category {
@@ -48,13 +49,13 @@ interface RouterProps {
 
 export interface Result<T> {
     count: number;
-    next?: string
-    previous?: string
-    results: T[]
+    next?: string;
+    previous?: string;
+    results: T[];
 }
 
 export interface EditorProps extends RouteComponentProps<RouterProps> {
-    insertImage(imagePath: string): void
+    insertImage(imagePath: string): void;
 }
 
 
@@ -68,20 +69,22 @@ export interface Video {
     video_720p?: string;
     video_1080p?: string;
     video_4k?: string;
-    video_category: Category
+    video_category: Category;
 }
 
 export interface PostContentSettings {
-    settings: Settings[]
+    settings?: ContentSettings[];
 }
 
-export interface Settings {
+export interface ContentSettings {
+    id: string;
     name: string;
     description: string;
-    detailSettings: DetailSettings[]
+    detailSettings: DetailSettings[];
 }
 
 export interface DetailSettings {
+    id: string;
     name: string;
     description: string;
     image?: string;

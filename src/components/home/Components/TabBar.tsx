@@ -66,6 +66,7 @@ export default function TabBar() {
               {categories.map((category) => {
                 return (
                   <ListItem
+                    key={`category-${category.id}`}
                     button
                     selected={value === category.id}
                     onClick={() => {

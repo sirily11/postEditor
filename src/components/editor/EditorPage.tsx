@@ -9,14 +9,9 @@ import MessageBar from "./components/MessageBar";
 import { EditorProps } from "../model/interfaces";
 import SettingCard from "../setting/SettingCard";
 import UploadDialog from "./components/UploadDialog";
-import {
-  LinearProgress,
-  Collapse,
-  Snackbar,
-  SnackbarContent,
-  AppBar,
-  Toolbar,
-} from "@material-ui/core";
+import { Snackbar, SnackbarContent } from "@material-ui/core";
+const { ipcRenderer, remote } = (window as any).require("electron");
+const { Menu, MenuItem } = remote;
 
 interface State {
   _id: string;
@@ -37,6 +32,33 @@ export default class EditorPage extends Component<EditorProps, State> {
   componentWillMount() {
     let _id = this.props.match.params._id;
     this.setState({ _id: _id });
+
+    const menu = new Menu();
+    menu.append(
+      new MenuItem({
+        label: "Show Image Window",
+        click() {
+          ipcRenderer.send("show-image");
+        },
+      })
+    );
+    menu.append(
+      new MenuItem({
+        label: "Show Post Settings",
+        click() {
+          ipcRenderer.send("show-post-settings");
+        },
+      })
+    );
+
+    window.addEventListener(
+      "contextmenu",
+      (e) => {
+        e.preventDefault();
+        menu.popup({ window: remote.getCurrentWindow() });
+      },
+      false
+    );
   }
 
   uploadFiles = async (acceptedFiles: File[], rejectedFiles: File[]) => {

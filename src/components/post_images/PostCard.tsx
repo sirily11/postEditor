@@ -11,6 +11,7 @@ import { Column, Row } from "@mui-treasury/components/flex";
 import { Item } from "@mui-treasury/components/flex";
 import Grid from "@material-ui/core/Grid";
 import { Card, CardMedia } from "@material-ui/core";
+import { CardActions } from "@material-ui/core";
 
 const useButtonStyles = makeStyles(() => ({
   root: {
@@ -88,27 +89,10 @@ export function PostImageCard(props: {
           <Column p={0} gap={3}>
             <CardMedia image={image} style={{ height: 180 }} />
 
-            <Row wrap gap={1} px={2} pb={2}>
-              <Item grow>
-                <Button
-                  classes={btnStyles}
-                  variant={"contained"}
-                  color={"primary"}
-                  onClick={() => onAdd()}
-                  fullWidth>
-                  Add
-                </Button>
-              </Item>
-              <Item grow>
-                <Button
-                  classes={btnStyles}
-                  variant={"contained"}
-                  fullWidth
-                  onClick={() => onDelete()}>
-                  Delete
-                </Button>
-              </Item>
-            </Row>
+            <CardActions>
+              <Button onClick={() => onAdd()}>Add</Button>
+              <Button onClick={() => onDelete()}>Delete</Button>
+            </CardActions>
           </Column>
         </Box>
       </Card>
