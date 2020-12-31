@@ -28,6 +28,7 @@ import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
+
 import {
   PickColorButton,
   ColorPickerPlugin,
@@ -41,7 +42,7 @@ import {
   TextAlignLeftButton,
   TextAlignRightButton,
 } from "./plugin/draft-js-text-align-plugin";
-
+import { SettingSuggestionsPlugin } from "./plugin/draft-js-settings-suggestions-plugin";
 /// ends of plugins
 import { t } from "@lingui/macro";
 import { setupI18n } from "@lingui/core";
@@ -58,12 +59,14 @@ import "draft-js-linkify-plugin/lib/plugin.css";
 import { Redirect } from "react-router";
 
 const inlineToolbar = new InlineToolbarPlugin({});
+const settingSuggestions = new SettingSuggestionsPlugin({});
 
 const audioPlugin = createAudioPlugin();
 const postSettingsPlugin = createPostSettingsPlugin();
 const linkPlugin = createLinkPlugin();
 const resizeablePlugin = createResizeablePlugin();
 const inlineToolbarPlugin = inlineToolbar.createPlugin();
+const settingSuggestionsPlugin = settingSuggestions.createPlugin();
 const alignmentPlugin = createAlignmentPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
   position: "right",
@@ -85,6 +88,8 @@ const decorator = composeDecorators(
 const imagePlugin = createImagePlugin({ decorator });
 
 const InlineToolbar = inlineToolbar.InlineToolbar;
+const SuggestionPanel = settingSuggestions.Pannel;
+
 const { SideToolbar } = sideToolbarPlugin;
 const { AlignmentTool } = alignmentPlugin;
 
@@ -94,6 +99,15 @@ const i18n = setupI18n({
   },
 });
 export default class MainEditor extends Component {
+  state = {
+    suggestions: [
+      {
+        name: "Matthew Russell",
+        link: "https://twitter.com/mrussell247",
+      },
+    ],
+  };
+
   componentWillMount() {
     this.props.initEditor(this.props._id);
   }
@@ -109,6 +123,24 @@ export default class MainEditor extends Component {
     }
     return getDefaultKeyBinding(e);
   }
+
+  onSearchChange = ({ value }) => {
+    console.log(value);
+    this.setState({
+      suggestions: [
+        {
+          name: "Matthew Russell",
+          title: "Senior Software Engineer",
+          avatar:
+            "https://pbs.twimg.com/profile_images/517863945/mattsailing_400x400.jpg",
+        },
+      ],
+    });
+  };
+
+  onAddMention = () => {
+    // get the mention object selected
+  };
 
   render() {
     return (
@@ -163,9 +195,12 @@ export default class MainEditor extends Component {
                           resizeablePlugin,
                           linkPlugin,
                           textAlignPlugin,
+                          settingSuggestionsPlugin,
                         ]}
                       />
+                      <SuggestionPanel />
                       <AlignmentTool />
+
                       <InlineToolbar>
                         {(externalProps) => {
                           return (

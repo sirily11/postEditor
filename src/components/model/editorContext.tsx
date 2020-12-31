@@ -165,16 +165,22 @@ export class MainEditorProvider extends React.Component<
     });
 
     ipcRenderer.on("add-settings-block", (e: any, arg: DetailSettings) => {
-      console.log("add settings");
       this.insertSettingsBlock(arg);
     });
 
     ipcRenderer.on(
       "update-setting-block",
       (e: any, arg: UpdateSettingSignal) => {
-        console.log("update settings", arg);
         for (let ds of arg.contents) {
-          this.replaceText(ds);
+          if (arg.action === "update") {
+            this.replaceText(ds);
+          } else {
+            this.replaceText({
+              name: "deleted",
+              description: "deleted",
+              id: ds.id,
+            });
+          }
         }
       }
     );
@@ -249,7 +255,6 @@ export class MainEditorProvider extends React.Component<
   replaceText = (detail: DetailSettings) => {
     let editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
-    let selectionState = editorState.getSelection();
 
     let blocks: SelectionState[] = [];
     let entityKeys: string[] = [];
