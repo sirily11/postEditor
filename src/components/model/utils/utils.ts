@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Result, Post } from "../interfaces";
 import { getURL } from "./settings";
 import axios from "axios";
+import { EditorState, SelectionState } from "draft-js";
 
 /**
  * Search post by key word

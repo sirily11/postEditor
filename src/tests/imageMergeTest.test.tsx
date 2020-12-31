@@ -1,4 +1,4 @@
-import { insertImageBlock } from "../components/model/utils/insertImageBlock";
+import { insertImageBlock } from "../components/model/utils/insertBlock";
 import {
   EditorState,
   RichUtils,

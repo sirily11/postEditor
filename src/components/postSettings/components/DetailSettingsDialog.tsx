@@ -2,10 +2,12 @@
 
 import {
   Button,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  LinearProgress,
   TextField,
 } from "@material-ui/core";
 import React from "react";
@@ -22,6 +24,7 @@ export default function DetailSettingsDialog() {
     selectedDetailSettings,
     closeDetailSettingsDialog,
     showAddDetailSettingsDialog,
+    isLoading,
   } = React.useContext(PostSettingContext);
 
   const [name, setName] = React.useState("");
@@ -39,6 +42,9 @@ export default function DetailSettingsDialog() {
       fullWidth>
       <DialogTitle>
         {selectedSettings ? "Edit" : "Add"} Detail's Settings{" "}
+        <Collapse mountOnEnter unmountOnExit in={isLoading}>
+          <LinearProgress />
+        </Collapse>
       </DialogTitle>
       <DialogContent>
         <TextField

@@ -10,6 +10,7 @@ import {
 import axios from "axios";
 import { getURL } from "./utils/settings";
 import { v4 as uuidv4, v4 } from "uuid";
+import { UpdateSettingSignal } from "./interfaces";
 const { ipcRenderer } = (window as any).require("electron");
 
 interface PostSettingState {
@@ -73,7 +74,6 @@ export class PostSettingProvider extends Component<
   constructor(props: PostSettingProps) {
     super(props);
     this.state = {
-      postSettings: settings,
       isLoading: false,
       showAddDetailSettingsDialog: false,
       showAddSettingsDialog: false,
@@ -94,18 +94,17 @@ export class PostSettingProvider extends Component<
     ipcRenderer.on(
       "update-post-settings",
       (e: any, arg: PostContentSettings) => {
-        console.log(arg);
+        this.setState({ postSettings: arg });
       }
     );
 
     ipcRenderer.on("load-post", (e: any, arg: Post) => {
-      if (arg.id) {
-        this.setState({ postId: arg.id, postSettings: arg.settings });
-      }
+      this.setState({ postId: arg.id, postSettings: arg.settings });
     });
   }
 
   openSettingsDialog = (selectedSettings?: ContentSettings): void => {
+    console.log("open");
     this.setState({
       selectedSettings: selectedSettings,
       showAddSettingsDialog: true,
@@ -163,6 +162,7 @@ export class PostSettingProvider extends Component<
       }
     } catch (err) {
       alert(err);
+      throw err;
     } finally {
       this.setState({ isLoading: false });
     }
@@ -233,6 +233,15 @@ export class PostSettingProvider extends Component<
         detailSettingsIndex
       ] = detailSettings;
       await this.updateToServer(postSettings);
+      let data: UpdateSettingSignal = {
+        action: "update",
+        contents: [
+          postSettings.settings[settingsIndex].detailSettings[
+            detailSettingsIndex
+          ],
+        ],
+      };
+      await ipcRenderer.send("update-setting-block", data);
     }
   };
   /**
@@ -240,10 +249,19 @@ export class PostSettingProvider extends Component<
    * @param settingsIndex Settings index
    */
   deleteSettings = async (settingsIndex: number): Promise<void> => {
+    let confirm = window.confirm("Do you want to delete?");
+    if (!confirm) return;
     const { postSettings } = this.state;
     if (postSettings && postSettings.settings) {
       postSettings.settings.splice(settingsIndex, 1);
       await this.updateToServer(postSettings);
+      let deletedDetails = this.state.postSettings!.settings![settingsIndex]
+        .detailSettings;
+      let data: UpdateSettingSignal = {
+        action: "delete",
+        contents: deletedDetails,
+      };
+      await ipcRenderer.send("update-setting-block", data);
     }
   };
 
@@ -256,13 +274,19 @@ export class PostSettingProvider extends Component<
     settingsIndex: number,
     detailSettingsIndex: number
   ): Promise<void> => {
+    let confirm = window.confirm("Do you want to delete?");
+    if (!confirm) return;
     const { postSettings } = this.state;
     if (postSettings && postSettings.settings) {
-      postSettings.settings[settingsIndex].detailSettings.splice(
-        detailSettingsIndex,
-        1
-      );
+      let deletedDetails = postSettings.settings[
+        settingsIndex
+      ].detailSettings.splice(detailSettingsIndex, 1);
       await this.updateToServer(postSettings);
+      let data: UpdateSettingSignal = {
+        action: "delete",
+        contents: deletedDetails,
+      };
+      await ipcRenderer.send("update-setting-block", data);
     }
   };
 

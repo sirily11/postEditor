@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import { SettingConext } from "../model/settingContext";
 import { Trans } from "@lingui/macro";
@@ -20,14 +22,11 @@ export default class SettingCard extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      redirect: false
+      redirect: false,
     };
   }
 
   render() {
-    if (this.state.redirect) {
-      return <Redirect to={`/edit`} />;
-    }
     return (
       <div>
         <SettingConext.Consumer>
@@ -37,9 +36,9 @@ export default class SettingCard extends Component<Props, State> {
                 {({ post, setCover, setCategory }) => (
                   <SettingCardContent
                     isCreate={this.props.isCreated}
-                    redirect={() => {
+                    redirect={(id) => {
                       closeSetting();
-                      this.setState({ redirect: true });
+                      window.location.href = `#/edit/${id}`;
                     }}
                   />
                 )}

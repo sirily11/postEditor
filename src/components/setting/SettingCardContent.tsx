@@ -21,9 +21,10 @@ import { EditorContext } from "../model/editorContext";
 import { SettingConext } from "../model/settingContext";
 import { Button as IconBtn } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
+import { string0To255 } from "aws-sdk/clients/customerprofiles";
 
 interface Props {
-  redirect(): void;
+  redirect(id: string0To255): void;
   isCreate: boolean;
 }
 
@@ -47,7 +48,7 @@ export default function SettingCardContent(props: Props) {
     <Dialog open={open} onClose={closeSetting} fullWidth>
       <DialogTitle>
         {props.isCreate ? (
-          <Trans>Create New Post</Trans>
+          <Trans>Create A New Post</Trans>
         ) : (
           <Trans>Post Setting</Trans>
         )}
@@ -100,9 +101,9 @@ export default function SettingCardContent(props: Props) {
         <Button
           onClick={async () => {
             if (props.isCreate) {
-              let success = await create();
-              if (success) {
-                props.redirect();
+              let id = await create();
+              if (id) {
+                props.redirect(id);
               }
             }
             closeSetting();

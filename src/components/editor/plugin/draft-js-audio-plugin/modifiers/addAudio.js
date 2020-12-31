@@ -3,6 +3,7 @@ import {
   AtomicBlockUtils,
 } from 'draft-js';
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default (editorState, url, extraData) => {
   const urlType = 'IMAGE';
   const contentState = editorState.getCurrentContent();

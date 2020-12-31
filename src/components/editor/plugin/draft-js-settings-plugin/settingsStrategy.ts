@@ -1,7 +1,7 @@
 import Draft, { ContentBlock, ContentState } from "draft-js";
 
 
-export const matchesEntityType = (type: string) => type === 'LINK';
+export const matchesEntityType = (type: string) => type === 'POST-SETTINGS';
 
 export default function strategy(contentBlock: ContentBlock, cb: any, contentState: ContentState) {
   if (!contentState) return;

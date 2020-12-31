@@ -7,9 +7,15 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 import { PostSettingContext } from "../../model/postSettingsContext";
 import { TreeItem, TreeView } from "@material-ui/lab";
 import AddIcon from "@material-ui/icons/Add";
-import { IconButton, makeStyles, Tooltip, Typography } from "@material-ui/core";
+import {
+  Divider,
+  IconButton,
+  makeStyles,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import { ContentSettings, DetailSettings } from "../../model/interfaces";
-const { remote } = (window as any).require("electron");
+const { remote, ipcRenderer } = (window as any).require("electron");
 const { Menu, MenuItem } = remote;
 
 const useStyle = makeStyles({
@@ -140,7 +146,12 @@ export default function SettingsTree() {
               key={`ds-${index}`}
               endIcon={
                 <Tooltip title="Add to text">
-                  <AddBoxIcon />
+                  <IconButton
+                    onClick={() => {
+                      ipcRenderer.send("add-settings-block", ds);
+                    }}>
+                    <AddBoxIcon />
+                  </IconButton>
                 </Tooltip>
               }
               onIconClick={() => {}}
@@ -153,23 +164,10 @@ export default function SettingsTree() {
               }
             />
           ))}
-          {/* <div className={classes.iconContainer}>
-            <Tooltip title={"Edit settings"}>
-              <IconButton onClick={() => {}} className={classes.centerIcon}>
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title={"Add details"}>
-              <IconButton
-                onClick={async () => {}}
-                className={classes.centerIcon}>
-                <AddIcon />
-              </IconButton>
-            </Tooltip>
-          </div> */}
         </TreeItem>
       ))}
+      <Divider style={{ marginTop: 10 }} />
+      <Typography variant="body1">请右键添加、删除、编辑设定</Typography>
     </TreeView>
   );
 }

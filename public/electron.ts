@@ -212,6 +212,7 @@ ipcMain.on("update-post-settings", (e, arg) => {
 
 ipcMain.on('load-post', (e, arg) => {
   postSettingsWindow?.webContents.send('load-post', arg);
+  mainWindow?.webContents.send('load-post', arg);
 });
 
 ipcMain.on('show-image', (e, arg) => {
@@ -220,4 +221,12 @@ ipcMain.on('show-image', (e, arg) => {
 
 ipcMain.on('show-post-settings', (e, arg) => {
   postSettingsWindow?.show();
+});
+
+ipcMain.on("add-settings-block", (e, arg) => {
+  mainWindow?.webContents.send("add-settings-block", arg);
+});
+
+ipcMain.on('update-setting-block', (e, arg) => {
+  mainWindow?.webContents.send('update-setting-block', arg);
 });

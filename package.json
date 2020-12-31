@@ -135,6 +135,5 @@
   "files": [
     "./build/*"
   ],
-  "homepage": "./",
-  "proxy": "http://0.0.0.0/"
+  "homepage": "./"
 }

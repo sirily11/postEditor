@@ -90,3 +90,8 @@ export interface DetailSettings {
     image?: string;
 }
 
+export interface UpdateSettingSignal {
+    action: "delete" | "update",
+    contents: DetailSettings[];
+}
+

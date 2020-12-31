@@ -2,6 +2,7 @@
 
 import {
   Button,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -12,6 +13,7 @@ import React from "react";
 import { PostSettingContext } from "../../model/postSettingsContext";
 import { v4 as uuidv4, v4 } from "uuid";
 import { ContentSettings } from "../../model/interfaces";
+import { LinearProgress } from "@material-ui/core";
 
 export default function SettingsDialog() {
   const {
@@ -21,6 +23,7 @@ export default function SettingsDialog() {
     selectedSettings,
     closeSettingsDialog,
     showAddSettingsDialog,
+    isLoading,
   } = React.useContext(PostSettingContext);
 
   const [name, setName] = React.useState("");
@@ -36,7 +39,12 @@ export default function SettingsDialog() {
       open={showAddSettingsDialog}
       onClose={() => closeSettingsDialog()}
       fullWidth>
-      <DialogTitle>{selectedSettings ? "Edit" : "Add"} Settings </DialogTitle>
+      <DialogTitle>
+        {selectedSettings ? "Edit" : "Add"} Settings
+        <Collapse mountOnEnter unmountOnExit in={isLoading}>
+          <LinearProgress />
+        </Collapse>
+      </DialogTitle>
       <DialogContent>
         <TextField
           variant="filled"

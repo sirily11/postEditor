@@ -177,10 +177,17 @@ electron_1.ipcMain.on("update-post-settings", function (e, arg) {
 });
 electron_1.ipcMain.on('load-post', function (e, arg) {
     postSettingsWindow === null || postSettingsWindow === void 0 ? void 0 : postSettingsWindow.webContents.send('load-post', arg);
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('load-post', arg);
 });
 electron_1.ipcMain.on('show-image', function (e, arg) {
     imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.show();
 });
 electron_1.ipcMain.on('show-post-settings', function (e, arg) {
     postSettingsWindow === null || postSettingsWindow === void 0 ? void 0 : postSettingsWindow.show();
+});
+electron_1.ipcMain.on("add-settings-block", function (e, arg) {
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send("add-settings-block", arg);
+});
+electron_1.ipcMain.on('update-setting-block', function (e, arg) {
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('update-setting-block', arg);
 });

@@ -1,12 +1,10 @@
 /** @format */
 
 import {
-  CharacterMetadata,
   convertFromRaw,
   convertToRaw,
   DraftEditorCommand,
   EditorState,
-  RawDraftContentState,
   RichUtils,
 } from "draft-js";
 import React from "react";
@@ -18,12 +16,19 @@ import { setupI18n } from "@lingui/core";
 import chinese from "../../locales/zh/messages";
 import axios from "axios";
 import { getURL } from "./utils/settings";
-import { Category, Post, PostImage, Result } from "./interfaces";
+import {
+  Category,
+  Post,
+  PostImage,
+  Result,
+  DetailSettings,
+} from "./interfaces";
 import {
   insertAudioBlock,
   insertImageBlock,
+  insertSettingsBlock,
   removeBlock,
-} from "./utils/insertImageBlock";
+} from "./utils/insertBlock";
 import {
   computeDownloadProgress,
   computeUploadProgress,
@@ -32,7 +37,11 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import path from "path";
-import { ContentBlock } from "draft-js";
+import { ContentBlock, SelectionState, Modifier } from "draft-js";
+import { start } from "repl";
+import { UpdateSettingSignal } from "./interfaces";
+import { insertSpaceBlock } from "./utils/insertBlock";
+
 const { ipcRenderer } = (window as any).require("electron");
 
 const ColorThief = (window as any).require("colorthief");
@@ -87,7 +96,7 @@ interface MainEditorState {
   clear(): void;
 
   // create post
-  create(): Promise<boolean>;
+  create(): Promise<string | undefined>;
 
   initEditor(_id: string, isLocal: boolean): void;
 
@@ -155,6 +164,21 @@ export class MainEditorProvider extends React.Component<
       this.insertImage(arg.image, arg.id);
     });
 
+    ipcRenderer.on("add-settings-block", (e: any, arg: DetailSettings) => {
+      console.log("add settings");
+      this.insertSettingsBlock(arg);
+    });
+
+    ipcRenderer.on(
+      "update-setting-block",
+      (e: any, arg: UpdateSettingSignal) => {
+        console.log("update settings", arg);
+        for (let ds of arg.contents) {
+          this.replaceText(ds);
+        }
+      }
+    );
+
     ipcRenderer.on("delete-image", (e: any, arg: PostImage) => {
       this.deleteImage(arg.id);
     });
@@ -201,20 +225,80 @@ export class MainEditorProvider extends React.Component<
   ];
 
   clear = () => {
+    let clearPost: Post = {
+      id: undefined,
+      title: "",
+      content: "",
+      post_category: undefined,
+      images: [],
+      settings: {},
+    };
     this.setState({
       isRedirect: false,
       hasInit: false,
-      post: {
-        id: undefined,
-        title: "",
-        content: "",
-        post_category: undefined,
-        images: [],
-        settings: {},
-      },
+      post: clearPost,
       editorState: EditorState.createEmpty(),
     });
     ipcRenderer.send("update-images", []);
+    ipcRenderer.send("load-post", clearPost);
+  };
+  /**
+   * Replace current post's settings' text
+   * @param detail Detail
+   */
+  replaceText = (detail: DetailSettings) => {
+    let editorState = this.state.editorState;
+    let contentState = editorState.getCurrentContent();
+    let selectionState = editorState.getSelection();
+
+    let blocks: SelectionState[] = [];
+    let entityKeys: string[] = [];
+
+    contentState.getBlockMap().forEach((block) => {
+      block?.findEntityRanges(
+        (c) => {
+          let charEntity = c.getEntity();
+          if (charEntity) {
+            let entity = contentState.getEntity(charEntity);
+            if (entity.getType() === "POST-SETTINGS") {
+              entityKeys.push(charEntity);
+              return true;
+            }
+          }
+          return false;
+        },
+        (s, e) => {
+          const selection = SelectionState.createEmpty(block.getKey()).merge({
+            focusOffset: e,
+            anchorOffset: s,
+          });
+          blocks.push(selection);
+        }
+      );
+    });
+
+    blocks.forEach((selection, index) => {
+      let entityKey = entityKeys[index];
+      contentState = Modifier.replaceText(
+        contentState,
+        selection,
+        detail.name,
+        undefined,
+        entityKey
+      );
+    });
+
+    this.setState({
+      editorState: EditorState.push(
+        editorState,
+        contentState,
+        "insert-fragment"
+      ),
+    });
+
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
   };
 
   /**
@@ -235,7 +319,6 @@ export class MainEditorProvider extends React.Component<
             let entity = contentState.getEntity(charEntity);
             if (entity.getData().id === imageID) {
               blocks.push({ block: block, entityKey: charEntity });
-              console.log(charEntity);
             }
           }
 
@@ -259,7 +342,7 @@ export class MainEditorProvider extends React.Component<
       this.state.editorState,
       imageID
     );
-    this.setState({ editorState: newEditorState, prevState: newEditorState });
+    this.setState({ editorState: newEditorState });
     setTimeout(async () => {
       await this.save();
     }, 50);
@@ -271,7 +354,19 @@ export class MainEditorProvider extends React.Component<
       audioPath,
       this.state.editorState
     );
-    this.setState({ editorState: newEditorState, prevState: newEditorState });
+    this.setState({ editorState: newEditorState });
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
+  };
+
+  insertSettingsBlock = async (settings: DetailSettings) => {
+    let newEditorState = await insertSettingsBlock(
+      settings,
+      this.state.editorState
+    );
+    let spacedEditorState = insertSpaceBlock(newEditorState);
+    this.setState({ editorState: spacedEditorState });
     setTimeout(async () => {
       await this.save();
     }, 50);
@@ -281,7 +376,8 @@ export class MainEditorProvider extends React.Component<
     if (!id) return;
     this.setState({ isLoading: true });
     // get data from internet
-    let response = await axios.get<Post>(getURL("blog/post/" + id), {
+    let url = "blog/post/" + id;
+    let response = await axios.get<Post>(getURL(url), {
       onDownloadProgress: (ProgressEvent) => {
         computeDownloadProgress(ProgressEvent, (progress: number) =>
           this.setState({ progress })
@@ -290,7 +386,6 @@ export class MainEditorProvider extends React.Component<
     });
     let postData = response.data;
     postData.settings = JSON.parse(postData.settings as string);
-
     if (postData) {
       // @ts-ignore
       let editorState = EditorState.createWithContent(
@@ -456,7 +551,7 @@ export class MainEditorProvider extends React.Component<
   /**
    * Create New Post
    */
-  create = async (): Promise<boolean> => {
+  create = async (): Promise<string | undefined> => {
     try {
       let token = localStorage.getItem("access");
       let url = getURL("blog/post/");
@@ -466,14 +561,13 @@ export class MainEditorProvider extends React.Component<
         headers: { Authorization: `Bearer ${token}` },
       });
       if (result.status === 201) {
-        this.setState({ post: result.data });
-        return true;
+        return result.data.id!;
       } else {
-        return false;
+        return undefined;
       }
     } catch (err) {
       console.log(err);
-      return false;
+      return undefined;
     }
   };
 
