@@ -140,19 +140,21 @@ export default class SuggestionPanel extends React.Component<Props> {
   render() {
     const { theme, store } = this.props;
     const { overrideContent: OverrideContent } = this.state;
-    const childrenProps = {
-      theme: theme.buttonStyles,
-      getEditorState: store.getItem("getEditorState"),
-      setEditorState: store.getItem("setEditorState"),
-    };
+
     const word = store.getItem("word");
+    const blockKey = store.getItem("blockKey");
 
     return (
       <div
         className={theme.toolbarStyles.toolbar}
         style={this.getStyle()}
         ref={this.handleToolbarRef}>
-        <SuggestionsContent word={word} />
+        <SuggestionsContent
+          word={word}
+          blockKey={blockKey}
+          getEditorState={store.getItem("getEditorState")}
+          setEditorState={store.getItem("setEditorState")}
+        />
       </div>
     );
   }

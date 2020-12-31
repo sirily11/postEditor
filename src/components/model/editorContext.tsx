@@ -110,6 +110,8 @@ interface MainEditorState {
   insertImage(imagePath: string, imageID: number): void;
 
   insertAudio(audioPath: string): void;
+
+  
 }
 
 interface MainEditorProps {}

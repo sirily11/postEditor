@@ -51,6 +51,11 @@ export class SettingSuggestionsPlugin extends BasePlugin {
         if (blockType === "unstyled") {
           let matches = blockText.match(/@\S+/g);
           if (matches) {
+            let start = blockText.lastIndexOf(matches[0]);
+            let end = start + matches[0].length;
+
+            this.store.updateItem('blockKey', currentBlock.getKey())
+
             this.store.updateItem("selection", e.getSelection());
             this.store.updateItem("onOpen", true);
             this.store.updateItem("word", matches[0]);
