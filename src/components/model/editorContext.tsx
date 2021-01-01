@@ -222,6 +222,11 @@ export class MainEditorProvider extends React.Component<
     });
   }
 
+  /**
+   * Show Dialog for post image editing
+   * @param open is open
+   * @param data Post image data
+   */
   setShowImageEditDialog = (open: boolean, data: any): void => {
     if (open) {
       this.setState({ showEditImageDialog: open, selectedImageData: data });
@@ -233,6 +238,10 @@ export class MainEditorProvider extends React.Component<
     }
   };
 
+  /**
+   * Update post image block data
+   * @param newPostImage Update displayed image's data
+   */
   updateImage = async (newPostImage: PostImage) => {
     let editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
@@ -465,6 +474,10 @@ export class MainEditorProvider extends React.Component<
     }, 50);
   };
 
+  /**
+   * Insert setting's block to the editor
+   * @param settings Post settings
+   */
   insertSettingsBlock = async (settings: DetailSettings) => {
     let newEditorState = await insertSettingsBlock(
       settings,

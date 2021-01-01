@@ -6,6 +6,7 @@ import { DetailSettings } from "../../../../../model/interfaces";
 import { List, ListItem, ListItemText, Card } from "@material-ui/core";
 import { EditorState, SelectionState, Modifier } from "draft-js";
 import { insertSpaceBlock } from "../../../../../model/utils/insertBlock";
+import pinyin from "pinyin";
 
 function insertAndReplaceSettings(
   editorState: EditorState,
@@ -69,6 +70,10 @@ export default function SuggestionsContent(props: {
   React.useEffect(() => {
     setSelectedIndex(undefined);
     let search = word?.replace("@", "");
+    let pinyinSearch = pinyin(search ?? "", {
+      style: pinyin.STYLE_NORMAL,
+    }).reduce((p, c) => p + c, "");
+
     let settings = [];
     if (postSettings?.settings) {
       for (let set of postSettings.settings) {
@@ -79,6 +84,10 @@ export default function SuggestionsContent(props: {
             settings.push(details);
           } else if (
             details.pinyin?.toLowerCase().includes(search?.toLowerCase() ?? "")
+          ) {
+            settings.push(details);
+          } else if (
+            details.pinyin?.toLowerCase().includes(pinyinSearch.toLowerCase())
           ) {
             settings.push(details);
           }
