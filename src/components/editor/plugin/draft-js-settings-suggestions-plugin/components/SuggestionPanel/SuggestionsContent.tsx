@@ -102,9 +102,18 @@ export default function SuggestionsContent(props: {
         setSelectedIndex(0);
       }
     } else if (command.command === "enter") {
-      console.log("enter");
       if (selectedIndex !== undefined) {
         let sug = suggestions[selectedIndex];
+        let newEditorState = insertAndReplaceSettings(
+          getEditorState(),
+          blockKey,
+          word,
+          sug
+        );
+        setEditorState(newEditorState);
+        setSelectedIndex(undefined);
+      } else if (suggestions.length > 0) {
+        let sug = suggestions[0];
         let newEditorState = insertAndReplaceSettings(
           getEditorState(),
           blockKey,

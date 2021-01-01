@@ -22,7 +22,7 @@ import {
 /// plugins
 import { InlineToolbarPlugin } from "./plugin/draft-js-inline-toolbar";
 import createSideToolbarPlugin from "draft-js-side-toolbar-plugin";
-import createImagePlugin from "draft-js-image-plugin";
+import createImagePlugin from "./plugin/draft-js-image-plugin";
 import createBlockDndPlugin from "draft-js-drag-n-drop-plugin";
 import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
@@ -113,16 +113,6 @@ export default class MainEditor extends Component {
 
   componentWillUnmount() {
     this.props.clear();
-  }
-
-  myKeyBindingFn(e) {
-    const { hasCommandModifier } = KeyBindingUtil;
-    if (e.keyCode === 83 /* `S` key */ && hasCommandModifier(e)) {
-      return "save";
-    }
-
-    console.log("keyboard", e);
-    return getDefaultKeyBinding(e);
   }
 
   onSearchChange = ({ value }) => {

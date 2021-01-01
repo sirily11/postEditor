@@ -21,6 +21,7 @@ import { ListItemIcon } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { PostImageCard } from "./PostCard";
 import { deleteImage } from "../model/utils/uploadUtils";
+import { ImageEditDialog } from "../editor/plugin/draft-js-image-plugin/ImageEditDialog";
 const { ipcRenderer } = (window as any).require("electron");
 
 const data = [
@@ -87,7 +88,7 @@ export class PostImagePage extends Component<Props, State> {
                 <Grid container spacing={4}>
                   {images.map((image, index) => (
                     <PostImageCard
-                      image={image.image}
+                      image={image}
                       onAdd={() => {
                         console.log("add");
                         ipcRenderer.send("add-image-to-content", image);
@@ -114,6 +115,7 @@ export class PostImagePage extends Component<Props, State> {
             </Paper>
           </div>
         </Grid>
+        <ImageEditDialog />
       </Grid>
     );
   }

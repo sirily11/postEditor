@@ -10,8 +10,10 @@ import Button from "@material-ui/core/Button";
 import { Column, Row } from "@mui-treasury/components/flex";
 import { Item } from "@mui-treasury/components/flex";
 import Grid from "@material-ui/core/Grid";
-import { Card, CardMedia } from "@material-ui/core";
+import { Card, CardContent, CardMedia, Typography } from "@material-ui/core";
 import { CardActions } from "@material-ui/core";
+import { EditorContext } from "../model/editorContext";
+import { PostImage } from "../model/interfaces";
 
 const useButtonStyles = makeStyles(() => ({
   root: {
@@ -74,23 +76,37 @@ const useStyles = makeStyles(() => ({
 }));
 
 export function PostImageCard(props: {
-  image: string;
+  image: PostImage;
   onAdd: any;
+
   onDelete: any;
 }) {
   const styles = useStyles();
   const btnStyles = useButtonStyles();
   const { image, onAdd, onDelete } = props;
+  const { setShowImageEditDialog } = React.useContext(EditorContext);
 
   return (
     <Grid item xs={6} md={4}>
       <Card variant="outlined">
         <Box maxWidth={343}>
           <Column p={0} gap={3}>
-            <CardMedia image={image} style={{ height: 180 }} />
-
+            <CardMedia image={image.image} style={{ height: 180 }} />
+            <CardContent>
+              <Typography>{image.description}</Typography>
+            </CardContent>
             <CardActions>
               <Button onClick={() => onAdd()}>Add</Button>
+              <Button
+                onClick={() =>
+                  setShowImageEditDialog(true, {
+                    src: image.image,
+                    id: image.id,
+                    description: image.description,
+                  })
+                }>
+                Edit
+              </Button>
               <Button onClick={() => onDelete()}>Delete</Button>
             </CardActions>
           </Column>

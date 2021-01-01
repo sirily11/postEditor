@@ -101,7 +101,7 @@ function createImageWindow() {
 function createPostSettingsWindow() {
     postSettingsWindow = new electron_1.BrowserWindow({
         height: 800,
-        width: 300,
+        width: 400,
         title: "Post Images",
         webPreferences: {
             nodeIntegration: true,
@@ -196,4 +196,7 @@ electron_1.ipcMain.on("add-settings-block", function (e, arg) {
 });
 electron_1.ipcMain.on('update-setting-block', function (e, arg) {
     mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('update-setting-block', arg);
+});
+electron_1.ipcMain.on("update-image-description", function (e, arg) {
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send("update-image-description", arg);
 });

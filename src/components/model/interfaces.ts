@@ -26,6 +26,7 @@ export interface PostImage {
     id: number;
     pid: number;
     image: string;
+    description: string;
 }
 
 export interface Author {

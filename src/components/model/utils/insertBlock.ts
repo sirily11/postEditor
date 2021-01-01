@@ -1,6 +1,6 @@
 import { EditorState, convertToRaw, AtomicBlockUtils, ContentBlock, Modifier, genKey, SelectionState } from 'draft-js';
 import image from "../../editor/plugin/draft-js-image-plugin";
-import { DetailSettings } from '../interfaces';
+import { DetailSettings, PostImage } from "../interfaces";
 
 /**
  * insert draft-js-image-plugin
@@ -8,16 +8,15 @@ import { DetailSettings } from '../interfaces';
  * @param editorState draft editor state
  */
 export function insertImageBlock(
-  imagePath: string,
+  image: PostImage,
   editorState: EditorState,
-  imageID: number
 ): Promise<EditorState> {
   return new Promise((resolve, reject) => {
     const contentState = editorState.getCurrentContent();
     const contentStateWithEntity = contentState.createEntity(
       "image",
       "IMMUTABLE",
-      { src: imagePath.replace(/ /g, "_"), id: imageID }
+      { src: image.image.replace(/ /g, "_"), id: image.id, description: image.description }
     );
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
     const newEditorState = EditorState.set(editorState, {

@@ -41,6 +41,7 @@ import { ContentBlock, SelectionState, Modifier } from "draft-js";
 import { start } from "repl";
 import { UpdateSettingSignal } from "./interfaces";
 import { insertSpaceBlock } from "./utils/insertBlock";
+import { Map } from "immutable";
 
 const { ipcRenderer } = (window as any).require("electron");
 
@@ -85,6 +86,10 @@ interface MainEditorState {
 
   selected: string[];
 
+  showEditImageDialog: boolean;
+
+  selectedImageData?: any;
+
   setShowUploadFileDialog(v: boolean): void;
 
   // change pst's title
@@ -107,9 +112,13 @@ interface MainEditorState {
   setCategory(category: Category): void;
 
   // insert inline draft-js-image-plugin
-  insertImage(imagePath: string, imageID: number): void;
+  insertImage(postImage: PostImage): void;
 
   insertAudio(audioPath: string): void;
+
+  updateImage(newImageData: PostImage): Promise<void>;
+
+  setShowImageEditDialog(open: boolean, data?: any): void;
 }
 
 interface MainEditorProps {}
@@ -151,6 +160,9 @@ export class MainEditorProvider extends React.Component<
       setCover: this.setCover,
       create: this.create,
       insertAudio: this.insertAudio,
+      updateImage: this.updateImage,
+      setShowImageEditDialog: this.setShowImageEditDialog,
+      showEditImageDialog: false,
     };
 
     this.saveAPIDebounced = AwesomeDebouncePromise(
@@ -165,8 +177,22 @@ export class MainEditorProvider extends React.Component<
       await this.save();
     });
 
+    ipcRenderer.on(
+      "update-image-description",
+      async (e: any, arg: PostImage) => {
+        let index = this.state.post.images.findIndex((i) => i.id === arg.id);
+        if (index !== undefined) {
+          let post = this.state.post;
+          post.images[index] = arg;
+          this.setState({ post: post });
+          ipcRenderer.send("update-images", post.images);
+        }
+        await this.updateImage(arg);
+      }
+    );
+
     ipcRenderer.on("add-image-to-content", (e: any, arg: PostImage) => {
-      this.insertImage(arg.image, arg.id);
+      this.insertImage(arg);
     });
 
     ipcRenderer.on("add-settings-block", (e: any, arg: DetailSettings) => {
@@ -184,7 +210,7 @@ export class MainEditorProvider extends React.Component<
               name: "deleted",
               description: "deleted",
               id: ds.id,
-              pinyin: "deleted"
+              pinyin: "deleted",
             });
           }
         }
@@ -195,6 +221,71 @@ export class MainEditorProvider extends React.Component<
       this.deleteImage(arg.id);
     });
   }
+
+  setShowImageEditDialog = (open: boolean, data: any): void => {
+    if (open) {
+      this.setState({ showEditImageDialog: open, selectedImageData: data });
+    } else {
+      this.setState({
+        showEditImageDialog: false,
+        selectedImageData: undefined,
+      });
+    }
+  };
+
+  updateImage = async (newPostImage: PostImage) => {
+    let editorState = this.state.editorState;
+    let contentState = editorState.getCurrentContent();
+
+    let blocks: SelectionState[] = [];
+    let data: any[] = [];
+
+    contentState.getBlockMap().forEach((block) => {
+      block?.findEntityRanges(
+        (c) => {
+          let charEntity = c.getEntity();
+          if (charEntity) {
+            let entity = contentState.getEntity(charEntity);
+            if (entity.getType() === "image") {
+              let imageId = entity.getData().id;
+              if (imageId === newPostImage.id) {
+                data.push(entity.getData());
+                return true;
+              }
+            }
+          }
+          return false;
+        },
+        (s, e) => {
+          const selection = SelectionState.createEmpty(block.getKey()).merge({
+            focusOffset: e,
+            anchorOffset: s,
+          });
+          blocks.push(selection);
+        }
+      );
+    });
+
+    blocks.forEach((block, index) => {
+      let newData = {
+        ...data[index],
+        description: newPostImage.description,
+      };
+      contentState = contentState.createEntity("image", "IMMUTABLE", newData);
+      const newEntityKey = contentState.getLastCreatedEntityKey();
+      contentState = Modifier.applyEntity(contentState, block, newEntityKey);
+    });
+    let newEditorState = EditorState.push(
+      editorState,
+      contentState,
+      "change-block-data"
+    );
+    this.setState({
+      editorState: newEditorState,
+    });
+    console.log(convertToRaw(contentState));
+    await this.save();
+  };
 
   setShowUploadFileDialog = (v: boolean) => {
     this.setState({
@@ -351,11 +442,10 @@ export class MainEditorProvider extends React.Component<
   };
 
   // this will insert draft-js-image-plugin with draft-js-image-plugin url
-  insertImage = async (imagePath: string, imageID: number) => {
+  insertImage = async (postImage: PostImage) => {
     let newEditorState = await insertImageBlock(
-      imagePath,
-      this.state.editorState,
-      imageID
+      postImage,
+      this.state.editorState
     );
     this.setState({ editorState: newEditorState });
     setTimeout(async () => {

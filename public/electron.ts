@@ -111,7 +111,7 @@ function createImageWindow() {
 function createPostSettingsWindow() {
   postSettingsWindow = new BrowserWindow({
     height: 800,
-    width: 300,
+    width: 400,
     title: "Post Images",
     webPreferences: {
       nodeIntegration: true,
@@ -234,4 +234,8 @@ ipcMain.on("add-settings-block", (e, arg) => {
 
 ipcMain.on('update-setting-block', (e, arg) => {
   mainWindow?.webContents.send('update-setting-block', arg);
+});
+
+ipcMain.on("update-image-description", (e, arg) => {
+  mainWindow?.webContents.send("update-image-description", arg);
 });

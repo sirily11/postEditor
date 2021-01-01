@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useState, useContext } from "react";
 import {
   Dialog,
@@ -79,7 +81,7 @@ export default function UploadDialog(props: Props) {
                   editContext.post.id as string,
                   (progress) => setCurrentProgress(progress)
                 );
-                editContext.insertImage(image.image, image.id);
+                editContext.insertImage(image);
                 setNumFinished(numFinished + 1);
               }
               setNumFinished(0);
