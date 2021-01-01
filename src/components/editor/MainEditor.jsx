@@ -60,7 +60,6 @@ import { Redirect } from "react-router";
 
 const inlineToolbar = new InlineToolbarPlugin({});
 const settingSuggestions = new SettingSuggestionsPlugin({});
-
 const audioPlugin = createAudioPlugin();
 const postSettingsPlugin = createPostSettingsPlugin();
 const linkPlugin = createLinkPlugin();
@@ -121,6 +120,8 @@ export default class MainEditor extends Component {
     if (e.keyCode === 83 /* `S` key */ && hasCommandModifier(e)) {
       return "save";
     }
+
+    console.log("keyboard", e);
     return getDefaultKeyBinding(e);
   }
 
@@ -136,10 +137,6 @@ export default class MainEditor extends Component {
         },
       ],
     });
-  };
-
-  onAddMention = () => {
-    // get the mention object selected
   };
 
   render() {
@@ -174,7 +171,7 @@ export default class MainEditor extends Component {
                         editorState={editorState}
                         onChange={onChange}
                         onFocus={onFocus}
-                        keyBindingFn={this.myKeyBindingFn}
+                        // keyBindingFn={this.myKeyBindingFn}
                         handleKeyCommand={handleKeyCommand}
                         autoCorrect="on"
                         autoCapitalize="on"

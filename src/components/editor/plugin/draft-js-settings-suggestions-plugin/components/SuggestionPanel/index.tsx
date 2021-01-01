@@ -7,6 +7,7 @@
 import React from "react";
 import { getVisibleSelectionRect } from "draft-js";
 import SuggestionsContent from "./SuggestionsContent";
+import { v4 as uuidv4, v4 } from "uuid";
 import {
   ItalicButton,
   BoldButton,
@@ -25,7 +26,7 @@ export default class SuggestionPanel extends React.Component<Props> {
   state = {
     isVisible: false,
     position: undefined,
-
+    command: {},
     /**
      * If this is set, the toolbar will render this instead of the children
      * prop and will also be shown when the editor loses focus.
@@ -38,12 +39,19 @@ export default class SuggestionPanel extends React.Component<Props> {
   UNSAFE_componentWillMount() {
     this.props.store.subscribeToItem("selection", this.onSelectionChanged);
     this.props.store.subscribeToItem("onOpen", this.onOpen);
+    this.props.store.subscribeToItem("command", this.handleCommand);
   }
 
   componentWillUnmount() {
     this.props.store.unsubscribeFromItem("selection", this.onSelectionChanged);
     this.props.store.unsubscribeFromItem("onOpen", this.onOpen);
+    this.props.store.unsubscribeFromItem("command", this.handleCommand);
   }
+
+  handleCommand = () => {
+    let command = this.props.store.getItem("command");
+    this.setState({ command: { id: v4(), command: command } });
+  };
 
   onOpen = () => {
     const isOpen = this.props.store.getItem("onOpen");
@@ -78,7 +86,7 @@ export default class SuggestionPanel extends React.Component<Props> {
       // The toolbar shouldn't be positioned directly on top of the selected text,
       // but rather with a small offset so the caret doesn't overlap with the text.
       const extraTopOffset = 40;
-      const extraLeftOffset = 10;
+      const extraLeftOffset = 100;
       // number of toolbar items
       let length = 0;
       try {
@@ -139,7 +147,7 @@ export default class SuggestionPanel extends React.Component<Props> {
 
   render() {
     const { theme, store } = this.props;
-    const { overrideContent: OverrideContent } = this.state;
+    const { command } = this.state;
 
     const word = store.getItem("word");
     const blockKey = store.getItem("blockKey");
@@ -154,6 +162,8 @@ export default class SuggestionPanel extends React.Component<Props> {
           blockKey={blockKey}
           getEditorState={store.getItem("getEditorState")}
           setEditorState={store.getItem("setEditorState")}
+          //@ts-ignore
+          command={command}
         />
       </div>
     );

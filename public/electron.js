@@ -44,6 +44,12 @@ var menu = electron_1.Menu.buildFromTemplate([
             { type: "separator" },
             { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
             { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+            {
+                label: "Save", accelerator: "CmdOrCtrl+S",
+                click: function () {
+                    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('save');
+                }
+            },
             { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
             { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" },
         ]

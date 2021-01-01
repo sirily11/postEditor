@@ -142,8 +142,8 @@ export default function SettingsTree() {
           }>
           {settings.detailSettings.map((ds, di) => (
             <TreeItem
-              nodeId={`ds-${index}`}
-              key={`ds-${index}`}
+              nodeId={`ds-${ds.id}`}
+              key={`ds-${ds.id}`}
               endIcon={
                 <Tooltip title="Add to text">
                   <IconButton

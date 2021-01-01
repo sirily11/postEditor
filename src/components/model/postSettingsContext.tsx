@@ -62,6 +62,7 @@ const settings: PostContentSettings = {
           id: v4(),
           name: "Abc",
           description: "abcde",
+          pinyin: "abc",
         },
       ],
     },
@@ -253,10 +254,10 @@ export class PostSettingProvider extends Component<
     if (!confirm) return;
     const { postSettings } = this.state;
     if (postSettings && postSettings.settings) {
+      let deletedDetails = postSettings.settings[settingsIndex].detailSettings;
       postSettings.settings.splice(settingsIndex, 1);
       await this.updateToServer(postSettings);
-      let deletedDetails = this.state.postSettings!.settings![settingsIndex]
-        .detailSettings;
+
       let data: UpdateSettingSignal = {
         action: "delete",
         contents: deletedDetails,
@@ -286,6 +287,7 @@ export class PostSettingProvider extends Component<
         action: "delete",
         contents: deletedDetails,
       };
+      //TODO: Fix bugs
       await ipcRenderer.send("update-setting-block", data);
     }
   };

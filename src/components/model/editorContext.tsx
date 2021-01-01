@@ -110,8 +110,6 @@ interface MainEditorState {
   insertImage(imagePath: string, imageID: number): void;
 
   insertAudio(audioPath: string): void;
-
-  
 }
 
 interface MainEditorProps {}
@@ -162,6 +160,11 @@ export class MainEditorProvider extends React.Component<
   }
 
   componentDidMount() {
+    ipcRenderer.on("save", async (e: any, arg: any) => {
+      console.log("save");
+      await this.save();
+    });
+
     ipcRenderer.on("add-image-to-content", (e: any, arg: PostImage) => {
       this.insertImage(arg.image, arg.id);
     });
@@ -181,6 +184,7 @@ export class MainEditorProvider extends React.Component<
               name: "deleted",
               description: "deleted",
               id: ds.id,
+              pinyin: "deleted"
             });
           }
         }
@@ -268,8 +272,12 @@ export class MainEditorProvider extends React.Component<
           if (charEntity) {
             let entity = contentState.getEntity(charEntity);
             if (entity.getType() === "POST-SETTINGS") {
-              entityKeys.push(charEntity);
-              return true;
+              let block_id = entity.getData().id;
+
+              if (block_id === detail.id) {
+                entityKeys.push(charEntity);
+                return true;
+              }
             }
           }
           return false;
@@ -583,10 +591,6 @@ export class MainEditorProvider extends React.Component<
     editorState: EditorState
   ): string => {
     const newState = RichUtils.handleKeyCommand(editorState, command);
-    if ((command as any) === "save") {
-      this.save();
-    }
-
     if (newState) {
       this.onChange(newState);
       return "handled";
@@ -646,6 +650,7 @@ export class MainEditorProvider extends React.Component<
    */
   private async save() {
     try {
+      if (this.state.post.id === undefined) return;
       this.setState({ isLoading: true, progress: 0 });
 
       let token = localStorage.getItem("access");

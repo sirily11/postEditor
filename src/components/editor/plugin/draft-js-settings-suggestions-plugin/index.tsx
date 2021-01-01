@@ -2,12 +2,17 @@
 
 import React from "react";
 import { AdditionalProps, BasePlugin, NotImplemented } from "../base-plugin";
-import { EditorState } from "draft-js";
+import { DraftHandleValue, EditorState, getDefaultKeyBinding } from "draft-js";
 import createStore from "./utils/createStore";
 import SuggestionPanel from "./components/SuggestionPanel/index";
 import { defaultTheme } from "./components/SuggestionPanel/theme";
+import {
+  SyntheticKeyboardEvent,
+  EditorCommand,
+} from "../base-plugin/interfaces";
 
 export class SettingSuggestionsPlugin extends BasePlugin {
+  isOpen = false;
   theme: any;
   store = createStore({
     isVisible: false,
@@ -33,6 +38,38 @@ export class SettingSuggestionsPlugin extends BasePlugin {
     }
   };
 
+  keyBindingFn = (
+    e?: SyntheticKeyboardEvent,
+    additional?: AdditionalProps
+  ): EditorCommand | null | NotImplemented | undefined => {
+    if (this.isOpen) {
+      if (e?.keyCode === 40) {
+        e.preventDefault();
+        this.store.updateItem("command", "down");
+        // console.log("keyboard", e?.keyCode);
+      } else if (e?.keyCode === 38) {
+        e.preventDefault();
+        this.store.updateItem("command", "up");
+      }
+    }
+    if (e) {
+      return getDefaultKeyBinding(e);
+    }
+    return null;
+  };
+
+  handleReturn = (
+    e?: SyntheticKeyboardEvent,
+    editorState?: EditorState,
+    additional?: AdditionalProps
+  ): DraftHandleValue | NotImplemented | undefined => {
+    if (this.isOpen) {
+      this.store.updateItem("command", "enter");
+      return "handled";
+    }
+    return "not-handled";
+  };
+
   onChange = (
     e?: EditorState,
     additional?: AdditionalProps
@@ -50,17 +87,16 @@ export class SettingSuggestionsPlugin extends BasePlugin {
 
         if (blockType === "unstyled") {
           let matches = blockText.match(/@\S+/g);
+
           if (matches) {
-            let start = blockText.lastIndexOf(matches[0]);
-            let end = start + matches[0].length;
-
-            this.store.updateItem('blockKey', currentBlock.getKey())
-
+            this.store.updateItem("blockKey", currentBlock.getKey());
             this.store.updateItem("selection", e.getSelection());
             this.store.updateItem("onOpen", true);
             this.store.updateItem("word", matches[0]);
+            this.isOpen = true;
           } else {
             this.store.updateItem("onOpen", false);
+            this.isOpen = false;
           }
         }
       }

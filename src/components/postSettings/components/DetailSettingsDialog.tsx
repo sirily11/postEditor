@@ -14,6 +14,7 @@ import React from "react";
 import { v4 } from "uuid";
 import { ContentSettings, DetailSettings } from "../../model/interfaces";
 import { PostSettingContext } from "../../model/postSettingsContext";
+import pinyin from "pinyin";
 
 export default function DetailSettingsDialog() {
   const {
@@ -74,11 +75,16 @@ export default function DetailSettingsDialog() {
             let settingsIndex = postSettings?.settings?.findIndex(
               (s) => s.id === selectedSettings?.id
             );
+            let pinyinText: string = pinyin(name, {
+              style: pinyin.STYLE_NORMAL,
+            }).reduce<string>((prev, curr) => prev + "" + curr, "");
+
             if (selectedDetailSettings) {
               let updatedSettings: DetailSettings = {
-                id: selectedSettings!.id,
+                id: selectedDetailSettings!.id,
                 name: name,
                 description: desc,
+                pinyin: pinyinText,
               };
               let detailIndex = selectedSettings!.detailSettings.findIndex(
                 (ds) => ds.id === selectedDetailSettings.id
@@ -94,6 +100,7 @@ export default function DetailSettingsDialog() {
                 id: v4(),
                 name: name,
                 description: desc,
+                pinyin: pinyinText,
               });
             }
 

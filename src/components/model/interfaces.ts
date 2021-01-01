@@ -86,6 +86,7 @@ export interface ContentSettings {
 export interface DetailSettings {
     id: string;
     name: string;
+    pinyin: string;
     description: string;
     image?: string;
 }

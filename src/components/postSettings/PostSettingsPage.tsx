@@ -1,6 +1,6 @@
 /** @format */
 
-import { Card, CssBaseline } from "@material-ui/core";
+import { Card, Collapse, CssBaseline, LinearProgress } from "@material-ui/core";
 import React from "react";
 import { PostSettingContext } from "../model/postSettingsContext";
 import SettingsDialog from "./components/SettingsDialog";
@@ -21,7 +21,12 @@ const theme = createMuiTheme({
 });
 
 export default function PostSettingsPage() {
-  const { openSettingsDialog } = React.useContext(PostSettingContext);
+  const {
+    openSettingsDialog,
+    isLoading,
+    showAddDetailSettingsDialog,
+    showAddSettingsDialog,
+  } = React.useContext(PostSettingContext);
 
   React.useEffect(() => {
     const menu = new Menu();
@@ -49,6 +54,14 @@ export default function PostSettingsPage() {
       <CssBaseline />
       <div style={{ margin: 10 }}>
         <h4>Post Settings</h4>
+        <Collapse
+          in={
+            isLoading && !showAddDetailSettingsDialog && !showAddSettingsDialog
+          }
+          mountOnEnter
+          unmountOnExit>
+          <LinearProgress />
+        </Collapse>
         <Card style={{ padding: 10, minHeight: "90vh" }}>
           <SettingsTree />
         </Card>
