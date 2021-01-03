@@ -147,7 +147,8 @@ function createWindow() {
         imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.webContents.openDevTools();
     }
     mainWindow.on("closed", function () {
-        mainWindow = undefined;
+        console.log("close");
+        electron_1.app.exit();
     });
 }
 function createWindows() {
@@ -157,9 +158,7 @@ function createWindows() {
 }
 electron_1.app.on("ready", createWindows);
 electron_1.app.on("window-all-closed", function () {
-    if (process.platform !== "darwin") {
-        electron_1.app.quit();
-    }
+    electron_1.app.quit();
 });
 electron_1.app.on("activate", function () {
     if (mainWindow === null && imageWindow == null) {

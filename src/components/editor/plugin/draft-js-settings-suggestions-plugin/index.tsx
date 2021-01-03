@@ -85,7 +85,7 @@ export class SettingSuggestionsPlugin extends BasePlugin {
         let blockText = currentBlock.getText();
         let blockType = currentBlock.getType();
 
-        if (blockType === "unstyled") {
+        if (blockType !== "POST-SETTINGS") {
           let matches = blockText.match(/@\S+/g);
 
           if (matches) {

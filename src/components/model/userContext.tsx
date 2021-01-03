@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { Component } from "react";
 import { getURL } from "./utils/settings";
 import axios, { AxiosResponse } from "axios";
@@ -26,7 +28,7 @@ const context: User = {
   onChangePassword: () => {},
   onChangeUserName: () => {},
   login: async () => {},
-  saveLogin: () => {}
+  saveLogin: () => {},
 };
 
 export const UserContext = React.createContext(context);
@@ -42,7 +44,7 @@ export class UserProvider extends Component<Props, User> {
       onChangePassword: this.onChangePassword,
       onChangeUserName: this.onChangeUserName,
       login: this.login,
-      saveLogin: this.saveLogin
+      saveLogin: this.saveLogin,
     };
   }
 
@@ -52,12 +54,11 @@ export class UserProvider extends Component<Props, User> {
     });
     let userName = localStorage.getItem("username");
     let password = localStorage.getItem("password");
-    console.log(userName, password);
     if (userName && password) {
       this.setState({
         userName: userName,
         password: password,
-        saveLoginInfo: true
+        saveLoginInfo: true,
       });
     }
   }
@@ -83,7 +84,7 @@ export class UserProvider extends Component<Props, User> {
     bodyFormData.set("password", this.state.password);
     try {
       response = await axios.post(url, bodyFormData, {
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { "Content-Type": "multipart/form-data" },
       });
       let data = response.data;
       let access = data.access;
@@ -96,7 +97,7 @@ export class UserProvider extends Component<Props, User> {
         this.setState({ password: "" });
       }
       localStorage.setItem("access", access);
-      this.setState({ isLogin: true });
+      window.location.href = "#/home";
     } catch (err) {
       let e: string = err.toString();
       if (e.includes("401")) {

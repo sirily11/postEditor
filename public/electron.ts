@@ -168,7 +168,8 @@ function createWindow() {
   }
 
   mainWindow.on("closed", () => {
-    mainWindow = undefined;
+    console.log("close");
+    app.exit();
   });
 
 }
@@ -182,9 +183,9 @@ function createWindows() {
 app.on("ready", createWindows);
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+
+  app.quit();
+
 });
 
 app.on("activate", () => {

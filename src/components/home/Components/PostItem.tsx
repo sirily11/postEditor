@@ -56,10 +56,14 @@ export default function PostItem(props: Props) {
         }}>
         <ListItemAvatar style={{ marginRight: 10 }}>
           <Card>
-            <CardMedia
-              image={props.post.image_url}
-              style={{ width: 100, height: 100 }}
-            />
+            {props.post.image_url ? (
+              <CardMedia
+                image={props.post.image_url}
+                style={{ width: 100, height: 100 }}
+              />
+            ) : (
+              <div style={{ width: 100, height: 100 }}></div>
+            )}
           </Card>
         </ListItemAvatar>
         <ListItemText
@@ -80,7 +84,7 @@ export default function PostItem(props: Props) {
               />
             </div>
           }
-          secondary={<p className="text">{plaintext}</p>}
+          secondary={<span className="text">{plaintext}</span>}
         />
         <IconButton>
           <NavigateNextIcon />

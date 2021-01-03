@@ -108,7 +108,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
    * Helper function to fetch posts
    */
   private async fetchPosts(category?: number): Promise<Result<Post>> {
-    let token = localStorage.getItem("access");
+    let token = localStorage.getItem("access") ?? "";
     let url = category
       ? getURL("blog/post/?category=" + category)
       : getURL("blog/post");

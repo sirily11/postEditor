@@ -1,18 +1,26 @@
-require("jest-localstorage-mock");
+/** @format */
 
-global.window.require = function() {
+const localStorageMock = {
+  getItem: (keyword) => {
+    return keyword;
+  },
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+global.localStorage = localStorageMock;
+
+global.window.require = function () {
   return {
     ipcRenderer: {
-      send: function() {
-        // Fake sending message to ipcMain
-      },
-      on: function() {},
-      removeAllListeners: function() {}
+      send: jest.fn(),
+      on: jest.fn(),
+      removeAllListeners: jest.fn(),
     },
     remote: {
-      dialog: jest.fn()
-    }
+      dialog: jest.fn(),
+    },
   };
 };
 
-global.window.alert = function() {};
+global.window.alert = function () {};

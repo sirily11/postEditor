@@ -50,11 +50,8 @@ export default function HomePage() {
   if (errMsg) {
     return (
       <div className="d-flex h-100">
-        <div
-          className="mx-auto my-auto"
-          style={{ alignItems: "center" }}
-          id="err-msg">
-          <IconButton onClick={fetch}>
+        <div className="mx-auto my-auto" style={{ alignItems: "center" }}>
+          <IconButton onClick={fetch} data-testid="err-msg">
             <RefeashIcon />
           </IconButton>
           {errMsg}
@@ -85,9 +82,9 @@ export default function HomePage() {
                 <div>
                   <List id="post-list">
                     {postsResult &&
-                      postsResult.results.map((post) => {
+                      postsResult.results.map((post, index) => {
                         return (
-                          <Collapse in={true} key={`post-${post.id}`}>
+                          <Collapse in={true} key={`post-${post.id}-${index}`}>
                             <PostItem post={post} />
                           </Collapse>
                         );

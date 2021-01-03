@@ -1,15 +1,16 @@
-import {AdditionalProps, BasePlugin} from "../index";
-import {ContentBlock} from "draft-js";
+import {AdditionalProps, BasePlugin, DraftBlockRenderComponent, NotImplemented} from "../index";
+import {ContentBlock}                                                           from "draft-js";
 
 class TestPlugin extends BasePlugin {
-    blockStyleFn(block: ContentBlock, additional: AdditionalProps): string | undefined {
-        return "hello world"
-    }
 
-    blockRendererFn(block: ContentBlock, additional: AdditionalProps): any {
-        return "a";
-    }
 
+    blockRendererFn = (block?: ContentBlock, additional?: AdditionalProps): (DraftBlockRenderComponent | NotImplemented | undefined) => "B";
+    blockStyleFn = (block?: ContentBlock, additional?: AdditionalProps): (string | NotImplemented | undefined) => "A"
+
+    createPlugin(): { [p: string]: any }
+    {
+        return super.createPlugin();
+    }
 }
 
 describe("Test Base plugin", () => {
@@ -18,6 +19,5 @@ describe("Test Base plugin", () => {
         let result = plugin.createPlugin();
         expect(result.blockStyleFn).toBeDefined()
         expect(result.blockRendererFn).toBeDefined()
-        expect(result.customStyleFn).toBeUndefined()
     })
 })

@@ -12,7 +12,7 @@ import {
   EditorContext,
 } from "./components/model/editorContext";
 import { DisplayProvider } from "./components/model/displayContext";
-import LoginPage from "./components/login/LoginPage";
+import { LoginPage } from "./components/login/LoginPage";
 import {
   spring,
   AnimatedRoute,

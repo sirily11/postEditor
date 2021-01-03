@@ -82,14 +82,14 @@ export default function SettingCardContent(props: Props) {
         <Collapse in={loading} mountOnEnter unmountOnExit>
           <LinearProgress />
         </Collapse>
-        <Collapse in={post.image_url !== undefined} mountOnEnter unmountOnExit>
+        <Collapse in={post?.image_url !== undefined} mountOnEnter unmountOnExit>
           <div
             className="mx-auto"
             style={{
               width: "300px",
               height: "300px",
               backgroundSize: "cover",
-              backgroundImage: `url(${post.image_url})`,
+              backgroundImage: `url(${post?.image_url})`,
             }}
           />
         </Collapse>
@@ -108,7 +108,7 @@ export default function SettingCardContent(props: Props) {
             }
             closeSetting();
           }}
-          disabled={post.post_category === undefined}>
+          disabled={post?.post_category === undefined}>
           OK
         </Button>
       </DialogActions>

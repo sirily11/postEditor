@@ -30,10 +30,8 @@ export default class EditorPage extends Component<EditorProps, State> {
     };
   }
 
-  componentWillMount() {
-    let _id = this.props.match.params._id;
-    this.setState({ _id: _id });
-
+  showMenu = (e: MouseEvent) => {
+    e.preventDefault();
     const menu = new Menu();
     menu.append(
       new MenuItem({
@@ -51,19 +49,21 @@ export default class EditorPage extends Component<EditorProps, State> {
         },
       })
     );
+    menu.popup({ window: remote.getCurrentWindow() });
+  };
 
-    window.addEventListener(
-      "contextmenu",
-      (e) => {
-        e.preventDefault();
-        menu.popup({ window: remote.getCurrentWindow() });
-      },
-      false
-    );
+  componentWillMount() {
+    let _id = this.props.match.params._id;
+    this.setState({ _id: _id });
+
+    window.addEventListener("contextmenu", this.showMenu, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("contextmenu", this.showMenu);
   }
 
   uploadFiles = async (acceptedFiles: File[], rejectedFiles: File[]) => {
-    let filePath: string[] = [];
     this.setState({ files: acceptedFiles, open: true });
   };
 
@@ -106,7 +106,7 @@ export default class EditorPage extends Component<EditorProps, State> {
               <SettingCard isCreated={false} />
 
               <UploadDialog open={open} files={files} close={this.close} />
-              <ImageEditDialog/>
+              <ImageEditDialog />
             </div>
           );
         }}
