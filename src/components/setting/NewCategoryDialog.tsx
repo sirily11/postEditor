@@ -32,6 +32,7 @@ export default function NewCategoryDialog(props: Props) {
           fullWidth
           variant="filled"
           label="Category"
+          inputProps={{ "data-testid": "category-field" }}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         />
@@ -39,6 +40,7 @@ export default function NewCategoryDialog(props: Props) {
       <DialogActions>
         <Button onClick={close}>close</Button>
         <Button
+          data-testid="add"
           type="submit"
           onClick={async () => {
             let res = await axios.post<Category>(getURL("blog/category/"), {

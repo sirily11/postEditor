@@ -46,6 +46,7 @@ export default function TabBar() {
                 <ListItemText primary={"Add Category"} />
                 <ListItemSecondaryAction>
                   <IconButton
+                    data-testid="add-category"
                     edge="end"
                     aria-label="edit"
                     onClick={() => {
@@ -84,8 +85,9 @@ export default function TabBar() {
                         <EditIcon />
                       </IconButton>
                       <IconButton
+                        data-testid={`delete-${category.id}`}
                         edge="end"
-                        aria-label="edit"
+                        aria-label={`delete-${category.id}`}
                         onClick={async () => {
                           let confirm = window.confirm("Do you want to delete");
                           if (confirm) {
