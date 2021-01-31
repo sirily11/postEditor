@@ -107,11 +107,13 @@ export default class MainEditor extends Component {
     ],
   };
 
-  componentWillMount() {
+  componentDidMount() {
+    // eslint-disable-next-line react/prop-types
     this.props.initEditor(this.props._id);
   }
 
   componentWillUnmount() {
+    // eslint-disable-next-line react/prop-types
     this.props.clear();
   }
 

@@ -1,3 +1,5 @@
+/** @format */
+
 import React from "react";
 import videojs from "video.js";
 import "./video.css";
@@ -12,6 +14,7 @@ export default class ReactVideoPlayer extends React.Component {
 
   componentDidUpdate(oldProps) {
     if (oldProps !== this.props) {
+      // eslint-disable-next-line react/prop-types
       this.player.src(this.props.sources);
     }
   }
@@ -31,12 +34,10 @@ export default class ReactVideoPlayer extends React.Component {
       <div>
         <div
           data-vjs-player
-          style={{ width: "100%", marginBottom: 10, height: "300px" }}
-        >
+          style={{ width: "100%", marginBottom: 10, height: "300px" }}>
           <video
             ref={(node) => (this.videoNode = node)}
-            className="video-js"
-          ></video>
+            className="video-js"></video>
         </div>
       </div>
     );
