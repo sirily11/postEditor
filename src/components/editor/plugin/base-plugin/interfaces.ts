@@ -12,10 +12,11 @@ export interface ExternalProps {
   getEditorState(): EditorState;
   onOverrideContent(value: any): void;
   setEditorState(state: EditorState): void;
-  theme: any
+  theme: any;
 }
 
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type SyntheticEvent = React.SyntheticEvent<{}>;
 
 export type EditorCommand = DraftEditorCommand | string;
@@ -24,6 +25,7 @@ export type DraftTextAlignment = 'left' | 'center' | 'right';
 
 export type DraftTextDirectionality = 'LTR' | 'RTL' | 'NEUTRAL';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type SyntheticKeyboardEvent = React.KeyboardEvent<{}>;
 export interface DraftEditorProps {
   editorState: EditorState;
@@ -166,6 +168,7 @@ export interface DraftEditorProps {
   /** Handle other drops to prevent default text movement/insertion behaviour */
   handleDrop?(
     selection: SelectionState,
+    // eslint-disable-next-line @typescript-eslint/ban-types
     dataTransfer: Object,
     isInternal: DraftDragType,
   ): DraftHandleValue;

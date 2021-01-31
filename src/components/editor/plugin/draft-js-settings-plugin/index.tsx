@@ -7,7 +7,6 @@ import settingStrategy, { matchesEntityType } from "./settingsStrategy";
 import { defaultTheme } from "./theme";
 import { AnchorPluginConfig } from "./utils/interfaces";
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default (config: AnchorPluginConfig = {}) => {
   const { theme = defaultTheme, placeholder, Link, linkTarget } = config;
 

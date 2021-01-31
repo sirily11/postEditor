@@ -21,16 +21,7 @@ interface User {
 
 interface Props {}
 //@ts-ignore
-const context: User = {
-  userName: "",
-  password: "",
-  isLogin: false,
-  saveLoginInfo: false,
-  onChangePassword: () => {},
-  onChangeUserName: () => {},
-  login: async () => {},
-  saveLogin: () => {},
-};
+const context: User = {};
 
 export const UserContext = React.createContext(context);
 

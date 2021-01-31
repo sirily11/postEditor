@@ -52,7 +52,7 @@ export default class EditorPage extends Component<EditorProps, State> {
     menu.popup({ window: remote.getCurrentWindow() });
   };
 
-  componentWillMount() {
+  componentDidMount() {
     const _id = this.props.match.params._id;
     this.setState({ _id: _id });
 

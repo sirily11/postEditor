@@ -1,3 +1,4 @@
+
 import { app, BrowserWindow, ipcMain, Menu, remote } from "electron";
 import * as path from "path";
 import * as fs from "fs";

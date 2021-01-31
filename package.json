@@ -24,8 +24,6 @@
     "@types/lingui__core": "^2.7.0",
     "@types/lingui__macro": "^2.7.3",
     "@types/lingui__react": "^2.5.2",
-    "@types/nedb": "^1.8.7",
-    "@types/node": "12.12.6",
     "@types/pinyin": "^2.8.2",
     "@types/react-color": "^3.0.4",
     "@types/react-infinite-scroller": "^1.2.1",

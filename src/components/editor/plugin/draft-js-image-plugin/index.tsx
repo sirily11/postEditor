@@ -22,7 +22,6 @@ export type ImageEditorPlugin = EditorPlugin & {
   addImage: typeof addImage;
 };
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default (config: ImagePluginConfig = {}): ImageEditorPlugin => {
   const theme = config.theme ? config.theme : defaultTheme;
   let Image = config.imageComponent || ImageComponent;

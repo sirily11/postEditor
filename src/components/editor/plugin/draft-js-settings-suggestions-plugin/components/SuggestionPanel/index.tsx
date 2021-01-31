@@ -92,7 +92,9 @@ export default class SuggestionPanel extends React.Component<Props> {
       try {
         //@ts-ignore
         length = this.props.children().props.children.length;
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
       const position = {
         top:
           editorRoot.offsetTop + (selectionRect.top - editorRootRect.top) + 30,

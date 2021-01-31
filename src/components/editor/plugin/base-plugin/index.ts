@@ -11,9 +11,9 @@ import {
     EditorState, SelectionState,
     DraftDecorator, ContentState,
 } from "draft-js";
-import React, {CSSProperties} from "react";
+import React, { CSSProperties } from "react";
 
-export type NotImplemented = "Not Implemented"
+export type NotImplemented = "Not Implemented";
 
 export const NotImplementedFunction: NotImplemented = "Not Implemented";
 
@@ -25,19 +25,19 @@ export interface AdditionalProps {
     getEditorState(): EditorState, // a function to get the current EditorState
     getReadOnly(): boolean, // a function returning of the Editor is set to readOnly
     setReadOnly(v: boolean): void, // a function which allows to set the Editor to readOnly
-    getEditorRef(): any // a function to get the editor reference
+    getEditorRef(): any; // a function to get the editor reference
 }
 
 export interface DraftBlockProps<T> {
     block: ContentBlock;
-    contentState: ContentState
-    blockProps: T
+    contentState: ContentState;
+    blockProps: T;
 }
 
 export interface DraftBlockRenderComponent {
     component: any,
     editable: boolean,
-    props: any
+    props: any;
 }
 
 export abstract class BasePlugin {
@@ -82,7 +82,7 @@ export abstract class BasePlugin {
      *
      * ```
      */
-    customStyleMap?: { [name: string]: CSSProperties };
+    customStyleMap?: { [name: string]: CSSProperties; };
 
     /**
      * Optionally define a function to transform inline styles to CSS objects that are applied to spans of text.
@@ -100,7 +100,7 @@ export abstract class BasePlugin {
      * @param additional
      */
     blockRendererFn = (block?: ContentBlock, additional?: AdditionalProps): DraftBlockRenderComponent | NotImplemented | undefined => {
-        return NotImplementedFunction
+        return NotImplementedFunction;
     };
 
     /**
@@ -125,6 +125,7 @@ export abstract class BasePlugin {
      */
     handleBeforeInput = (chars?: string, editorState?: EditorState, eventTimeStamp?: number, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
     handleDrop = (selection?: SelectionState, dataTransfer?: Object, isInternal?: DraftDragType, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
 
     handleDroppedFiles = (selection?: SelectionState, files?: Array<Blob>, additional?: AdditionalProps): DraftHandleValue | NotImplemented | undefined => NotImplementedFunction;
@@ -161,14 +162,14 @@ export abstract class BasePlugin {
 
     willUnmount = (additional?: AdditionalProps): void | NotImplemented | undefined => NotImplementedFunction;
 
-    getAccessibilityProps = (additional?: AdditionalProps): { ariaHasPopup: string, ariaExpanded: string } | NotImplemented | undefined => NotImplementedFunction;
+    getAccessibilityProps = (additional?: AdditionalProps): { ariaHasPopup: string, ariaExpanded: string; } | NotImplemented | undefined => NotImplementedFunction;
 
     /**
      * Use Plugin
      */
     public createPlugin() {
         //@ts-ignore
-        const functions: [{ name: string, func: any }] = [
+        const functions: [{ name: string, func: any; }] = [
             {
                 name: "customStyleFn",
                 func: this.customStyleFn,
@@ -257,10 +258,10 @@ export abstract class BasePlugin {
                 func: this.getAccessibilityProps,
                 name: "getAccessibilityProps"
             }
-        ]
+        ];
 
         //@ts-ignore
-        const properties: [{ name: string, value: any }] = [
+        const properties: [{ name: string, value: any; }] = [
             {
                 name: "decorators",
                 value: this.decorators,
@@ -308,25 +309,25 @@ export abstract class BasePlugin {
                 value: this.autoCorrect,
                 name: "autoCorrect"
             }
-        ]
+        ];
 
 
-        const pluginConfiguration: { [name: string]: any } = {}
+        const pluginConfiguration: { [name: string]: any; } = {};
         for (const f of functions) {
-            const {name, func} = f
+            const { name, func } = f;
             if (func instanceof Function) {
-                const result = func()
+                const result = func();
                 if (result !== NotImplementedFunction) {
-                    pluginConfiguration[name] = func
+                    pluginConfiguration[name] = func;
                 }
             }
 
         }
 
         for (const p of properties) {
-            const {name, value} = p
+            const { name, value } = p;
             if (value) {
-                pluginConfiguration[name] = value
+                pluginConfiguration[name] = value;
             }
         }
 

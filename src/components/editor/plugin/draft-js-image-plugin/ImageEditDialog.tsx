@@ -20,10 +20,7 @@ import { EditorContext } from "../../../model/editorContext";
 import axios from "axios";
 const { ipcRenderer } = (window as any).require("electron");
 
-export function ImageEditDialog(props: {
-
-}) {
-  const {  } = props;
+export function ImageEditDialog() {
   const {
     showEditImageDialog,
     setShowImageEditDialog,
@@ -81,7 +78,7 @@ export function ImageEditDialog(props: {
                 description
               );
               ipcRenderer.send("update-image-description", result);
-          
+
               setShowImageEditDialog(false);
             } catch (err) {
               alert(err);

@@ -747,7 +747,9 @@ export class MainEditorProvider extends React.Component<
 
         this.setState({ isRedirect: true });
       }
-    } catch (err) {}
+    } catch (err) {
+      alert(err);
+    }
   }
 
   /**

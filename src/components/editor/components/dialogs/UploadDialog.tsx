@@ -29,7 +29,6 @@ export default function UploadDialog(props: Props) {
   const [numFinished, setNumFinished] = useState(0);
   const [currentUpload, setCurrentUpload] = useState<string>();
   const [currentProgress, setCurrentProgress] = useState<number>(0);
-  const [] = useState<{ index: number; content: string }[]>();
   const editContext = useContext(EditorContext);
 
   const isUploadEnd = numFinished === props.files.length;

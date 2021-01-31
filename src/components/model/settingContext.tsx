@@ -36,7 +36,7 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
     };
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     try {
       const response = await axios.get(getURL("blog/category/"));
       const categories: Result<Category> = response.data;
@@ -94,13 +94,6 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
 }
 
 //@ts-ignore
-const context: SettingState = {
-  open: false,
-  language: -1,
-  categories: [],
-  openSetting: () => {},
-  closeSetting: () => {},
-  addCategory: () => {},
-};
+const context: SettingState = {};
 
 export const SettingConext = React.createContext(context);

@@ -37,6 +37,7 @@ const SettingsText = ({
   //@ts-ignore
   getEditorState,
   //@ts-ignore
+  // eslint-disable-next-line react/prop-types
   target,
 }) => {
   const { postSettings } = React.useContext(PostSettingContext);

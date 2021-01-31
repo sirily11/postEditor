@@ -25,6 +25,7 @@ const HtmlTooltip = withStyles((theme: Theme) => ({
 }))(Tooltip);
 
 //@ts-ignore
+// eslint-disable-next-line react/prop-types
 const Link = ({ children, className, entityKey, getEditorState, target }) => {
   const entity = getEditorState().getCurrentContent().getEntity(entityKey);
   const entityData: LinkProps | undefined = entity
