@@ -14,9 +14,7 @@ interface Data {
     alignment: string;
 }
 
-export interface TextAlignProps extends DraftBlockProps<Data> {
-
-}
+export type TextAlignProps = DraftBlockProps<Data>
 
 
 export class TextAlignPlugin extends BasePlugin {

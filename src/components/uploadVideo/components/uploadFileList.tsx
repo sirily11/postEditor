@@ -1,3 +1,5 @@
+/** @format */
+
 import React, { useContext, useState } from "react";
 import { UploadVideoConext } from "../../model/uploadVideoContext";
 import {
@@ -5,7 +7,7 @@ import {
   List,
   ListItem,
   ListItemText,
-  LinearProgress
+  LinearProgress,
 } from "@material-ui/core";
 import { Segment } from "semantic-ui-react";
 
@@ -18,8 +20,8 @@ export function UploadFileList() {
   return (
     <Segment style={{ width: "100%" }}>
       <List>
-        {uploadVideoContext.uploadFiles.map((f) => (
-          <ListItem button>
+        {uploadVideoContext.uploadFiles.map((f, i) => (
+          <ListItem button key={`file-${i}`}>
             <ListItemText key={f.file.name}>
               {f.file.name}
               <hr></hr>

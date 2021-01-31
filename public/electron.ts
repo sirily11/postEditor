@@ -11,7 +11,7 @@ let postSettingsWindow: Electron.BrowserWindow | undefined;
 
 app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors");
 
-var menu = Menu.buildFromTemplate([
+const menu = Menu.buildFromTemplate([
   {
     label: "Menu",
   },

@@ -56,7 +56,7 @@ export default function SettingCardContent(props: Props) {
       <DialogContent>
         <Grid container>
           <Grid item xs={12}>
-            <CategorySelect> </CategorySelect>
+            <CategorySelect />
           </Grid>
           {!props.isCreate && (
             <Grid item xs={12}>
@@ -70,6 +70,7 @@ export default function SettingCardContent(props: Props) {
                         setLoading(true);
                         await setCover(e.target.files[0]);
                       } catch (err) {
+                        alert(err);
                       } finally {
                         setLoading(false);
                       }
@@ -101,7 +102,7 @@ export default function SettingCardContent(props: Props) {
         <Button
           onClick={async () => {
             if (props.isCreate) {
-              let id = await create();
+              const id = await create();
               if (id) {
                 props.redirect(id);
               }

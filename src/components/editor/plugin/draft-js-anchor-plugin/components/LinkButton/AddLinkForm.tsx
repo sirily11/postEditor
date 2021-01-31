@@ -98,12 +98,12 @@ export default class AddLinkForm extends Component<Props, State> {
             title: ""
         };
         try {
-            let result = await Axios.get(url)
-            let parser = new DOMParser();
-            let htmlDoc = parser.parseFromString(result.data, "text/html");
-            let title = htmlDoc.querySelector("title");
-            let image = htmlDoc.querySelector("img");
-            let summary = htmlDoc.querySelector("p")
+            const result = await Axios.get(url)
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(result.data, "text/html");
+            const title = htmlDoc.querySelector("title");
+            const image = htmlDoc.querySelector("img");
+            const summary = htmlDoc.querySelector("p")
 
             data = {
                 link: url,

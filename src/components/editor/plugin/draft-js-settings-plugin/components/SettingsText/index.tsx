@@ -48,8 +48,8 @@ const SettingsText = ({
 
   React.useEffect(() => {
     if (postSettings?.settings) {
-      for (let settings of postSettings?.settings) {
-        for (let d of settings.detailSettings) {
+      for (const settings of postSettings?.settings) {
+        for (const d of settings.detailSettings) {
           if (d.id === entityData?.id) {
             setDetail(d);
           }

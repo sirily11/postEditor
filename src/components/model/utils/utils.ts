@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Result, Post } from "../interfaces";
 import { getURL } from "./settings";
@@ -9,13 +10,13 @@ import { EditorState, SelectionState } from "draft-js";
  * @param keyword Search Keyword
  */
 export async function searchPost(keyword: string): Promise<Result<Post>> {
-  let url = getURL("blog/post/?search=" + encodeURIComponent(keyword));
-  let result = await axios.get<Result<Post>>(url);
+  const url = getURL("blog/post/?search=" + encodeURIComponent(keyword));
+  const result = await axios.get<Result<Post>>(url);
   return result.data;
 }
 
-export function dataURLtoFile(dataurl: any, filename: string) {
-  var arr = dataurl.split(","),
+export function dataURLtoFile(dataurl: any, filename: string): File {
+  let arr = dataurl.split(","),
     mime = arr[0].match(/:(.*?);/)[1],
     bstr = atob(arr[1]),
     n = bstr.length,

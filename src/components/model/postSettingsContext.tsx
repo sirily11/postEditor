@@ -144,9 +144,9 @@ export class PostSettingProvider extends Component<
     const { postId } = this.state;
     try {
       if (postId) {
-        let token = localStorage.getItem("access");
-        let url = getURL(`blog/post/${postId}/`);
-        let response = await axios.patch(
+        const token = localStorage.getItem("access");
+        const url = getURL(`blog/post/${postId}/`);
+        const response = await axios.patch(
           url,
           { settings: JSON.stringify(settings) },
           {
@@ -234,7 +234,7 @@ export class PostSettingProvider extends Component<
         detailSettingsIndex
       ] = detailSettings;
       await this.updateToServer(postSettings);
-      let data: UpdateSettingSignal = {
+      const data: UpdateSettingSignal = {
         action: "update",
         contents: [
           postSettings.settings[settingsIndex].detailSettings[
@@ -250,15 +250,15 @@ export class PostSettingProvider extends Component<
    * @param settingsIndex Settings index
    */
   deleteSettings = async (settingsIndex: number): Promise<void> => {
-    let confirm = window.confirm("Do you want to delete?");
+    const confirm = window.confirm("Do you want to delete?");
     if (!confirm) return;
     const { postSettings } = this.state;
     if (postSettings && postSettings.settings) {
-      let deletedDetails = postSettings.settings[settingsIndex].detailSettings;
+      const deletedDetails = postSettings.settings[settingsIndex].detailSettings;
       postSettings.settings.splice(settingsIndex, 1);
       await this.updateToServer(postSettings);
 
-      let data: UpdateSettingSignal = {
+      const data: UpdateSettingSignal = {
         action: "delete",
         contents: deletedDetails,
       };
@@ -275,15 +275,15 @@ export class PostSettingProvider extends Component<
     settingsIndex: number,
     detailSettingsIndex: number
   ): Promise<void> => {
-    let confirm = window.confirm("Do you want to delete?");
+    const confirm = window.confirm("Do you want to delete?");
     if (!confirm) return;
     const { postSettings } = this.state;
     if (postSettings && postSettings.settings) {
-      let deletedDetails = postSettings.settings[
+      const deletedDetails = postSettings.settings[
         settingsIndex
       ].detailSettings.splice(detailSettingsIndex, 1);
       await this.updateToServer(postSettings);
-      let data: UpdateSettingSignal = {
+      const data: UpdateSettingSignal = {
         action: "delete",
         contents: deletedDetails,
       };

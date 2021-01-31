@@ -89,7 +89,7 @@ export default function TabBar() {
                         edge="end"
                         aria-label={`delete-${category.id}`}
                         onClick={async () => {
-                          let confirm = window.confirm("Do you want to delete");
+                          const confirm = window.confirm("Do you want to delete");
                           if (confirm) {
                             await deleteCategory(category);
                           }

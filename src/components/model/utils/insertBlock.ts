@@ -56,6 +56,31 @@ export function insertAudioBlock(
   });
 }
 
+
+export function insertVideoBlock(
+  audioPath: string,
+  editorState: EditorState
+): Promise<EditorState> {
+  return new Promise((resolve, _reject) => {
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      "video",
+      "IMMUTABLE",
+      { src: audioPath.replace(/ /g, "_") }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity,
+    });
+    const newState = AtomicBlockUtils.insertAtomicBlock(
+      newEditorState,
+      entityKey,
+      " "
+    );
+    resolve(newState);
+  });
+}
+
 export function insertSpaceBlock(
 
   editorState: EditorState
@@ -119,6 +144,7 @@ export function insertSettingsBlock(
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function removeBlock(editorState: any, block: ContentBlock, entityKey: string) {
   const contentState = editorState.getCurrentContent();
   const newBlockMap = contentState.blockMap.delete(block.getKey());  // this is the important one that actually deletes a block

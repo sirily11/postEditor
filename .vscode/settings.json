@@ -1,5 +1,13 @@
 {
     "prettier.arrowParens": "always",
     "prettier.packageManager": "yarn",
-    "prettier.jsxBracketSameLine": true
+    "prettier.jsxBracketSameLine": true,
+    "eslint.lintTask.enable": true,
+    "eslint.packageManager": "yarn",
+    "eslint.alwaysShowStatus": true,
+    "eslint.codeAction.showDocumentation": {
+
+        "enable": true
+    },
+    "eslint.run": "onSave"
 }

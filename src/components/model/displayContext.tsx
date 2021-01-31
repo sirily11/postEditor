@@ -58,10 +58,10 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
   // }
 
   fetchMore = async () => {
-    let postResult = this.state.postsResult;
+    const postResult = this.state.postsResult;
     if (postResult && postResult.next) {
-      let result = await axios.get<Result<Post>>(postResult.next);
-      let data = result.data;
+      const result = await axios.get<Result<Post>>(postResult.next);
+      const data = result.data;
       postResult.next = data.next;
       postResult.count += data.count;
       postResult.results = postResult.results.concat(data.results);
@@ -75,10 +75,10 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
   onChange = async (newValue: number) => {
     this.setState({ value: newValue });
     if (newValue > 0) {
-      let result = await this.fetchPosts(newValue);
+      const result = await this.fetchPosts(newValue);
       this.setState({ postsResult: result });
     } else {
-      let result = await this.fetchPosts();
+      const result = await this.fetchPosts();
       this.setState({ postsResult: result });
     }
   };
@@ -90,7 +90,7 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
   fetch = async () => {
     try {
       const { value } = this.state;
-      let post = await this.fetchPosts(value > 0 ? value : undefined);
+      const post = await this.fetchPosts(value > 0 ? value : undefined);
       this.setState({
         progress: 100,
         postsResult: post,
@@ -108,12 +108,12 @@ export class DisplayProvider extends Component<DisplayProps, DisplayState> {
    * Helper function to fetch posts
    */
   private async fetchPosts(category?: number): Promise<Result<Post>> {
-    let token = localStorage.getItem("access") ?? "";
-    let url = category
+    const token = localStorage.getItem("access") ?? "";
+    const url = category
       ? getURL("blog/post/?category=" + category)
       : getURL("blog/post");
 
-    let response = await axios.get(url, {
+    const response = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` },
       onDownloadProgress: (progressEvent) => {
         computeDownloadProgress(progressEvent, (progress: number) =>

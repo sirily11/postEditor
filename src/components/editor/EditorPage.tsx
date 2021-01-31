@@ -8,7 +8,7 @@ import { EditorContext } from "../model/editorContext";
 import MessageBar from "./components/MessageBar";
 import { EditorProps } from "../model/interfaces";
 import SettingCard from "../setting/SettingCard";
-import UploadDialog from "./components/UploadDialog";
+import UploadDialog from "./components/dialogs/UploadDialog";
 import { Snackbar, SnackbarContent } from "@material-ui/core";
 import { ImageEditDialog } from "./plugin/draft-js-image-plugin/ImageEditDialog";
 const { ipcRenderer, remote } = (window as any).require("electron");
@@ -53,7 +53,7 @@ export default class EditorPage extends Component<EditorProps, State> {
   };
 
   componentWillMount() {
-    let _id = this.props.match.params._id;
+    const _id = this.props.match.params._id;
     this.setState({ _id: _id });
 
     window.addEventListener("contextmenu", this.showMenu, false);

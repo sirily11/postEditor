@@ -8,21 +8,14 @@ import {
   RichUtils,
 } from "draft-js";
 import React from "react";
-import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
-import AttachmentIcon from "@material-ui/icons/Attachment";
+
 import { t } from "@lingui/macro";
+//@ts-nocheck
 import { setupI18n } from "@lingui/core";
 import chinese from "../../locales/zh/messages";
 import axios from "axios";
 import { getURL } from "./utils/settings";
-import {
-  Category,
-  Post,
-  PostImage,
-  Result,
-  DetailSettings,
-} from "./interfaces";
+import { Category, Post, PostImage, DetailSettings } from "./interfaces";
 import {
   insertAudioBlock,
   insertImageBlock,
@@ -38,10 +31,16 @@ import { v4 as uuidv4 } from "uuid";
 import AwesomeDebouncePromise from "awesome-debounce-promise";
 import path from "path";
 import { ContentBlock, SelectionState, Modifier } from "draft-js";
-import { start } from "repl";
 import { UpdateSettingSignal } from "./interfaces";
 import { insertSpaceBlock } from "./utils/insertBlock";
-import { Map } from "immutable";
+
+/// Icons
+import DeleteIcon from "@material-ui/icons/Delete";
+import HeadSetIcon from "@material-ui/icons/Headset";
+import SaveIcon from "@material-ui/icons/Save";
+import AttachmentIcon from "@material-ui/icons/Attachment";
+import MovieIcon from "@material-ui/icons/Movie";
+/// end icons
 
 const { ipcRenderer } = (window as any).require("electron");
 
@@ -52,6 +51,12 @@ const i18n = setupI18n({
     zh: chinese,
   },
 });
+
+export enum DialogTypes {
+  Video,
+  Audio,
+  File,
+}
 
 export interface Action {
   text: string;
@@ -82,7 +87,7 @@ interface MainEditorState {
   onChange: any;
   // when editor is clicked
   onFocus: any;
-  showUploadFileDialog: boolean;
+  showUploadDialog?: { dialogType: DialogTypes; open: boolean };
 
   selected: string[];
 
@@ -90,7 +95,7 @@ interface MainEditorState {
 
   selectedImageData?: any;
 
-  setShowUploadFileDialog(v: boolean): void;
+  setShowUploadDialog(v: boolean, dialogType?: DialogTypes): void;
 
   // change pst's title
   setTitle(newTitle: string): any;
@@ -146,8 +151,7 @@ export class MainEditorProvider extends React.Component<
       editorState: EditorState.createEmpty(),
       hasInit: false,
       actions: this.actions,
-      showUploadFileDialog: false,
-      setShowUploadFileDialog: this.setShowUploadFileDialog,
+      setShowUploadDialog: this.setShowUploadDialog,
       onChange: this.onChange,
       onFocus: this.onFocus,
       setTitle: this.setTitle,
@@ -180,9 +184,9 @@ export class MainEditorProvider extends React.Component<
     ipcRenderer.on(
       "update-image-description",
       async (e: any, arg: PostImage) => {
-        let index = this.state.post.images.findIndex((i) => i.id === arg.id);
+        const index = this.state.post.images.findIndex((i) => i.id === arg.id);
         if (index !== undefined) {
-          let post = this.state.post;
+          const post = this.state.post;
           post.images[index] = arg;
           this.setState({ post: post });
           ipcRenderer.send("update-images", post.images);
@@ -202,7 +206,7 @@ export class MainEditorProvider extends React.Component<
     ipcRenderer.on(
       "update-setting-block",
       (e: any, arg: UpdateSettingSignal) => {
-        for (let ds of arg.contents) {
+        for (const ds of arg.contents) {
           if (arg.action === "update") {
             this.replaceText(ds);
           } else {
@@ -243,20 +247,20 @@ export class MainEditorProvider extends React.Component<
    * @param newPostImage Update displayed image's data
    */
   updateImage = async (newPostImage: PostImage) => {
-    let editorState = this.state.editorState;
+    const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    let blocks: SelectionState[] = [];
-    let data: any[] = [];
+    const blocks: SelectionState[] = [];
+    const data: any[] = [];
 
     contentState.getBlockMap().forEach((block) => {
       block?.findEntityRanges(
         (c) => {
-          let charEntity = c.getEntity();
+          const charEntity = c.getEntity();
           if (charEntity) {
-            let entity = contentState.getEntity(charEntity);
+            const entity = contentState.getEntity(charEntity);
             if (entity.getType() === "image") {
-              let imageId = entity.getData().id;
+              const imageId = entity.getData().id;
               if (imageId === newPostImage.id) {
                 data.push(entity.getData());
                 return true;
@@ -276,7 +280,7 @@ export class MainEditorProvider extends React.Component<
     });
 
     blocks.forEach((block, index) => {
-      let newData = {
+      const newData = {
         ...data[index],
         description: newPostImage.description,
       };
@@ -284,7 +288,7 @@ export class MainEditorProvider extends React.Component<
       const newEntityKey = contentState.getLastCreatedEntityKey();
       contentState = Modifier.applyEntity(contentState, block, newEntityKey);
     });
-    let newEditorState = EditorState.push(
+    const newEditorState = EditorState.push(
       editorState,
       contentState,
       "change-block-data"
@@ -296,10 +300,16 @@ export class MainEditorProvider extends React.Component<
     await this.save();
   };
 
-  setShowUploadFileDialog = (v: boolean) => {
-    this.setState({
-      showUploadFileDialog: v,
-    });
+  setShowUploadDialog = (v: boolean, dialogType: DialogTypes) => {
+    if (!v) {
+      this.setState({
+        showUploadDialog: undefined,
+      });
+    } else {
+      this.setState({
+        showUploadDialog: { open: v, dialogType: dialogType },
+      });
+    }
   };
 
   actions: Action[] = [
@@ -316,10 +326,24 @@ export class MainEditorProvider extends React.Component<
       action: () => {},
     },
     {
-      text: "Insert files",
+      text: "Insert File",
       icon: <AttachmentIcon />,
       action: () => {
-        this.setShowUploadFileDialog(true);
+        this.setShowUploadDialog(true, DialogTypes.File);
+      },
+    },
+    {
+      text: "Insert Audio",
+      icon: <HeadSetIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.Audio);
+      },
+    },
+    {
+      text: "Insert Video",
+      icon: <MovieIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.Video);
       },
     },
     {
@@ -337,7 +361,7 @@ export class MainEditorProvider extends React.Component<
   ];
 
   clear = () => {
-    let clearPost: Post = {
+    const clearPost: Post = {
       id: undefined,
       title: "",
       content: "",
@@ -359,20 +383,20 @@ export class MainEditorProvider extends React.Component<
    * @param detail Detail
    */
   replaceText = (detail: DetailSettings) => {
-    let editorState = this.state.editorState;
+    const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    let blocks: SelectionState[] = [];
-    let entityKeys: string[] = [];
+    const blocks: SelectionState[] = [];
+    const entityKeys: string[] = [];
 
     contentState.getBlockMap().forEach((block) => {
       block?.findEntityRanges(
         (c) => {
-          let charEntity = c.getEntity();
+          const charEntity = c.getEntity();
           if (charEntity) {
-            let entity = contentState.getEntity(charEntity);
+            const entity = contentState.getEntity(charEntity);
             if (entity.getType() === "POST-SETTINGS") {
-              let block_id = entity.getData().id;
+              const block_id = entity.getData().id;
 
               if (block_id === detail.id) {
                 entityKeys.push(charEntity);
@@ -393,7 +417,7 @@ export class MainEditorProvider extends React.Component<
     });
 
     blocks.forEach((selection, index) => {
-      let entityKey = entityKeys[index];
+      const entityKey = entityKeys[index];
       contentState = Modifier.replaceText(
         contentState,
         selection,
@@ -423,15 +447,15 @@ export class MainEditorProvider extends React.Component<
   deleteImage = async (imageID: number) => {
     // var rawContent = convertToRaw(this.state.editorState.getCurrentContent());
     // rawContent.entityMap
-    let contentState = this.state.editorState.getCurrentContent();
-    let blocks: { block: ContentBlock; entityKey: string }[] = [];
+    const contentState = this.state.editorState.getCurrentContent();
+    const blocks: { block: ContentBlock; entityKey: string }[] = [];
 
     contentState.getBlockMap().forEach((block) => {
       block?.findEntityRanges(
         (c) => {
-          let charEntity = c.getEntity();
+          const charEntity = c.getEntity();
           if (charEntity) {
-            let entity = contentState.getEntity(charEntity);
+            const entity = contentState.getEntity(charEntity);
             if (entity.getData().id === imageID) {
               blocks.push({ block: block, entityKey: charEntity });
             }
@@ -444,7 +468,7 @@ export class MainEditorProvider extends React.Component<
     });
 
     let editorState = this.state.editorState;
-    for (let block of blocks) {
+    for (const block of blocks) {
       editorState = removeBlock(editorState, block.block, block.entityKey);
     }
     this.setState({ editorState });
@@ -452,7 +476,7 @@ export class MainEditorProvider extends React.Component<
 
   // this will insert draft-js-image-plugin with draft-js-image-plugin url
   insertImage = async (postImage: PostImage) => {
-    let newEditorState = await insertImageBlock(
+    const newEditorState = await insertImageBlock(
       postImage,
       this.state.editorState
     );
@@ -464,7 +488,7 @@ export class MainEditorProvider extends React.Component<
 
   // this will insert draft-js-audio-plugin
   insertAudio = async (audioPath: string) => {
-    let newEditorState = await insertAudioBlock(
+    const newEditorState = await insertAudioBlock(
       audioPath,
       this.state.editorState
     );
@@ -479,11 +503,11 @@ export class MainEditorProvider extends React.Component<
    * @param settings Post settings
    */
   insertSettingsBlock = async (settings: DetailSettings) => {
-    let newEditorState = await insertSettingsBlock(
+    const newEditorState = await insertSettingsBlock(
       settings,
       this.state.editorState
     );
-    let spacedEditorState = insertSpaceBlock(newEditorState);
+    const spacedEditorState = insertSpaceBlock(newEditorState);
     this.setState({ editorState: spacedEditorState });
     setTimeout(async () => {
       await this.save();
@@ -494,19 +518,19 @@ export class MainEditorProvider extends React.Component<
     if (!id) return;
     this.setState({ isLoading: true });
     // get data from internet
-    let url = "blog/post/" + id;
-    let response = await axios.get<Post>(getURL(url), {
+    const url = "blog/post/" + id;
+    const response = await axios.get<Post>(getURL(url), {
       onDownloadProgress: (ProgressEvent) => {
         computeDownloadProgress(ProgressEvent, (progress: number) =>
           this.setState({ progress })
         );
       },
     });
-    let postData = response.data;
+    const postData = response.data;
     postData.settings = JSON.parse(postData.settings as string);
     if (postData) {
       // @ts-ignore
-      let editorState = EditorState.createWithContent(
+      const editorState = EditorState.createWithContent(
         convertFromRaw(
           postData.content !== "" ? JSON.parse(postData.content) : {}
         )
@@ -528,11 +552,11 @@ export class MainEditorProvider extends React.Component<
    * @param category Post category
    */
   setCategory = async (category: Category) => {
-    let post = this.state.post;
+    const post = this.state.post;
     if (post.id) {
-      let token = localStorage.getItem("access");
-      let url = getURL(`blog/post/${post.id}/`);
-      let result = await axios.patch<Post>(
+      const token = localStorage.getItem("access");
+      const url = getURL(`blog/post/${post.id}/`);
+      const result = await axios.patch<Post>(
         url,
         { category: category.id },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -548,26 +572,26 @@ export class MainEditorProvider extends React.Component<
    * Set post cover
    */
   setCover = async (cover: File) => {
-    let post = this.state.post;
-    let filename = `${uuidv4()}${path.extname(cover.name)}`;
-    let url = getURL(`blog/post/${post.id}/`);
-    let colorURL = getURL("blog/cover-color/");
+    const post = this.state.post;
+    const filename = `${uuidv4()}${path.extname(cover.name)}`;
+    const url = getURL(`blog/post/${post.id}/`);
+    const colorURL = getURL("blog/cover-color/");
     const [red, green, blue] = await ColorThief.getColor(cover.path);
     console.log(red, green, blue);
 
-    let token = localStorage.getItem("access");
-    let form = new FormData();
+    const token = localStorage.getItem("access");
+    const form = new FormData();
 
     form.append("image_url", cover, filename);
 
     try {
-      let result = await axios.patch<Post>(url, form, {
+      const result = await axios.patch<Post>(url, form, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       /// set cover color
-      let colorData = {
+      const colorData = {
         post: post.id,
         red: red,
         blue: blue,
@@ -612,10 +636,10 @@ export class MainEditorProvider extends React.Component<
 
     if (post.id) {
       if (hasInit) {
-        let prev = prevState
+        const prev = prevState
           ? convertToRaw(prevState.getCurrentContent())
           : undefined;
-        let current = convertToRaw(editorState.getCurrentContent());
+        const current = convertToRaw(editorState.getCurrentContent());
         if (JSON.stringify(prev) !== JSON.stringify(current)) {
           await this.saveAPIDebounced();
         }
@@ -643,7 +667,7 @@ export class MainEditorProvider extends React.Component<
    * Set the title for the post
    */
   setTitle = (newTitle: string) => {
-    let post = this.state.post;
+    const post = this.state.post;
     post.title = newTitle;
     this.setState({ post });
   };
@@ -652,13 +676,13 @@ export class MainEditorProvider extends React.Component<
    * Toggole the side bar to match the inline style
    */
   toggle = (name: string, status: boolean) => {
-    let selected = this.state.selected;
+    const selected = this.state.selected;
     if (status) {
       if (!selected.includes(name)) {
         selected.push(name);
       }
     } else {
-      let index = selected.indexOf(name);
+      const index = selected.indexOf(name);
       if (index > -1) {
         selected.splice(index, 1);
       }
@@ -671,11 +695,11 @@ export class MainEditorProvider extends React.Component<
    */
   create = async (): Promise<string | undefined> => {
     try {
-      let token = localStorage.getItem("access");
-      let url = getURL("blog/post/");
-      let data = this.preparePost();
+      const token = localStorage.getItem("access");
+      const url = getURL("blog/post/");
+      const data = this.preparePost();
       delete data.id;
-      let result = await axios.post<Post>(url, data, {
+      const result = await axios.post<Post>(url, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (result.status === 201) {
@@ -711,12 +735,12 @@ export class MainEditorProvider extends React.Component<
 
   private async deleteFromCloud() {
     try {
-      let confirm = window.confirm("Do you want to delete?");
+      const confirm = window.confirm("Do you want to delete?");
       if (confirm) {
-        let token = localStorage.getItem("access");
-        let post = this.preparePost();
+        const token = localStorage.getItem("access");
+        const post = this.preparePost();
 
-        let url = getURL("blog/post/" + post.id);
+        const url = getURL("blog/post/" + post.id);
         await axios.delete(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -732,14 +756,14 @@ export class MainEditorProvider extends React.Component<
    */
   private preparePost() {
     // get post from content state
-    let editorState = this.state.editorState;
+    const editorState = this.state.editorState;
     // convert content state to markdown
-    let raw = convertToRaw(editorState.getCurrentContent());
+    const raw = convertToRaw(editorState.getCurrentContent());
     // @ts-ignore
     // let content = draftToMarkdown(raw, undefined);
-    let content = JSON.stringify(raw);
+    const content = JSON.stringify(raw);
 
-    let post = this.state.post;
+    const post = this.state.post;
     return {
       id: post.id,
       title: post.title === "" ? "New Post" : post.title,
@@ -756,10 +780,10 @@ export class MainEditorProvider extends React.Component<
       if (this.state.post.id === undefined) return;
       this.setState({ isLoading: true, progress: 0 });
 
-      let token = localStorage.getItem("access");
-      let data = this.preparePost();
+      const token = localStorage.getItem("access");
+      const data = this.preparePost();
 
-      let url = getURL(`blog/post/${data.id}/`);
+      const url = getURL(`blog/post/${data.id}/`);
       await axios.patch<Post>(url, data, {
         onUploadProgress: (evt) => {
           computeUploadProgress(evt, (progress: number) => {

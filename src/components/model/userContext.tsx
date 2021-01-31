@@ -20,6 +20,7 @@ interface User {
 }
 
 interface Props {}
+//@ts-ignore
 const context: User = {
   userName: "",
   password: "",
@@ -52,8 +53,8 @@ export class UserProvider extends Component<Props, User> {
     ipc.on("logout", () => {
       this.setState({ isLogin: false });
     });
-    let userName = localStorage.getItem("username");
-    let password = localStorage.getItem("password");
+    const userName = localStorage.getItem("username");
+    const password = localStorage.getItem("password");
     if (userName && password) {
       this.setState({
         userName: userName,
@@ -77,8 +78,8 @@ export class UserProvider extends Component<Props, User> {
   };
 
   login = async () => {
-    let url = getURL("api/token/");
-    let bodyFormData = new FormData();
+    const url = getURL("api/token/");
+    const bodyFormData = new FormData();
     let response: AxiosResponse;
     bodyFormData.set("username", this.state.userName);
     bodyFormData.set("password", this.state.password);
@@ -86,8 +87,8 @@ export class UserProvider extends Component<Props, User> {
       response = await axios.post(url, bodyFormData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      let data = response.data;
-      let access = data.access;
+      const data = response.data;
+      const access = data.access;
       if (this.state.saveLoginInfo) {
         localStorage.setItem("username", this.state.userName);
         localStorage.setItem("password", this.state.password);
@@ -99,7 +100,7 @@ export class UserProvider extends Component<Props, User> {
       localStorage.setItem("access", access);
       window.location.href = "#/home";
     } catch (err) {
-      let e: string = err.toString();
+      const e: string = err.toString();
       if (e.includes("401")) {
         alert("Password or Username is not correct");
       } else if (e.includes("500")) {

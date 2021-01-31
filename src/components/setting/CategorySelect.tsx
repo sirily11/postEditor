@@ -6,8 +6,6 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { EditorContext } from "../model/editorContext";
 import { SettingConext } from "../model/settingContext";
 
-interface Props {}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -24,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function CategorySelect(props: Props) {
+export default function CategorySelect() {
   const classes = useStyles();
   const editorContext = useContext(EditorContext);
   const settingContext = useContext(SettingConext);

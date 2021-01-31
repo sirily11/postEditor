@@ -115,7 +115,7 @@ export default class Toolbar extends React.Component<Props> {
 
             // if the left toolbar show too close to the left edge,
             // move it to the right
-            let width = length * 36 / 2
+            const width = length * 36 / 2
             if (position.left - width <= 0) {
                 position.left = width + extraLeftOffset
             }

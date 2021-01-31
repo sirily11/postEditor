@@ -17,7 +17,7 @@ describe("test sign in page", () => {
 
   test("Test doesn't have stored username and password", async () => {
     mockedAxios.post.mockResolvedValue({ data: { access: "abcde" } });
-    let component = (
+    const component = (
       //@ts-ignore
       <UserProvider>
         <LoginPage />
@@ -40,7 +40,7 @@ describe("test sign in page", () => {
 
   test("Test doesn't have stored username and password and click store", async () => {
     mockedAxios.post.mockResolvedValue({ data: { access: "abcde" } });
-    let component = (
+    const component = (
       //@ts-ignore
       <UserProvider>
         <LoginPage />

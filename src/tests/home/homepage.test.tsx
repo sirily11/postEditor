@@ -158,7 +158,7 @@ describe("Load homepage", () => {
 
     render(component);
     window.confirm = jest.fn(() => true);
-    let deleteBtn = await screen.findByTestId("delete-1");
+    const deleteBtn = await screen.findByTestId("delete-1");
     expect(await screen.findByText("a")).toBeInTheDocument();
     expect(await screen.findByText("b")).toBeInTheDocument();
     fireEvent.click(deleteBtn);

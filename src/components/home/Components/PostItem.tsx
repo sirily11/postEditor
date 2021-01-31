@@ -28,24 +28,24 @@ interface Props {
   post: Post;
 }
 
-let getPath = (urlSrc?: string) => {
+const getPath = (urlSrc?: string) => {
   if (urlSrc) {
-    let url = new URL(urlSrc);
+    const url = new URL(urlSrc);
     let pathName = url.pathname;
-    let base = path.dirname(pathName);
-    let fileName = path.basename(pathName);
+    const base = path.dirname(pathName);
+    const fileName = path.basename(pathName);
     pathName = path.join(base, `small-${fileName}`);
     return `http://${url.hostname}${pathName}`;
   }
 };
 
 export default function PostItem(props: Props) {
-  let content: RawDraftContentState = JSON.parse(props.post.content);
+  const content: RawDraftContentState = JSON.parse(props.post.content);
   content.blocks = content.blocks.slice(
     0,
     content.blocks.length > 3 ? 3 : content.blocks.length
   );
-  let plaintext = convertFromRaw(content).getPlainText();
+  const plaintext = convertFromRaw(content).getPlainText();
   return (
     <div>
       <ListItem

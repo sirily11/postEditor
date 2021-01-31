@@ -141,8 +141,8 @@ export default function VideoEditModel(props: Props) {
         <Button onClick={() => props.setOpen(false, false)}>Cancel</Button>
         <Button
           onClick={async () => {
-            let token = localStorage.getItem("access");
-            let url = getURL(`/blog/video/${props.video.id}/`);
+            const token = localStorage.getItem("access");
+            const url = getURL(`/blog/video/${props.video.id}/`);
             await axios.patch(
               url,
               {

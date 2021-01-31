@@ -15,8 +15,8 @@ class TestPlugin extends BasePlugin {
 
 describe("Test Base plugin", () => {
     it("Test Plugin", () => {
-        let plugin = new TestPlugin();
-        let result = plugin.createPlugin();
+        const plugin = new TestPlugin();
+        const result = plugin.createPlugin();
         expect(result.blockStyleFn).toBeDefined()
         expect(result.blockRendererFn).toBeDefined()
     })

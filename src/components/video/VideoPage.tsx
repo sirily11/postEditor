@@ -37,7 +37,7 @@ export default function VideoPage() {
   const [selectedVideo, setSelectedVideo] = useState<Video>();
   const [selectedPlayingVideo, setSelectedPlayingVideo] = useState<Video>();
   if (!videoResult) {
-    let url = getURL("/blog/video");
+    const url = getURL("/blog/video");
     axios.get<Result<Video>>(url).then((res) => {
       setVideoResult(res.data);
     });
@@ -74,10 +74,10 @@ export default function VideoPage() {
                 edge="end"
                 aria-label="delete"
                 onClick={async () => {
-                  let confirmed = window.confirm("Do you want to delete?");
+                  const confirmed = window.confirm("Do you want to delete?");
                   if (confirmed && videoResult) {
-                    let token = localStorage.getItem("access");
-                    let url = getURL(`/blog/video/${v.id}/`);
+                    const token = localStorage.getItem("access");
+                    const url = getURL(`/blog/video/${v.id}/`);
                     await axios.delete(url, {
                       headers: { Authorization: `Bearer ${token}` }
                     });
@@ -97,7 +97,7 @@ export default function VideoPage() {
         disabled={videoResult?.next === null}
         onClick={async () => {
           if (videoResult && videoResult.next) {
-            let res = await axios.get<Result<Video>>(videoResult.next);
+            const res = await axios.get<Result<Video>>(videoResult.next);
             videoResult.count = res.data.count;
             videoResult.next = res.data.next;
             videoResult.results = [...videoResult.results, ...res.data.results];
@@ -112,8 +112,8 @@ export default function VideoPage() {
           open={open}
           setOpen={async (v: boolean, changed: boolean) => {
             if (changed) {
-              let url = getURL("/blog/video");
-              let res = await axios.get<Result<Video>>(url);
+              const url = getURL("/blog/video");
+              const res = await axios.get<Result<Video>>(url);
               setVideoResult(res.data);
             }
 

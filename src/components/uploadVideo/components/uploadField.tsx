@@ -132,12 +132,12 @@ export function UploadField() {
           name="Upload file"
           accept={"video/*"}
           onChange={async (e) => {
-            let files = e.target.files;
+            const files = e.target.files;
             if (files) {
               // eslint-disable-next-line array-callback-return
-              let uploadFiles: UploadFile[] = [];
+              const uploadFiles: UploadFile[] = [];
               // @ts-ignore
-              for (let f of files) {
+              for (const f of files) {
                 uploadFiles.push({
                   file: f,
                   will_transcode: will_transcode,

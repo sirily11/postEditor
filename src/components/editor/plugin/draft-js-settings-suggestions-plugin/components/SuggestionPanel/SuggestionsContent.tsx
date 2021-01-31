@@ -14,11 +14,11 @@ function insertAndReplaceSettings(
   word: string,
   detail: DetailSettings
 ): EditorState {
-  let contentState = editorState.getCurrentContent();
-  let currentBlock = contentState.getBlockForKey(blockKey);
-  let text = currentBlock.getText();
-  let start = text.lastIndexOf(word);
-  let end = start + word.length;
+  const contentState = editorState.getCurrentContent();
+  const currentBlock = contentState.getBlockForKey(blockKey);
+  const text = currentBlock.getText();
+  const start = text.lastIndexOf(word);
+  const end = start + word.length;
 
   const newContentWithEntity = contentState.createEntity(
     "POST-SETTINGS",
@@ -32,19 +32,19 @@ function insertAndReplaceSettings(
     anchorOffset: start,
   });
 
-  let newContentState = Modifier.replaceText(
+  const newContentState = Modifier.replaceText(
     contentState,
     selection,
     detail.name,
     undefined,
     entityKey
   );
-  let newEditorState = EditorState.push(
+  const newEditorState = EditorState.push(
     editorState,
     newContentState,
     "insert-fragment"
   );
-  let newEditorStateWithSpace = insertSpaceBlock(newEditorState);
+  const newEditorStateWithSpace = insertSpaceBlock(newEditorState);
   const newContentStateWithSpace = newEditorStateWithSpace.getCurrentContent();
 
   const withProperCursor = EditorState.forceSelection(
@@ -69,15 +69,15 @@ export default function SuggestionsContent(props: {
   // Compute suggestions
   React.useEffect(() => {
     setSelectedIndex(undefined);
-    let search = word?.replace("@", "");
-    let pinyinSearch = pinyin(search ?? "", {
+    const search = word?.replace("@", "");
+    const pinyinSearch = pinyin(search ?? "", {
       style: pinyin.STYLE_NORMAL,
     }).reduce((p, c) => p + c, "");
 
-    let settings = [];
+    const settings = [];
     if (postSettings?.settings) {
-      for (let set of postSettings.settings) {
-        for (let details of set.detailSettings) {
+      for (const set of postSettings.settings) {
+        for (const details of set.detailSettings) {
           if (
             details.name.toLowerCase().includes(search?.toLowerCase() ?? "")
           ) {
@@ -112,8 +112,8 @@ export default function SuggestionsContent(props: {
       }
     } else if (command.command === "enter") {
       if (selectedIndex !== undefined) {
-        let sug = suggestions[selectedIndex];
-        let newEditorState = insertAndReplaceSettings(
+        const sug = suggestions[selectedIndex];
+        const newEditorState = insertAndReplaceSettings(
           getEditorState(),
           blockKey,
           word,
@@ -122,8 +122,8 @@ export default function SuggestionsContent(props: {
         setEditorState(newEditorState);
         setSelectedIndex(undefined);
       } else if (suggestions.length > 0) {
-        let sug = suggestions[0];
-        let newEditorState = insertAndReplaceSettings(
+        const sug = suggestions[0];
+        const newEditorState = insertAndReplaceSettings(
           getEditorState(),
           blockKey,
           word,
@@ -150,7 +150,7 @@ export default function SuggestionsContent(props: {
             button
             selected={index === selectedIndex}
             onClick={() => {
-              let newEditorState = insertAndReplaceSettings(
+              const newEditorState = insertAndReplaceSettings(
                 getEditorState(),
                 blockKey,
                 word,

@@ -82,11 +82,11 @@ export class SettingSuggestionsPlugin extends BasePlugin {
       );
 
       if (selectionState.isCollapsed()) {
-        let blockText = currentBlock.getText();
-        let blockType = currentBlock.getType();
+        const blockText = currentBlock.getText();
+        const blockType = currentBlock.getType();
 
         if (blockType !== "POST-SETTINGS") {
-          let matches = blockText.match(/@\S+/g);
+          const matches = blockText.match(/@\S+/g);
 
           if (matches) {
             this.store.updateItem("blockKey", currentBlock.getKey());

@@ -71,13 +71,13 @@ export default function SettingsDialog() {
         <Button
           onClick={async () => {
             if (selectedSettings) {
-              let updatedSettings: ContentSettings = {
+              const updatedSettings: ContentSettings = {
                 id: selectedSettings.id,
                 name: name,
                 description: desc,
                 detailSettings: selectedSettings.detailSettings,
               };
-              let index = postSettings?.settings?.findIndex(
+              const index = postSettings?.settings?.findIndex(
                 (s) => s.id === selectedSettings.id
               );
 

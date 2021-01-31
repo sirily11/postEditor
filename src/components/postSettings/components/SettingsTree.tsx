@@ -72,10 +72,10 @@ export default function SettingsTree() {
       new MenuItem({
         label: "Delete",
         async click() {
-          let settingsIndex = postSettings?.settings?.findIndex(
+          const settingsIndex = postSettings?.settings?.findIndex(
             (s) => s.id === settings.id
           );
-          let detailIndex = settings.detailSettings.findIndex(
+          const detailIndex = settings.detailSettings.findIndex(
             (ds) => ds.id === detail.id
           );
 
@@ -109,7 +109,7 @@ export default function SettingsTree() {
       new MenuItem({
         label: "Delete",
         async click() {
-          let index = postSettings?.settings?.findIndex(
+          const index = postSettings?.settings?.findIndex(
             (s) => s.id === settings.id
           );
           await deleteSettings(index!);
@@ -154,7 +154,6 @@ export default function SettingsTree() {
                   </IconButton>
                 </Tooltip>
               }
-              onIconClick={() => {}}
               onContextMenu={(e) => settingsDetailContextMenu(e, settings, ds)}
               label={
                 <div>

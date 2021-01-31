@@ -42,7 +42,7 @@ export default function DetailSettingsDialog() {
       onClose={() => closeDetailSettingsDialog()}
       fullWidth>
       <DialogTitle>
-        {selectedSettings ? "Edit" : "Add"} Detail's Settings{" "}
+        {selectedSettings ? "Edit" : "Add"} Detail Settings{" "}
         <Collapse mountOnEnter unmountOnExit in={isLoading}>
           <LinearProgress />
         </Collapse>
@@ -72,21 +72,21 @@ export default function DetailSettingsDialog() {
         <Button onClick={() => closeDetailSettingsDialog()}>Close</Button>
         <Button
           onClick={async () => {
-            let settingsIndex = postSettings?.settings?.findIndex(
+            const settingsIndex = postSettings?.settings?.findIndex(
               (s) => s.id === selectedSettings?.id
             );
-            let pinyinText: string = pinyin(name, {
+            const pinyinText: string = pinyin(name, {
               style: pinyin.STYLE_NORMAL,
             }).reduce<string>((prev, curr) => prev + "" + curr, "");
 
             if (selectedDetailSettings) {
-              let updatedSettings: DetailSettings = {
+              const updatedSettings: DetailSettings = {
                 id: selectedDetailSettings!.id,
                 name: name,
                 description: desc,
                 pinyin: pinyinText,
               };
-              let detailIndex = selectedSettings!.detailSettings.findIndex(
+              const detailIndex = selectedSettings!.detailSettings.findIndex(
                 (ds) => ds.id === selectedDetailSettings.id
               );
 

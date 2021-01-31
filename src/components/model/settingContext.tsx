@@ -38,8 +38,8 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
 
   async componentWillMount() {
     try {
-      let response = await axios.get(getURL("blog/category/"));
-      let categories: Result<Category> = response.data;
+      const response = await axios.get(getURL("blog/category/"));
+      const categories: Result<Category> = response.data;
       if (categories.results) {
         this.setState({ categories: categories.results });
       }
@@ -49,15 +49,15 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   }
 
   addCategory = (category: Category) => {
-    let categories = this.state.categories;
+    const categories = this.state.categories;
     categories.push(category);
     this.setState({ categories });
   };
 
   deleteCategory = async (category: Category) => {
-    let result = await Axios.delete(getURL(`blog/category/${category.id}/`));
-    let { categories } = this.state;
-    let removeIndex = categories.findIndex((c) => c.id === category.id);
+    const result = await Axios.delete(getURL(`blog/category/${category.id}/`));
+    const { categories } = this.state;
+    const removeIndex = categories.findIndex((c) => c.id === category.id);
     if (removeIndex > -1) {
       categories.splice(removeIndex, 1);
       this.setState({ categories: categories });
@@ -65,11 +65,11 @@ export class SettingProvider extends Component<SettingProps, SettingState> {
   };
 
   updateCategory = async (category: Category) => {
-    let result = await Axios.patch(getURL(`blog/category/${category.id}/`), {
+    const result = await Axios.patch(getURL(`blog/category/${category.id}/`), {
       category: category.category,
     });
-    let { categories } = this.state;
-    let updateIndex = categories.findIndex((c) => c.id === category.id);
+    const { categories } = this.state;
+    const updateIndex = categories.findIndex((c) => c.id === category.id);
     if (updateIndex > -1) {
       categories[updateIndex] = result.data;
       this.setState({ categories: categories });

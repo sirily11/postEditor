@@ -1,7 +1,6 @@
 import axios from "axios";
 import { NativeImage } from "electron";
 import { getURL } from "./settings";
-import { number } from "@lingui/core";
 import { convertFromRaw } from "draft-js";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
@@ -15,59 +14,57 @@ export const uploadImage = async (
   pid: string,
   onUpload: (progress: number) => void
 ) => {
-  return new Promise(async (resolve, reject) => {
-    let url = getURL(`blog/post-image/`);
-    let token = localStorage.getItem("access");
-    let form = new FormData();
-    // const draft-js-image-plugin: NativeImage = nativeImage.createFromPath(imageFile.path);
-    // const dataURL = draft-js-image-plugin.toDataURL();
-    let newFilename = `${uuidv4()}${path.extname(imageFile.path)}`;
-    form.append("image", imageFile, newFilename);
-    form.append("pid", pid.toString());
 
-    let result = await axios.post(url, form, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (evt) => computeUploadProgress(evt, onUpload),
-    });
-    ipcRenderer.send("add-images", [result.data])
-    resolve(result.data);
+  const url = getURL(`blog/post-image/`);
+  const token = localStorage.getItem("access");
+  const form = new FormData();
+  // const draft-js-image-plugin: NativeImage = nativeImage.createFromPath(imageFile.path);
+  // const dataURL = draft-js-image-plugin.toDataURL();
+  const newFilename = `${uuidv4()}${path.extname(imageFile.path)}`;
+  form.append("image", imageFile, newFilename);
+  form.append("pid", pid.toString());
+
+  const result = await axios.post(url, form, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: (evt) => computeUploadProgress(evt, onUpload),
   });
+  ipcRenderer.send("add-images", [result.data]);
+  return result.data;
+
 };
 
 export const deleteImage = async (
   imageID: number,
-  onUpload: (progress: number) => void
+  onUpload: (progress: number) => any
 ) => {
-  return new Promise(async (resolve, reject) => {
-    let url = getURL(`blog/post-image/${imageID}`);
-    let token = localStorage.getItem("access");
+  const url = getURL(`blog/post-image/${imageID}`);
+  const token = localStorage.getItem("access");
 
-    let result = await axios.delete(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (evt) => computeUploadProgress(evt, onUpload),
-    });
-    resolve(result.data);
+  const result = await axios.delete(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: (evt) => computeUploadProgress(evt, onUpload),
   });
+  return result.data;
 };
 
 export function dataURItoBlob(dataURI: string) {
   // convert base64 to raw binary data held in a string
   // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
-  var byteString = atob(dataURI.split(",")[1]);
+  const byteString = atob(dataURI.split(",")[1]);
 
   // separate out the mime component
-  var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+  const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
 
   // write the bytes of the string to an ArrayBuffer
-  var ab = new ArrayBuffer(byteString.length);
-  var ia = new Uint8Array(ab);
-  for (var i = 0; i < byteString.length; i++) {
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
     ia[i] = byteString.charCodeAt(i);
   }
 
@@ -87,7 +84,7 @@ export function computeDownloadProgress(progressEvent: any, callback?: any) {
     : progressEvent.target.getResponseHeader("content-length") ||
     progressEvent.target.getResponseHeader("x-decompressed-content-length");
   if (totalLength !== null) {
-    let progress = Math.round((progressEvent.loaded * 100) / totalLength);
+    const progress = Math.round((progressEvent.loaded * 100) / totalLength);
     callback(progress);
   }
 }
@@ -98,7 +95,7 @@ export function computeUploadProgress(progressEvent: any, callback?: any) {
     : progressEvent.target.getResponseHeader("content-length") ||
     progressEvent.target.getResponseHeader("x-decompressed-content-length");
   if (totalLength !== null) {
-    let progress = Math.round((progressEvent.loaded * 100) / totalLength);
+    const progress = Math.round((progressEvent.loaded * 100) / totalLength);
     callback(progress);
   }
 }

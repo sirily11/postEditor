@@ -1,5 +1,7 @@
+/** @format */
+
 import React from "react";
-import { EditorContext } from "../../model/editorContext";
+import { DialogTypes, EditorContext } from "../../../model/editorContext";
 import {
   Dialog,
   DialogTitle,
@@ -9,22 +11,24 @@ import {
   TextField,
 } from "@material-ui/core";
 
-export default function UploadFileDialog() {
+export default function UploadAudioDialog() {
   const {
-    showUploadFileDialog,
-    setShowUploadFileDialog,
+    showUploadDialog: showUploadFileDialog,
+    setShowUploadDialog: setShowUploadFileDialog,
     insertAudio,
   } = React.useContext(EditorContext);
   const [path, setPath] = React.useState<string>();
 
   return (
-    <Dialog open={showUploadFileDialog} fullWidth>
-      <DialogTitle>Upload File by URL</DialogTitle>
+    <Dialog
+      open={showUploadFileDialog?.dialogType === DialogTypes.Audio}
+      fullWidth>
+      <DialogTitle>Upload Audio by URL</DialogTitle>
       <DialogContent>
         <TextField
           fullWidth
           variant="filled"
-          label="File URL"
+          label="Audio URL"
           onChange={(e) => setPath(e.target.value)}
         />
       </DialogContent>

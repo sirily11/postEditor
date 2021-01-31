@@ -61,7 +61,7 @@ export class PostImagePage extends Component<Props, State> {
 
     ipcRenderer.on("add-images", async (event: any, arg: any) => {
       const images = this.state.images;
-      for (let i of arg) {
+      for (const i of arg) {
         images.push(i);
       }
       this.setState({ images: images });
@@ -88,6 +88,7 @@ export class PostImagePage extends Component<Props, State> {
                 <Grid container spacing={4}>
                   {images.map((image, index) => (
                     <PostImageCard
+                      key={index}
                       image={image}
                       onAdd={() => {
                         console.log("add");
@@ -99,7 +100,7 @@ export class PostImagePage extends Component<Props, State> {
                           await deleteImage(image.id, (p) => {
                             this.setState({ progress: p / 100 });
                           });
-                          let index = images.findIndex((i) => i === image);
+                          const index = images.findIndex((i) => i === image);
                           images.splice(index, 1);
                           this.setState({ images, progress: undefined });
                           ipcRenderer.send("delete-image", image);

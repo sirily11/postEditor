@@ -13,7 +13,6 @@ import {
 import { SettingConext } from "../model/settingContext";
 import { Button as Button2 } from "semantic-ui-react";
 import ReactVideoPlayer from "./ReactVideoPlayer";
-const { Player } = require("video-react");
 
 interface Props {
   open: boolean;

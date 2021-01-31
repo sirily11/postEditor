@@ -34,6 +34,7 @@ export default function PostSettingsPage() {
       new MenuItem({
         label: "Add Settings",
         click() {
+            console.log("Open")
           openSettingsDialog();
         },
       })

@@ -43,7 +43,7 @@ export default function NewCategoryDialog(props: Props) {
           data-testid="add"
           type="submit"
           onClick={async () => {
-            let res = await axios.post<Category>(getURL("blog/category/"), {
+            const res = await axios.post<Category>(getURL("blog/category/"), {
               category: category,
             });
             addCategory(res.data);

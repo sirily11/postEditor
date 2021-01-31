@@ -49,7 +49,7 @@ export default class SuggestionPanel extends React.Component<Props> {
   }
 
   handleCommand = () => {
-    let command = this.props.store.getItem("command");
+    const command = this.props.store.getItem("command");
     this.setState({ command: { id: v4(), command: command } });
   };
 
@@ -105,7 +105,7 @@ export default class SuggestionPanel extends React.Component<Props> {
 
       // if the left toolbar show too close to the left edge,
       // move it to the right
-      let width = (length * 36) / 2;
+      const width = (length * 36) / 2;
       if (position.left - width <= 0) {
         position.left = width + extraLeftOffset;
       }

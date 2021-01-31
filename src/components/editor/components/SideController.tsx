@@ -2,7 +2,7 @@ import React from "react";
 import Drawer from "@material-ui/core/Drawer";
 import {Divider, List, ListItem, ListItemIcon, Tooltip,} from "@material-ui/core";
 import {EditorContext} from "../../model/editorContext";
-import UploadFileDialog from "./UploadFileDialog";
+import UploadAudioDialog from "./dialogs/UploadAudioDialog";
 
 export default function SideController() {
     const {actions, selected} = React.useContext(EditorContext)
@@ -35,7 +35,7 @@ export default function SideController() {
 
                 </List>
             </Drawer>
-            <UploadFileDialog/>
+            <UploadAudioDialog/>
         </div>
     );
 }

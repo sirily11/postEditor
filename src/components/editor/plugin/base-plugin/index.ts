@@ -260,7 +260,7 @@ export abstract class BasePlugin {
         ]
 
         //@ts-ignore
-        let properties: [{ name: string, value: any }] = [
+        const properties: [{ name: string, value: any }] = [
             {
                 name: "decorators",
                 value: this.decorators,
@@ -311,11 +311,11 @@ export abstract class BasePlugin {
         ]
 
 
-        let pluginConfiguration: { [name: string]: any } = {}
-        for (let f of functions) {
+        const pluginConfiguration: { [name: string]: any } = {}
+        for (const f of functions) {
             const {name, func} = f
             if (func instanceof Function) {
-                let result = func()
+                const result = func()
                 if (result !== NotImplementedFunction) {
                     pluginConfiguration[name] = func
                 }
@@ -323,7 +323,7 @@ export abstract class BasePlugin {
 
         }
 
-        for (let p of properties) {
+        for (const p of properties) {
             const {name, value} = p
             if (value) {
                 pluginConfiguration[name] = value

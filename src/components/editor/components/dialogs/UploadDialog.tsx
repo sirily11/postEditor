@@ -16,8 +16,8 @@ import {
 } from "@material-ui/core";
 import AttachmentIcon from "@material-ui/icons/Attachment";
 import { Trans } from "@lingui/macro";
-import { uploadImage } from "../../model/utils/uploadUtils";
-import { EditorContext } from "../../model/editorContext";
+import { uploadImage } from "../../../model/utils/uploadUtils";
+import { EditorContext } from "../../../model/editorContext";
 
 interface Props {
   open: boolean;
@@ -74,9 +74,9 @@ export default function UploadDialog(props: Props) {
         <DialogActions>
           <Button
             onClick={async () => {
-              for (let path of props.files) {
+              for (const path of props.files) {
                 setCurrentUpload(path.path);
-                let image: any = await uploadImage(
+                const image: any = await uploadImage(
                   path,
                   editContext.post.id as string,
                   (progress) => setCurrentProgress(progress)

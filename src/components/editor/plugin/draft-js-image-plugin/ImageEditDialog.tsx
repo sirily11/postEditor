@@ -41,8 +41,8 @@ export function ImageEditDialog(props: {
     subtitle: string
   ): Promise<PostImage> {
     const postImageURL = getURL(`blog/post-image/${postImageId}/`);
-    let token = localStorage.getItem("access");
-    let result = await axios.patch<PostImage>(
+    const token = localStorage.getItem("access");
+    const result = await axios.patch<PostImage>(
       postImageURL,
       { description: subtitle },
       { headers: { Authorization: `Bearer ${token}` } }
@@ -76,7 +76,7 @@ export function ImageEditDialog(props: {
           onClick={async () => {
             try {
               setIsLoading(true);
-              let result = await updateImageAndContent(
+              const result = await updateImageAndContent(
                 selectedImageData.id,
                 description
               );
