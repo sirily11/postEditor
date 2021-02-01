@@ -28,6 +28,10 @@ const useStyles = makeStyles({
     marginTop: 20,
     width: 250,
   },
+  paper: {
+    // backgroundColor: "transparent",
+    opacity: 1,
+  },
 });
 
 export default function TabBar() {
@@ -40,7 +44,11 @@ export default function TabBar() {
     <div>
       <DisplayContext.Consumer>
         {({ value, onChange }) => (
-          <Drawer id="tabbar-container" elevation={0} variant="permanent">
+          <Drawer
+            id="tabbar-container"
+            elevation={0}
+            variant="permanent"
+            classes={{ paper: classes.paper }}>
             <List className={classes.drawer}>
               <ListItem>
                 <ListItemText primary={"Add Category"} />
@@ -89,7 +97,9 @@ export default function TabBar() {
                         edge="end"
                         aria-label={`delete-${category.id}`}
                         onClick={async () => {
-                          const confirm = window.confirm("Do you want to delete");
+                          const confirm = window.confirm(
+                            "Do you want to delete"
+                          );
                           if (confirm) {
                             await deleteCategory(category);
                           }

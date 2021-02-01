@@ -32,7 +32,7 @@ import AwesomeDebouncePromise from "awesome-debounce-promise";
 import path from "path";
 import { ContentBlock, SelectionState, Modifier } from "draft-js";
 import { UpdateSettingSignal } from "./interfaces";
-import { insertSpaceBlock } from "./utils/insertBlock";
+import { insertSpaceBlock, insertVideoBlock } from "./utils/insertBlock";
 
 /// Icons
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -40,6 +40,7 @@ import HeadSetIcon from "@material-ui/icons/Headset";
 import SaveIcon from "@material-ui/icons/Save";
 import AttachmentIcon from "@material-ui/icons/Attachment";
 import MovieIcon from "@material-ui/icons/Movie";
+import { VideoBlockData } from "../editor/components/dialogs/UploadVideoDialog";
 /// end icons
 
 const { ipcRenderer } = (window as any).require("electron");
@@ -87,7 +88,11 @@ interface MainEditorState {
   onChange: any;
   // when editor is clicked
   onFocus: any;
-  showUploadDialog?: { dialogType: DialogTypes; open: boolean };
+  showUploadDialog?: {
+    dialogType: DialogTypes;
+    open: boolean;
+    selectedData?: VideoBlockData;
+  };
 
   selected: string[];
 
@@ -95,7 +100,11 @@ interface MainEditorState {
 
   selectedImageData?: any;
 
-  setShowUploadDialog(v: boolean, dialogType?: DialogTypes): void;
+  setShowUploadDialog(
+    v: boolean,
+    dialogType?: DialogTypes,
+    selectedData?: VideoBlockData
+  ): void;
 
   // change pst's title
   setTitle(newTitle: string): any;
@@ -118,6 +127,10 @@ interface MainEditorState {
 
   // insert inline draft-js-image-plugin
   insertImage(postImage: PostImage): void;
+
+  insertVideo(video: VideoBlockData): void;
+
+  updateVideo(video: VideoBlockData): void;
 
   insertAudio(audioPath: string): void;
 
@@ -166,6 +179,8 @@ export class MainEditorProvider extends React.Component<
       insertAudio: this.insertAudio,
       updateImage: this.updateImage,
       setShowImageEditDialog: this.setShowImageEditDialog,
+      insertVideo: this.insertVideo,
+      updateVideo: this.updateVideo,
       showEditImageDialog: false,
     };
 
@@ -243,6 +258,61 @@ export class MainEditorProvider extends React.Component<
   };
 
   /**
+   * Update video block data
+   * @param newVideo Update displayed image's data
+   */
+  updateVideo = async (newVideo: VideoBlockData) => {
+    const editorState = this.state.editorState;
+    let contentState = editorState.getCurrentContent();
+
+    const blocks: SelectionState[] = [];
+    const data: any[] = [];
+
+    contentState.getBlockMap().forEach((block) => {
+      block?.findEntityRanges(
+        (c) => {
+          const charEntity = c.getEntity();
+          if (charEntity) {
+            const entity = contentState.getEntity(charEntity);
+            if (entity.getType() === "video") {
+              const videoId = entity.getData().id;
+              if (videoId === newVideo.id) {
+                data.push(entity.getData());
+                return true;
+              }
+            }
+          }
+          return false;
+        },
+        (s, e) => {
+          const selection = SelectionState.createEmpty(block.getKey()).merge({
+            focusOffset: e,
+            anchorOffset: s,
+          });
+          blocks.push(selection);
+        }
+      );
+    });
+
+    blocks.forEach((block, index) => {
+      const newData = newVideo;
+      contentState = contentState.createEntity("video", "IMMUTABLE", newData);
+      const newEntityKey = contentState.getLastCreatedEntityKey();
+      contentState = Modifier.applyEntity(contentState, block, newEntityKey);
+    });
+    const newEditorState = EditorState.push(
+      editorState,
+      contentState,
+      "change-block-data"
+    );
+    this.setState({
+      editorState: newEditorState,
+    });
+    console.log(convertToRaw(contentState));
+    await this.save();
+  };
+
+  /**
    * Update post image block data
    * @param newPostImage Update displayed image's data
    */
@@ -300,14 +370,22 @@ export class MainEditorProvider extends React.Component<
     await this.save();
   };
 
-  setShowUploadDialog = (v: boolean, dialogType: DialogTypes) => {
+  setShowUploadDialog = (
+    v: boolean,
+    dialogType: DialogTypes,
+    selectedData?: VideoBlockData
+  ) => {
     if (!v) {
       this.setState({
         showUploadDialog: undefined,
       });
     } else {
       this.setState({
-        showUploadDialog: { open: v, dialogType: dialogType },
+        showUploadDialog: {
+          open: v,
+          dialogType: dialogType,
+          selectedData: selectedData,
+        },
       });
     }
   };
@@ -490,6 +568,18 @@ export class MainEditorProvider extends React.Component<
   insertAudio = async (audioPath: string) => {
     const newEditorState = await insertAudioBlock(
       audioPath,
+      this.state.editorState
+    );
+    this.setState({ editorState: newEditorState });
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
+  };
+
+  // this will insert draft-js-video-plugin
+  insertVideo = async (video: VideoBlockData) => {
+    const newEditorState = await insertVideoBlock(
+      video,
       this.state.editorState
     );
     this.setState({ editorState: newEditorState });

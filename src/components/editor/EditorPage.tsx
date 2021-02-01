@@ -53,6 +53,7 @@ export default class EditorPage extends Component<EditorProps, State> {
   };
 
   componentDidMount() {
+    console.log("id", this.props.match.params);
     const _id = this.props.match.params._id;
     this.setState({ _id: _id });
 
@@ -86,12 +87,16 @@ export default class EditorPage extends Component<EditorProps, State> {
               <div
                 className="content"
                 style={{ marginTop: 170, marginBottom: 70 }}>
-                <MainEditor
-                  initEditor={initEditor}
-                  _id={this.state._id}
-                  clear={clear}
-                  upload={this.uploadFiles}
-                />
+                {this.state._id ? (
+                  <MainEditor
+                    initEditor={initEditor}
+                    _id={this.state._id}
+                    clear={clear}
+                    upload={this.uploadFiles}
+                  />
+                ) : (
+                  <div> </div>
+                )}
                 <MessageBar />
                 <Snackbar
                   open={isLoading}

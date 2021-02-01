@@ -144,7 +144,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
-      enableRemoteModule: true
+      enableRemoteModule: true,
+
     },
   });
   console.log("Starting the webserver");

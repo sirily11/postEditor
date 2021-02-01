@@ -35,6 +35,7 @@ import {
 } from "./plugin/draft-js-color-plugin";
 import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
 import createAudioPlugin from "./plugin/draft-js-audio-plugin";
+import createVideoPlugin from "./plugin/draft-js-video-plugin";
 import createPostSettingsPlugin from "./plugin/draft-js-settings-plugin";
 import {
   TextAlignPlugin,
@@ -61,6 +62,7 @@ import { Redirect } from "react-router";
 const inlineToolbar = new InlineToolbarPlugin({});
 const settingSuggestions = new SettingSuggestionsPlugin({});
 const audioPlugin = createAudioPlugin();
+const videoPlugin = createVideoPlugin();
 const postSettingsPlugin = createPostSettingsPlugin();
 const linkPlugin = createLinkPlugin();
 const resizeablePlugin = createResizeablePlugin();
@@ -185,6 +187,7 @@ export default class MainEditor extends Component {
                           linkPlugin,
                           textAlignPlugin,
                           settingSuggestionsPlugin,
+                          videoPlugin,
                         ]}
                       />
                       <SuggestionPanel />

@@ -1,6 +1,7 @@
 import { EditorState, convertToRaw, AtomicBlockUtils, ContentBlock, Modifier, genKey, SelectionState } from 'draft-js';
 import image from "../../editor/plugin/draft-js-image-plugin";
 import { DetailSettings, PostImage } from "../interfaces";
+import { VideoBlockData } from "../../editor/components/dialogs/UploadVideoDialog";
 
 /**
  * insert draft-js-image-plugin
@@ -58,7 +59,7 @@ export function insertAudioBlock(
 
 
 export function insertVideoBlock(
-  audioPath: string,
+  video: VideoBlockData,
   editorState: EditorState
 ): Promise<EditorState> {
   return new Promise((resolve, _reject) => {
@@ -66,7 +67,7 @@ export function insertVideoBlock(
     const contentStateWithEntity = contentState.createEntity(
       "video",
       "IMMUTABLE",
-      { src: audioPath.replace(/ /g, "_") }
+      { ...video, src: video.src.replace(/ /g, "_"), }
     );
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
     const newEditorState = EditorState.set(editorState, {
