@@ -4,6 +4,7 @@ import unionClassNames from "union-class-names";
 import React, { Component } from "react";
 import UploadVideoDialog from "../../../components/dialogs/UploadVideoDialog";
 import { DialogTypes, EditorContext } from "../../../../model/editorContext";
+import { Tooltip } from "@material-ui/core";
 const { remote } = window.require("electron");
 const { Menu, MenuItem } = remote;
 
@@ -30,7 +31,7 @@ export default function Video(props) {
   const { setShowUploadDialog } = React.useContext(EditorContext);
 
   return (
-    <div>
+    <Tooltip style={{ cursor: "grab" }} title={description} placement="bottom">
       <video
         controls
         src={src}
@@ -56,11 +57,6 @@ export default function Video(props) {
           <track key={i} label={c.lang} src={c.src} />
         ))}
       </video>
-      <div style={{ display: "flex" }}>
-        <figcaption style={{ marginLeft: "auto", marginRight: "auto" }}>
-          {description}
-        </figcaption>
-      </div>
-    </div>
+    </Tooltip>
   );
 }

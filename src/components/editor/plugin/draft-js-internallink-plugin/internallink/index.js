@@ -15,6 +15,8 @@ import Typography from "@material-ui/core/Typography";
 import SkipPreviousIcon from "@material-ui/icons/SkipPrevious";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import SkipNextIcon from "@material-ui/icons/SkipNext";
+import { getURL } from "../../../../model/utils/settings";
+import Axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,9 +63,11 @@ export default function Internallink(props) {
     ...elementProps
   } = otherProps;
   const combinedClassName = unionClassNames(theme.image, className);
-  const { title, image_url, author } = contentState
+  const { id, title, image_url, author } = contentState
     .getEntity(block.getEntityAt(0))
     .getData();
+
+  const { updateInternalLink } = React.useContext(EditorContext);
 
   return (
     <div>
@@ -77,10 +81,10 @@ export default function Internallink(props) {
             new MenuItem({
               label: "Update data",
               click() {
-                setShowImageEditDialog(true, {
-                  src: src,
-                  id: id,
-                  description: description,
+                let url = getURL(`blog/post/${id}`);
+                Axios.get(url).then((res) => {
+                  let post = res.data;
+                  updateInternalLink(post);
                 });
               },
             })

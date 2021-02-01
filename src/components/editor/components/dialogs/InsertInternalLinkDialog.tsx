@@ -137,6 +137,9 @@ export default function InsertInternalLinkDialog() {
           ))}
         </List>
       </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
     </Dialog>
   );
 }

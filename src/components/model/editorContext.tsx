@@ -138,6 +138,8 @@ interface MainEditorState {
 
   insertInternalLink(data: Post): void;
 
+  updateInternalLink(post: Post): void;
+
   updateVideo(video: VideoBlockData): void;
 
   insertAudio(audioPath: string): void;
@@ -189,6 +191,7 @@ export class MainEditorProvider extends React.Component<
       setShowImageEditDialog: this.setShowImageEditDialog,
       insertVideo: this.insertVideo,
       updateVideo: this.updateVideo,
+      updateInternalLink: this.updateInternalLink,
       insertInternalLink: this.insertInternalLink,
       showEditImageDialog: false,
     };
@@ -372,7 +375,70 @@ export class MainEditorProvider extends React.Component<
     this.setState({
       editorState: newEditorState,
     });
-    console.log(convertToRaw(contentState));
+    await this.save();
+  };
+
+  /**
+   * Update internal link data
+   * @param post Post data
+   */
+  updateInternalLink = async (post: Post) => {
+    const editorState = this.state.editorState;
+    let contentState = editorState.getCurrentContent();
+
+    const blocks: SelectionState[] = [];
+    const data: any[] = [];
+
+    contentState.getBlockMap().forEach((block) => {
+      block?.findEntityRanges(
+        (c) => {
+          const charEntity = c.getEntity();
+          if (charEntity) {
+            const entity = contentState.getEntity(charEntity);
+            if (entity.getType() === "internallink") {
+              const linkId = entity.getData().id;
+              if (linkId === post.id) {
+                data.push(entity.getData());
+                return true;
+              }
+            }
+          }
+          return false;
+        },
+        (s, e) => {
+          const selection = SelectionState.createEmpty(block.getKey()).merge({
+            focusOffset: e,
+            anchorOffset: s,
+          });
+          blocks.push(selection);
+        }
+      );
+    });
+
+    blocks.forEach((block, index) => {
+      const newData = {
+        id: post.id,
+        title: post.title,
+        image_url: post.image_url,
+        author: post.author,
+        posted_time: post.posted_time,
+      };
+      contentState = contentState.createEntity(
+        "internallink",
+        "IMMUTABLE",
+        newData
+      );
+      const newEntityKey = contentState.getLastCreatedEntityKey();
+      contentState = Modifier.applyEntity(contentState, block, newEntityKey);
+    });
+    const newEditorState = EditorState.push(
+      editorState,
+      contentState,
+      "change-block-data"
+    );
+    this.setState({
+      editorState: newEditorState,
+    });
     await this.save();
   };
 
@@ -430,7 +496,6 @@ export class MainEditorProvider extends React.Component<
     this.setState({
       editorState: newEditorState,
     });
-    console.log(convertToRaw(contentState));
     await this.save();
   };
 
