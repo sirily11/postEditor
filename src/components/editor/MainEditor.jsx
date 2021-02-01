@@ -28,6 +28,7 @@ import createFocusPlugin from "draft-js-focus-plugin";
 import createPrismPlugin from "draft-js-prism-plugin";
 import createAlignmentPlugin from "draft-js-alignment-plugin";
 import createResizeablePlugin from "draft-js-resizeable-plugin";
+import createInternallinkPlugin from "./plugin/draft-js-internallink-plugin";
 
 import {
   PickColorButton,
@@ -72,6 +73,7 @@ const alignmentPlugin = createAlignmentPlugin();
 const sideToolbarPlugin = createSideToolbarPlugin({
   position: "right",
 });
+const internalLinkPlugin = createInternallinkPlugin();
 const prismPlugin = createPrismPlugin({
   prism: Prism,
 });
@@ -188,6 +190,7 @@ export default class MainEditor extends Component {
                           textAlignPlugin,
                           settingSuggestionsPlugin,
                           videoPlugin,
+                          internalLinkPlugin,
                         ]}
                       />
                       <SuggestionPanel />

@@ -32,7 +32,11 @@ import AwesomeDebouncePromise from "awesome-debounce-promise";
 import path from "path";
 import { ContentBlock, SelectionState, Modifier } from "draft-js";
 import { UpdateSettingSignal } from "./interfaces";
-import { insertSpaceBlock, insertVideoBlock } from "./utils/insertBlock";
+import {
+  insertSpaceBlock,
+  insertVideoBlock,
+  insertInternalLink,
+} from "./utils/insertBlock";
 
 /// Icons
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -41,6 +45,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import AttachmentIcon from "@material-ui/icons/Attachment";
 import MovieIcon from "@material-ui/icons/Movie";
 import { VideoBlockData } from "../editor/components/dialogs/UploadVideoDialog";
+import LinkIcon from "@material-ui/icons/Link";
 /// end icons
 
 const { ipcRenderer } = (window as any).require("electron");
@@ -57,6 +62,7 @@ export enum DialogTypes {
   Video,
   Audio,
   File,
+  InternalLink,
 }
 
 export interface Action {
@@ -130,6 +136,8 @@ interface MainEditorState {
 
   insertVideo(video: VideoBlockData): void;
 
+  insertInternalLink(data: Post): void;
+
   updateVideo(video: VideoBlockData): void;
 
   insertAudio(audioPath: string): void;
@@ -181,6 +189,7 @@ export class MainEditorProvider extends React.Component<
       setShowImageEditDialog: this.setShowImageEditDialog,
       insertVideo: this.insertVideo,
       updateVideo: this.updateVideo,
+      insertInternalLink: this.insertInternalLink,
       showEditImageDialog: false,
     };
 
@@ -240,6 +249,61 @@ export class MainEditorProvider extends React.Component<
       this.deleteImage(arg.id);
     });
   }
+
+  actions: Action[] = [
+    {
+      text: i18n._(t`Save`),
+      icon: <SaveIcon />,
+      action: async () => {
+        await this.save();
+      },
+    },
+    {
+      text: "Divider 1",
+      icon: <div />,
+      action: () => {},
+    },
+    {
+      text: "Insert File",
+      icon: <AttachmentIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.File);
+      },
+    },
+    {
+      text: "Insert Audio",
+      icon: <HeadSetIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.Audio);
+      },
+    },
+    {
+      text: "Insert Video",
+      icon: <MovieIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.Video);
+      },
+    },
+    {
+      text: "Insert Internal Link",
+      icon: <LinkIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.InternalLink);
+      },
+    },
+    {
+      text: "Divider 3",
+      icon: <div />,
+      action: async () => {},
+    },
+    {
+      text: i18n._(t`Delete from cloud`),
+      icon: <DeleteIcon />,
+      action: async () => {
+        await this.deleteFromCloud();
+      },
+    },
+  ];
 
   /**
    * Show Dialog for post image editing
@@ -390,54 +454,6 @@ export class MainEditorProvider extends React.Component<
     }
   };
 
-  actions: Action[] = [
-    {
-      text: i18n._(t`Save`),
-      icon: <SaveIcon />,
-      action: async () => {
-        await this.save();
-      },
-    },
-    {
-      text: "Divider 1",
-      icon: <div />,
-      action: () => {},
-    },
-    {
-      text: "Insert File",
-      icon: <AttachmentIcon />,
-      action: () => {
-        this.setShowUploadDialog(true, DialogTypes.File);
-      },
-    },
-    {
-      text: "Insert Audio",
-      icon: <HeadSetIcon />,
-      action: () => {
-        this.setShowUploadDialog(true, DialogTypes.Audio);
-      },
-    },
-    {
-      text: "Insert Video",
-      icon: <MovieIcon />,
-      action: () => {
-        this.setShowUploadDialog(true, DialogTypes.Video);
-      },
-    },
-    {
-      text: "Divider 3",
-      icon: <div />,
-      action: async () => {},
-    },
-    {
-      text: i18n._(t`Delete from cloud`),
-      icon: <DeleteIcon />,
-      action: async () => {
-        await this.deleteFromCloud();
-      },
-    },
-  ];
-
   clear = () => {
     const clearPost: Post = {
       id: undefined,
@@ -580,6 +596,18 @@ export class MainEditorProvider extends React.Component<
   insertVideo = async (video: VideoBlockData) => {
     const newEditorState = await insertVideoBlock(
       video,
+      this.state.editorState
+    );
+    this.setState({ editorState: newEditorState });
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
+  };
+
+  // this will insert draft-js-internal-link-plugin
+  insertInternalLink = async (data: Post) => {
+    const newEditorState = await insertInternalLink(
+      data,
       this.state.editorState
     );
     this.setState({ editorState: newEditorState });

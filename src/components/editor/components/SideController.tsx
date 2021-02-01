@@ -12,6 +12,7 @@ import {
 import { EditorContext } from "../../model/editorContext";
 import UploadAudioDialog from "./dialogs/UploadAudioDialog";
 import UploadVideoDialog from "./dialogs/UploadVideoDialog";
+import InsertInternalLinkDialog from "./dialogs/InsertInternalLinkDialog";
 
 export default function SideController() {
   const { actions, selected } = React.useContext(EditorContext);
@@ -44,6 +45,7 @@ export default function SideController() {
       </Drawer>
       <UploadAudioDialog />
       <UploadVideoDialog />
+      <InsertInternalLinkDialog />
     </div>
   );
 }

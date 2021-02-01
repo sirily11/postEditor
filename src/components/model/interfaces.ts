@@ -20,6 +20,7 @@ export interface Post {
     image_url?: string;
     images: PostImage[];
     settings: PostContentSettings;
+    posted_time?: string;
 }
 
 export interface PostImage {
