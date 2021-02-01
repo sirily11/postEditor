@@ -112,8 +112,6 @@ export default class EditorPage extends Component<EditorProps, State> {
               <SettingCard isCreated={false} />
 
               <UploadDialog open={open} files={files} close={this.close} />
-
-              <ImageEditDialog />
             </div>
           );
         }}

@@ -46,6 +46,8 @@ import AttachmentIcon from "@material-ui/icons/Attachment";
 import MovieIcon from "@material-ui/icons/Movie";
 import { VideoBlockData } from "../editor/components/dialogs/UploadVideoDialog";
 import LinkIcon from "@material-ui/icons/Link";
+import { GroupImage } from "../editor/components/dialogs/UploadImageGroup";
+
 /// end icons
 
 const { ipcRenderer } = (window as any).require("electron");
@@ -57,6 +59,8 @@ const i18n = setupI18n({
     zh: chinese,
   },
 });
+
+export type DialogData = GroupImage | VideoBlockData | any;
 
 export enum DialogTypes {
   Video,
@@ -97,7 +101,7 @@ interface MainEditorState {
   showUploadDialog?: {
     dialogType: DialogTypes;
     open: boolean;
-    selectedData?: VideoBlockData;
+    selectedData?: DialogData;
   };
 
   selected: string[];
@@ -109,7 +113,7 @@ interface MainEditorState {
   setShowUploadDialog(
     v: boolean,
     dialogType?: DialogTypes,
-    selectedData?: VideoBlockData
+    selectedData?: DialogData
   ): void;
 
   // change pst's title
@@ -146,7 +150,7 @@ interface MainEditorState {
 
   updateImage(newImageData: PostImage): Promise<void>;
 
-  setShowImageEditDialog(open: boolean, data?: any): void;
+  setShowImageEditDialog(open: boolean, data?: DialogData): void;
 }
 
 interface MainEditorProps {}
@@ -502,7 +506,7 @@ export class MainEditorProvider extends React.Component<
   setShowUploadDialog = (
     v: boolean,
     dialogType: DialogTypes,
-    selectedData?: VideoBlockData
+    selectedData?: DialogData
   ) => {
     if (!v) {
       this.setState({

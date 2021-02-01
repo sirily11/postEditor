@@ -107,7 +107,15 @@ export function PostImageCard(props: {
                 }>
                 Edit
               </Button>
-              <Button onClick={() => onDelete()}>Delete</Button>
+              <Button
+                onClick={async () => {
+                  let confirm = window.confirm("Do you want to delete");
+                  if (confirm) {
+                    await onDelete();
+                  }
+                }}>
+                Delete
+              </Button>
             </CardActions>
           </Column>
         </Box>

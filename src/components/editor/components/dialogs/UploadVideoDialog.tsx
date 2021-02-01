@@ -47,7 +47,7 @@ export default function UploadVideoDialog() {
 
   React.useEffect(() => {
     if (showUploadDialog?.selectedData) {
-      setInitValue(showUploadDialog.selectedData);
+      setInitValue(showUploadDialog.selectedData as VideoBlockData);
     } else {
       setInitValue({
         src: "",

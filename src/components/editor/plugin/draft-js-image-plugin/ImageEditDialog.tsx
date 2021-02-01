@@ -20,6 +20,21 @@ import { EditorContext } from "../../../model/editorContext";
 import axios from "axios";
 const { ipcRenderer } = (window as any).require("electron");
 
+export async function updateImageAndContent(
+  postImageId: number,
+  subtitle: string
+): Promise<PostImage> {
+  const postImageURL = getURL(`blog/post-image/${postImageId}/`);
+  const token = localStorage.getItem("access");
+  const result = await axios.patch<PostImage>(
+    postImageURL,
+    { description: subtitle },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  return result.data;
+}
+
 export function ImageEditDialog() {
   const {
     showEditImageDialog,
@@ -32,21 +47,6 @@ export function ImageEditDialog() {
   React.useEffect(() => {
     setDescription(selectedImageData?.description ?? "");
   }, [selectedImageData]);
-
-  async function updateImageAndContent(
-    postImageId: number,
-    subtitle: string
-  ): Promise<PostImage> {
-    const postImageURL = getURL(`blog/post-image/${postImageId}/`);
-    const token = localStorage.getItem("access");
-    const result = await axios.patch<PostImage>(
-      postImageURL,
-      { description: subtitle },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    return result.data;
-  }
 
   return (
     <Dialog
