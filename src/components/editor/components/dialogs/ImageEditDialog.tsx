@@ -16,8 +16,9 @@ import React from "react";
 import { PostImage } from "../../../model/interfaces";
 import { getURL } from "../../../model/utils/settings";
 import TextField from "@material-ui/core/TextField";
-import { EditorContext } from "../../../model/editorContext";
+import { DialogTypes, EditorContext } from "../../../model/editorContext";
 import axios from "axios";
+import { post } from "jquery";
 const { ipcRenderer } = (window as any).require("electron");
 
 export async function updateImageAndContent(
@@ -36,24 +37,26 @@ export async function updateImageAndContent(
 }
 
 export function ImageEditDialog() {
-  const {
-    showEditImageDialog,
-    setShowImageEditDialog,
-    selectedImageData,
-  } = React.useContext(EditorContext);
+  const { setShowUploadDialog, showUploadDialog, post } = React.useContext(
+    EditorContext
+  );
 
   const [description, setDescription] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const onClose = React.useCallback(() => {
+    setShowUploadDialog(false);
+  }, []);
+
   React.useEffect(() => {
-    setDescription(selectedImageData?.description ?? "");
-  }, [selectedImageData]);
+    setDescription(showUploadDialog?.selectedData?.description ?? "");
+  }, [showUploadDialog]);
 
   return (
     <Dialog
       fullWidth
-      open={showEditImageDialog}
-      onClose={() => setShowImageEditDialog(false)}>
-      <DialogTitle>Edit Image </DialogTitle>
+      open={showUploadDialog?.dialogType === DialogTypes.Image}
+      onClose={onClose}>
+      <DialogTitle>Edit Image</DialogTitle>
       <DialogContent>
         <Collapse mountOnEnter unmountOnExit in={isLoading}>
           <LinearProgress />
@@ -68,18 +71,19 @@ export function ImageEditDialog() {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setShowImageEditDialog(false)}>Close</Button>
+        <Button onClick={() => onClose()}>Close</Button>
         <Button
           onClick={async () => {
             try {
               setIsLoading(true);
               const result = await updateImageAndContent(
-                selectedImageData.id,
+                showUploadDialog?.selectedData.id,
                 description
               );
+
               ipcRenderer.send("update-image-description", result);
 
-              setShowImageEditDialog(false);
+              onClose();
             } catch (err) {
               alert(err);
             } finally {

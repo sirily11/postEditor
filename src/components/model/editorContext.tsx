@@ -44,11 +44,16 @@ import HeadSetIcon from "@material-ui/icons/Headset";
 import SaveIcon from "@material-ui/icons/Save";
 import AttachmentIcon from "@material-ui/icons/Attachment";
 import MovieIcon from "@material-ui/icons/Movie";
-import { VideoBlockData } from "../editor/components/dialogs/UploadVideoDialog";
+
+import PhotoLibraryIcon from "@material-ui/icons/PhotoLibrary";
 import LinkIcon from "@material-ui/icons/Link";
-import { GroupImage } from "../editor/components/dialogs/UploadImageGroup";
 
 /// end icons
+
+import { VideoBlockData } from "../editor/components/dialogs/UploadVideoDialog";
+import { GroupImage } from "../editor/components/dialogs/UploadImageGroup";
+import Image from "../editor/plugin/draft-js-image-plugin/Image";
+import { insertGroupImage } from "./utils/insertBlock";
 
 const { ipcRenderer } = (window as any).require("electron");
 
@@ -60,13 +65,15 @@ const i18n = setupI18n({
   },
 });
 
-export type DialogData = GroupImage | VideoBlockData | any;
+export type DialogData = GroupImage | VideoBlockData | PostImage | any;
 
 export enum DialogTypes {
+  Image,
   Video,
   Audio,
   File,
   InternalLink,
+  ImageGroup,
 }
 
 export interface Action {
@@ -150,6 +157,10 @@ interface MainEditorState {
 
   updateImage(newImageData: PostImage): Promise<void>;
 
+  insertGroupImages(group: GroupImage): void;
+
+  updateGroupImages(group: GroupImage): void;
+
   setShowImageEditDialog(open: boolean, data?: DialogData): void;
 }
 
@@ -197,6 +208,8 @@ export class MainEditorProvider extends React.Component<
       updateVideo: this.updateVideo,
       updateInternalLink: this.updateInternalLink,
       insertInternalLink: this.insertInternalLink,
+      insertGroupImages: this.insertGroupImage,
+      updateGroupImages: this.updateGroupImages,
       showEditImageDialog: false,
     };
 
@@ -220,7 +233,10 @@ export class MainEditorProvider extends React.Component<
           const post = this.state.post;
           post.images[index] = arg;
           this.setState({ post: post });
-          ipcRenderer.send("update-images", post.images);
+          ipcRenderer.send("update-images", {
+            images: post.images,
+            pid: post.id,
+          });
         }
         await this.updateImage(arg);
       }
@@ -254,6 +270,18 @@ export class MainEditorProvider extends React.Component<
 
     ipcRenderer.on("delete-image", (e: any, arg: PostImage) => {
       this.deleteImage(arg.id);
+      const { post } = this.state;
+      let index = post.images.findIndex((i) => i.id === arg.id);
+      post.images.splice(index, 1);
+      this.setState({ post });
+    });
+
+    ipcRenderer.on("add-images-to-post", (e: any, arg: PostImage[]) => {
+      const { post } = this.state;
+      for (let image of arg) {
+        post.images.push(image);
+      }
+      this.setState({ post });
     });
   }
 
@@ -299,6 +327,13 @@ export class MainEditorProvider extends React.Component<
       },
     },
     {
+      text: "Insert Image Group",
+      icon: <PhotoLibraryIcon />,
+      action: () => {
+        this.setShowUploadDialog(true, DialogTypes.ImageGroup);
+      },
+    },
+    {
       text: "Divider 3",
       icon: <div />,
       action: async () => {},
@@ -311,6 +346,71 @@ export class MainEditorProvider extends React.Component<
       },
     },
   ];
+
+  insertGroupImage = async (group: GroupImage) => {
+    const newEditorState = await insertGroupImage(
+      group,
+      this.state.editorState
+    );
+    this.setState({ editorState: newEditorState });
+    setTimeout(async () => {
+      await this.save();
+    }, 50);
+  };
+
+  updateGroupImages = async (group: GroupImage) => {
+    const editorState = this.state.editorState;
+    let contentState = editorState.getCurrentContent();
+
+    const blocks: SelectionState[] = [];
+    const data: any[] = [];
+
+    contentState.getBlockMap().forEach((block) => {
+      block?.findEntityRanges(
+        (c) => {
+          const charEntity = c.getEntity();
+          if (charEntity) {
+            const entity = contentState.getEntity(charEntity);
+            if (entity.getType() === "groupimage") {
+              const videoId = entity.getData().id;
+              if (videoId === group.id) {
+                data.push(entity.getData());
+                return true;
+              }
+            }
+          }
+          return false;
+        },
+        (s, e) => {
+          const selection = SelectionState.createEmpty(block.getKey()).merge({
+            focusOffset: e,
+            anchorOffset: s,
+          });
+          blocks.push(selection);
+        }
+      );
+    });
+
+    blocks.forEach((block, index) => {
+      const newData = group;
+      contentState = contentState.createEntity(
+        "groupimage",
+        "IMMUTABLE",
+        newData
+      );
+      const newEntityKey = contentState.getLastCreatedEntityKey();
+      contentState = Modifier.applyEntity(contentState, block, newEntityKey);
+    });
+    const newEditorState = EditorState.push(
+      editorState,
+      contentState,
+      "change-block-data"
+    );
+    this.setState({
+      editorState: newEditorState,
+    });
+    await this.save();
+  };
 
   /**
    * Show Dialog for post image editing
@@ -538,7 +638,7 @@ export class MainEditorProvider extends React.Component<
       post: clearPost,
       editorState: EditorState.createEmpty(),
     });
-    ipcRenderer.send("update-images", []);
+    ipcRenderer.send("update-images", { images: [] });
     ipcRenderer.send("load-post", clearPost);
   };
   /**
@@ -723,7 +823,10 @@ export class MainEditorProvider extends React.Component<
         )
       );
       ipcRenderer.send("load-post", postData);
-      ipcRenderer.send("update-images", postData.images);
+      ipcRenderer.send("update-images", {
+        pid: postData.id,
+        images: postData.images,
+      });
       this.setState({
         isLoading: false,
         progress: 0,

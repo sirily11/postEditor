@@ -122,7 +122,7 @@ export default function UploadVideoDialog() {
                   render={(arrayHelpers) => (
                     <div>
                       <Grid container>
-                        {values.captions.map((s, i) => (
+                        {values.captions?.map((s, i) => (
                           <Grid
                             key={i}
                             container

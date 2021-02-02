@@ -205,6 +205,10 @@ ipcMain.on('add-images', (e, arg) => {
   imageWindow?.webContents.send('add-images', arg);
 });
 
+ipcMain.on('add-images-to-post', (e, arg) => {
+  mainWindow?.webContents.send('add-images-to-post', arg);
+});
+
 ipcMain.on('delete-image', (e, arg) => {
   mainWindow?.webContents.send('delete-image', arg);
 });

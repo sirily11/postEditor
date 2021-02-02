@@ -37,6 +37,7 @@ import {
 import createLinkPlugin from "./plugin/draft-js-anchor-plugin";
 import createAudioPlugin from "./plugin/draft-js-audio-plugin";
 import createVideoPlugin from "./plugin/draft-js-video-plugin";
+import createGroupImagePlugin from "./plugin/draft-js-groupImage-plugin";
 import createPostSettingsPlugin from "./plugin/draft-js-settings-plugin";
 import {
   TextAlignPlugin,
@@ -67,6 +68,7 @@ const videoPlugin = createVideoPlugin();
 const postSettingsPlugin = createPostSettingsPlugin();
 const linkPlugin = createLinkPlugin();
 const resizeablePlugin = createResizeablePlugin();
+const groupImagePlugin = createGroupImagePlugin();
 const inlineToolbarPlugin = inlineToolbar.createPlugin();
 const settingSuggestionsPlugin = settingSuggestions.createPlugin();
 const alignmentPlugin = createAlignmentPlugin();
@@ -191,6 +193,7 @@ export default class MainEditor extends Component {
                           settingSuggestionsPlugin,
                           videoPlugin,
                           internalLinkPlugin,
+                          groupImagePlugin,
                         ]}
                       />
                       <SuggestionPanel />

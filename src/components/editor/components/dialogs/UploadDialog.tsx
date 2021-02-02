@@ -18,14 +18,18 @@ import AttachmentIcon from "@material-ui/icons/Attachment";
 import { Trans } from "@lingui/macro";
 import { uploadImage } from "../../../model/utils/uploadUtils";
 import { EditorContext } from "../../../model/editorContext";
+import { PostImage } from "../../../model/interfaces";
 
 interface Props {
+  id: any;
   open: boolean;
   files: File[];
-  close(): void;
+  close(files: PostImage[]): void;
+  shouldInsert: boolean;
 }
 
 export default function UploadDialog(props: Props) {
+  const { shouldInsert, id } = props;
   const [numFinished, setNumFinished] = useState(0);
   const [currentUpload, setCurrentUpload] = useState<string>();
   const [currentProgress, setCurrentProgress] = useState<number>(0);
@@ -41,8 +45,7 @@ export default function UploadDialog(props: Props) {
         onClose={() => {
           setNumFinished(0);
           setCurrentProgress(0);
-          setCurrentProgress(0);
-          props.close();
+          props.close([]);
         }}>
         <DialogTitle>
           <Trans>Uploading Files</Trans>
@@ -73,25 +76,33 @@ export default function UploadDialog(props: Props) {
         <DialogActions>
           <Button
             onClick={async () => {
+              let postImages: PostImage[] = [];
               for (const path of props.files) {
                 setCurrentUpload(path.path);
                 const image: any = await uploadImage(
                   path,
-                  editContext.post.id as string,
+                  id as string,
                   (progress) => setCurrentProgress(progress)
                 );
-                editContext.insertImage(image);
+                postImages.push(image);
+                if (shouldInsert) {
+                  editContext.insertImage(image);
+                }
+
                 setNumFinished(numFinished + 1);
               }
               setNumFinished(0);
               setCurrentProgress(0);
-              setCurrentProgress(0);
-              props.close();
-              props.close();
+              props.close(postImages);
             }}>
             Insert Files
           </Button>
-          <Button onClick={props.close}>Cancel</Button>
+          <Button
+            onClick={() => {
+              props.close([]);
+            }}>
+            Cancel
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

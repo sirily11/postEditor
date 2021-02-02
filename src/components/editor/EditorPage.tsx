@@ -10,7 +10,7 @@ import { EditorProps } from "../model/interfaces";
 import SettingCard from "../setting/SettingCard";
 import UploadDialog from "./components/dialogs/UploadDialog";
 import { Snackbar, SnackbarContent } from "@material-ui/core";
-import { ImageEditDialog } from "./plugin/draft-js-image-plugin/ImageEditDialog";
+import { ImageEditDialog } from "./components/dialogs/ImageEditDialog";
 import InsertInternalLinkDialog from "./components/dialogs/InsertInternalLinkDialog";
 const { ipcRenderer, remote } = (window as any).require("electron");
 const { Menu, MenuItem } = remote;
@@ -111,7 +111,13 @@ export default class EditorPage extends Component<EditorProps, State> {
               </div>
               <SettingCard isCreated={false} />
 
-              <UploadDialog open={open} files={files} close={this.close} />
+              <UploadDialog
+                id={this.state._id}
+                open={open}
+                files={files}
+                close={this.close}
+                shouldInsert={true}
+              />
             </div>
           );
         }}

@@ -12,7 +12,7 @@ import { Item } from "@mui-treasury/components/flex";
 import Grid from "@material-ui/core/Grid";
 import { Card, CardContent, CardMedia, Typography } from "@material-ui/core";
 import { CardActions } from "@material-ui/core";
-import { EditorContext } from "../model/editorContext";
+import { DialogTypes, EditorContext } from "../model/editorContext";
 import { PostImage } from "../model/interfaces";
 
 const useButtonStyles = makeStyles(() => ({
@@ -84,14 +84,17 @@ export function PostImageCard(props: {
   const styles = useStyles();
   const btnStyles = useButtonStyles();
   const { image, onAdd, onDelete } = props;
-  const { setShowImageEditDialog } = React.useContext(EditorContext);
+  const { setShowUploadDialog, post } = React.useContext(EditorContext);
 
   return (
     <Grid item xs={6} md={4}>
       <Card variant="outlined">
         <Box maxWidth={343}>
           <Column p={0} gap={3}>
-            <CardMedia image={image.image} style={{ height: 180 }} />
+            <CardMedia
+              image={image.image}
+              style={{ height: 180, width: "100%" }}
+            />
             <CardContent>
               <Typography>{image.description}</Typography>
             </CardContent>
@@ -99,7 +102,7 @@ export function PostImageCard(props: {
               <Button onClick={() => onAdd()}>Add</Button>
               <Button
                 onClick={() =>
-                  setShowImageEditDialog(true, {
+                  setShowUploadDialog(true, DialogTypes.Image, {
                     src: image.image,
                     id: image.id,
                     description: image.description,

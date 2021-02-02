@@ -171,6 +171,9 @@ electron_1.ipcMain.on('update-images', function (e, arg) {
 electron_1.ipcMain.on('add-images', function (e, arg) {
     imageWindow === null || imageWindow === void 0 ? void 0 : imageWindow.webContents.send('add-images', arg);
 });
+electron_1.ipcMain.on('add-images-to-post', function (e, arg) {
+    mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('add-images-to-post', arg);
+});
 electron_1.ipcMain.on('delete-image', function (e, arg) {
     mainWindow === null || mainWindow === void 0 ? void 0 : mainWindow.webContents.send('delete-image', arg);
 });

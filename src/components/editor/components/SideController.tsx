@@ -13,7 +13,8 @@ import { EditorContext } from "../../model/editorContext";
 import UploadAudioDialog from "./dialogs/UploadAudioDialog";
 import UploadVideoDialog from "./dialogs/UploadVideoDialog";
 import InsertInternalLinkDialog from "./dialogs/InsertInternalLinkDialog";
-import { ImageEditDialog } from "../plugin/draft-js-image-plugin/ImageEditDialog";
+import { ImageEditDialog } from "./dialogs/ImageEditDialog";
+import UploadImageGroupDialog from "./dialogs/UploadImageGroup";
 
 export default function SideController() {
   const { actions, selected } = React.useContext(EditorContext);
@@ -47,7 +48,7 @@ export default function SideController() {
       <UploadAudioDialog />
       <UploadVideoDialog />
       <InsertInternalLinkDialog />
-
+      <UploadImageGroupDialog />
       <ImageEditDialog />
     </div>
   );

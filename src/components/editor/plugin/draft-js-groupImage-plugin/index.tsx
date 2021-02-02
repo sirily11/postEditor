@@ -33,7 +33,7 @@ export default (config: ImagePluginConfig = {}): ImageEditorPlugin => {
         const entity = block.getEntityAt(0);
         if (!entity) return null;
         const type = contentState.getEntity(entity).getType();
-        if (type === "IMAGE" || type === "image") {
+        if (type === "groupimage") {
           const ThemedImage = (props: ImageProps): ReactElement => (
             <Image
               {...props}

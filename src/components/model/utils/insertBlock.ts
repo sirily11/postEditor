@@ -2,6 +2,7 @@ import { EditorState, convertToRaw, AtomicBlockUtils, ContentBlock, Modifier, ge
 import image from "../../editor/plugin/draft-js-image-plugin";
 import { DetailSettings, PostImage, Post } from "../interfaces";
 import { VideoBlockData } from "../../editor/components/dialogs/UploadVideoDialog";
+import { GroupImage } from "../../editor/components/dialogs/UploadImageGroup";
 
 /**
  * insert draft-js-image-plugin
@@ -92,6 +93,30 @@ export function insertInternalLink(
       "internallink",
       "IMMUTABLE",
       { id: data.id, title: data.title, author: data.author, image_url: data.image_url, posted_time: data.posted_time }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity,
+    });
+    const newState = AtomicBlockUtils.insertAtomicBlock(
+      newEditorState,
+      entityKey,
+      " "
+    );
+    resolve(newState);
+  });
+}
+
+export function insertGroupImage(
+  data: GroupImage,
+  editorState: EditorState
+): Promise<EditorState> {
+  return new Promise((resolve, _reject) => {
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      "groupimage",
+      "IMMUTABLE",
+      data
     );
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
     const newEditorState = EditorState.set(editorState, {

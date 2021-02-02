@@ -11,6 +11,7 @@ import {
   GridListTileBar,
   Fade,
   LinearProgress,
+  Tooltip,
 } from "@material-ui/core";
 import React, { Component } from "react";
 import { PostImage } from "../model/interfaces";
@@ -21,7 +22,9 @@ import { ListItemIcon } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { PostImageCard } from "./PostCard";
 import { deleteImage } from "../model/utils/uploadUtils";
-import { ImageEditDialog } from "../editor/plugin/draft-js-image-plugin/ImageEditDialog";
+import { ImageEditDialog } from "../editor/components/dialogs/ImageEditDialog";
+import PhotoCamera from "@material-ui/icons/PhotoCamera";
+import UploadDialog from "../editor/components/dialogs/UploadDialog";
 const { ipcRenderer } = (window as any).require("electron");
 
 const data = [
@@ -42,6 +45,8 @@ const data = [
 interface State {
   images: PostImage[];
   progress?: number;
+  files: File[];
+  id?: any;
 }
 
 interface Props {}
@@ -51,12 +56,14 @@ export class PostImagePage extends Component<Props, State> {
     super(props);
     this.state = {
       images: [],
+      files: [],
     };
   }
 
   componentDidMount() {
     ipcRenderer.on("update-images", async (event: any, arg: any) => {
-      this.setState({ images: arg });
+      console.log(arg);
+      this.setState({ images: arg.images, id: arg.pid });
     });
 
     ipcRenderer.on("add-images", async (event: any, arg: any) => {
@@ -76,7 +83,33 @@ export class PostImagePage extends Component<Props, State> {
         <Grid item xs={12}>
           <div style={{ textAlign: "center" }}>
             <Paper style={{ padding: 20, marginBottom: 20 }}>
-              <h4>素材库</h4>
+              <h4>
+                素材库{" "}
+                <input
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="contained-button-file"
+                  multiple
+                  type="file"
+                  onChange={(e) => {
+                    let fileList = e.target.files;
+                    let files = [];
+                    if (fileList != null) {
+                      for (let index = 0; index < fileList.length; index++) {
+                        files.push(fileList[index]);
+                      }
+                      this.setState({ files: files });
+                    }
+                  }}
+                />
+                <label htmlFor="contained-button-file">
+                  <Tooltip title="Upload Images">
+                    <IconButton aria-label="upload picture" component="span">
+                      <PhotoCamera />
+                    </IconButton>
+                  </Tooltip>
+                </label>
+              </h4>
               {images.length === 0 && <h4> No images</h4>}
               <Fade in={progress !== undefined} mountOnEnter unmountOnExit>
                 <LinearProgress variant="determinate" value={progress} />
@@ -117,6 +150,18 @@ export class PostImagePage extends Component<Props, State> {
           </div>
         </Grid>
         <ImageEditDialog />
+        {this.state.id && (
+          <UploadDialog
+            id={this.state.id}
+            files={this.state.files}
+            shouldInsert={false}
+            open={this.state.files.length > 0}
+            close={(images) => {
+              this.setState({ files: [] });
+              ipcRenderer.send("add-images-to-post", images);
+            }}
+          />
+        )}
       </Grid>
     );
   }
