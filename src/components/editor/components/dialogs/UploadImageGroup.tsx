@@ -80,6 +80,9 @@ export default function UploadImageGroupDialog() {
   }, []);
 
   React.useEffect(() => {
+    if (showUploadDialog?.dialogType !== DialogTypes.ImageGroup) {
+      return;
+    }
     // eslint-disable-next-line no-debugger
     if (showUploadDialog?.selectedData) {
       setInitValue(showUploadDialog.selectedData as GroupImage);

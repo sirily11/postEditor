@@ -22,6 +22,7 @@ import {
   GridList,
   GridListTile,
   ListSubheader,
+  GridListTileBar,
 } from "@material-ui/core";
 
 const { remote } = (window as any).require("electron");
@@ -105,6 +106,7 @@ export default function Image(props: ImageProps): ReactElement {
               image={img.image}
               style={{ height: "100%", width: "100%" }}
             />
+            <GridListTileBar title={img.description} />
           </GridListTile>
         ))}
       </GridList>

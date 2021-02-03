@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Result, Post } from "../interfaces";
 import { getURL } from "./settings";
 import axios from "axios";
-import { EditorState, SelectionState } from "draft-js";
+import { ContentState, EditorState, SelectionState, ContentBlock, EntityInstance } from "draft-js";
 
 /**
  * Search post by key word
@@ -27,4 +27,41 @@ export function dataURLtoFile(dataurl: any, filename: string): File {
   }
 
   return new File([u8arr], filename, { type: mime });
+}
+
+export function findBlocks(contentState: ContentState, findEntityFn: (entity: EntityInstance) => boolean): { blocks: SelectionState[], data: any[], entityKeys: string[]; } {
+  let data: any[] = [];
+  let blocks: SelectionState[] = [];
+  let entityKeys: string[] = [];
+
+  contentState.getBlockMap().forEach((block) => {
+    block?.findEntityRanges(
+      (c) => {
+        const charEntity = c.getEntity();
+        if (charEntity) {
+          const entity = contentState.getEntity(charEntity);
+          if (findEntityFn(entity)) {
+            data.push(entity.getData());
+            entityKeys.push(charEntity);
+            return true;
+          }
+        }
+        return false;
+      },
+      (s, e) => {
+        const selection = SelectionState.createEmpty(block.getKey()).merge({
+          focusOffset: e,
+          anchorOffset: s,
+        });
+        blocks.push(selection);
+      }
+    );
+  });
+
+  return {
+    blocks: blocks,
+    data: data,
+    entityKeys: entityKeys
+  };
+
 }

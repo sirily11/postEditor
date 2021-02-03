@@ -54,6 +54,7 @@ import { VideoBlockData } from "../editor/components/dialogs/UploadVideoDialog";
 import { GroupImage } from "../editor/components/dialogs/UploadImageGroup";
 import Image from "../editor/plugin/draft-js-image-plugin/Image";
 import { insertGroupImage } from "./utils/insertBlock";
+import { findBlocks } from "./utils/utils";
 
 const { ipcRenderer } = (window as any).require("electron");
 
@@ -362,33 +363,14 @@ export class MainEditorProvider extends React.Component<
     const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    const blocks: SelectionState[] = [];
-    const data: any[] = [];
-
-    contentState.getBlockMap().forEach((block) => {
-      block?.findEntityRanges(
-        (c) => {
-          const charEntity = c.getEntity();
-          if (charEntity) {
-            const entity = contentState.getEntity(charEntity);
-            if (entity.getType() === "groupimage") {
-              const videoId = entity.getData().id;
-              if (videoId === group.id) {
-                data.push(entity.getData());
-                return true;
-              }
-            }
-          }
-          return false;
-        },
-        (s, e) => {
-          const selection = SelectionState.createEmpty(block.getKey()).merge({
-            focusOffset: e,
-            anchorOffset: s,
-          });
-          blocks.push(selection);
+    const { blocks, data } = findBlocks(contentState, (entity) => {
+      if (entity.getType() === "groupimage") {
+        if (entity.getData().id === group.id) {
+          return true;
         }
-      );
+      }
+
+      return false;
     });
 
     blocks.forEach((block, index) => {
@@ -436,33 +418,14 @@ export class MainEditorProvider extends React.Component<
     const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    const blocks: SelectionState[] = [];
-    const data: any[] = [];
-
-    contentState.getBlockMap().forEach((block) => {
-      block?.findEntityRanges(
-        (c) => {
-          const charEntity = c.getEntity();
-          if (charEntity) {
-            const entity = contentState.getEntity(charEntity);
-            if (entity.getType() === "video") {
-              const videoId = entity.getData().id;
-              if (videoId === newVideo.id) {
-                data.push(entity.getData());
-                return true;
-              }
-            }
-          }
-          return false;
-        },
-        (s, e) => {
-          const selection = SelectionState.createEmpty(block.getKey()).merge({
-            focusOffset: e,
-            anchorOffset: s,
-          });
-          blocks.push(selection);
+    const { blocks, data } = findBlocks(contentState, (entity) => {
+      if (entity.getType() === "video") {
+        if (entity.getData().id === newVideo.id) {
+          return true;
         }
-      );
+      }
+
+      return false;
     });
 
     blocks.forEach((block, index) => {
@@ -490,33 +453,14 @@ export class MainEditorProvider extends React.Component<
     const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    const blocks: SelectionState[] = [];
-    const data: any[] = [];
-
-    contentState.getBlockMap().forEach((block) => {
-      block?.findEntityRanges(
-        (c) => {
-          const charEntity = c.getEntity();
-          if (charEntity) {
-            const entity = contentState.getEntity(charEntity);
-            if (entity.getType() === "internallink") {
-              const linkId = entity.getData().id;
-              if (linkId === post.id) {
-                data.push(entity.getData());
-                return true;
-              }
-            }
-          }
-          return false;
-        },
-        (s, e) => {
-          const selection = SelectionState.createEmpty(block.getKey()).merge({
-            focusOffset: e,
-            anchorOffset: s,
-          });
-          blocks.push(selection);
+    const { blocks, data } = findBlocks(contentState, (entity) => {
+      if (entity.getType() === "internallink") {
+        if (entity.getData().id === post.id) {
+          return true;
         }
-      );
+      }
+
+      return false;
     });
 
     blocks.forEach((block, index) => {
@@ -547,41 +491,38 @@ export class MainEditorProvider extends React.Component<
   };
 
   /**
-   * Update post image block data
+   * Update post image block data.
    * @param newPostImage Update displayed image's data
    */
   updateImage = async (newPostImage: PostImage) => {
     const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    const blocks: SelectionState[] = [];
-    const data: any[] = [];
-
-    contentState.getBlockMap().forEach((block) => {
-      block?.findEntityRanges(
-        (c) => {
-          const charEntity = c.getEntity();
-          if (charEntity) {
-            const entity = contentState.getEntity(charEntity);
-            if (entity.getType() === "image") {
-              const imageId = entity.getData().id;
-              if (imageId === newPostImage.id) {
-                data.push(entity.getData());
-                return true;
-              }
-            }
-          }
-          return false;
-        },
-        (s, e) => {
-          const selection = SelectionState.createEmpty(block.getKey()).merge({
-            focusOffset: e,
-            anchorOffset: s,
-          });
-          blocks.push(selection);
+    const { blocks, data } = findBlocks(contentState, (entity) => {
+      if (entity.getType() === "image") {
+        if (entity.getData().id === newPostImage.id) {
+          return true;
         }
-      );
+      }
+
+      return false;
     });
+
+    const { blocks: groupImagesBlocks, data: groupImagesData } = findBlocks(
+      contentState,
+      (entity) => {
+        if (entity.getType() === "groupimage") {
+          let found = (entity.getData() as GroupImage).images.find(
+            (i) => i.id === newPostImage.id
+          );
+          if (found) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+    );
 
     blocks.forEach((block, index) => {
       const newData = {
@@ -592,6 +533,25 @@ export class MainEditorProvider extends React.Component<
       const newEntityKey = contentState.getLastCreatedEntityKey();
       contentState = Modifier.applyEntity(contentState, block, newEntityKey);
     });
+
+    groupImagesBlocks.forEach((block, index) => {
+      const oldData = groupImagesData[index] as GroupImage;
+      let foundIndex = oldData.images.findIndex(
+        (i) => i.id === newPostImage.id
+      );
+      if (foundIndex >= 0) {
+        oldData.images[foundIndex] = newPostImage;
+      }
+
+      contentState = contentState.createEntity(
+        "groupimage",
+        "IMMUTABLE",
+        oldData
+      );
+      const newEntityKey = contentState.getLastCreatedEntityKey();
+      contentState = Modifier.applyEntity(contentState, block, newEntityKey);
+    });
+
     const newEditorState = EditorState.push(
       editorState,
       contentState,
@@ -649,34 +609,17 @@ export class MainEditorProvider extends React.Component<
     const editorState = this.state.editorState;
     let contentState = editorState.getCurrentContent();
 
-    const blocks: SelectionState[] = [];
-    const entityKeys: string[] = [];
+    // const blocks: SelectionState[] = [];
+    // const entityKeys: string[] = [];
 
-    contentState.getBlockMap().forEach((block) => {
-      block?.findEntityRanges(
-        (c) => {
-          const charEntity = c.getEntity();
-          if (charEntity) {
-            const entity = contentState.getEntity(charEntity);
-            if (entity.getType() === "POST-SETTINGS") {
-              const block_id = entity.getData().id;
-
-              if (block_id === detail.id) {
-                entityKeys.push(charEntity);
-                return true;
-              }
-            }
-          }
-          return false;
-        },
-        (s, e) => {
-          const selection = SelectionState.createEmpty(block.getKey()).merge({
-            focusOffset: e,
-            anchorOffset: s,
-          });
-          blocks.push(selection);
+    const { blocks, entityKeys } = findBlocks(contentState, (entity) => {
+      if (entity.getType() === "POST-SETTINGS") {
+        if (entity.getData().id === detail.id) {
+          return true;
         }
-      );
+      }
+
+      return false;
     });
 
     blocks.forEach((selection, index) => {
@@ -710,8 +653,24 @@ export class MainEditorProvider extends React.Component<
   deleteImage = async (imageID: number) => {
     // var rawContent = convertToRaw(this.state.editorState.getCurrentContent());
     // rawContent.entityMap
-    const contentState = this.state.editorState.getCurrentContent();
+    let contentState = this.state.editorState.getCurrentContent();
     const blocks: { block: ContentBlock; entityKey: string }[] = [];
+
+    const { blocks: groupImagesBlocks, data: groupImagesData } = findBlocks(
+      contentState,
+      (entity) => {
+        if (entity.getType() === "groupimage") {
+          let found = (entity.getData() as GroupImage).images.find(
+            (i) => i.id === imageID
+          );
+          if (found) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+    );
 
     contentState.getBlockMap().forEach((block) => {
       block?.findEntityRanges(
@@ -734,7 +693,31 @@ export class MainEditorProvider extends React.Component<
     for (const block of blocks) {
       editorState = removeBlock(editorState, block.block, block.entityKey);
     }
-    this.setState({ editorState });
+
+    contentState = editorState.getCurrentContent();
+
+    groupImagesBlocks.forEach((block, index) => {
+      const oldData = groupImagesData[index] as GroupImage;
+      let foundIndex = oldData.images.findIndex((i) => i.id === imageID);
+      if (foundIndex >= 0) {
+        oldData.images.splice(foundIndex, 1);
+      }
+
+      contentState = contentState.createEntity(
+        "groupimage",
+        "IMMUTABLE",
+        oldData
+      );
+      const newEntityKey = contentState.getLastCreatedEntityKey();
+      contentState = Modifier.applyEntity(contentState, block, newEntityKey);
+    });
+    const newEditorState = EditorState.push(
+      editorState,
+      contentState,
+      "change-block-data"
+    );
+
+    this.setState({ editorState: newEditorState });
   };
 
   // this will insert draft-js-image-plugin with draft-js-image-plugin url
