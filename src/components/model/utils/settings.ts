@@ -1,6 +1,5 @@
 export function getURL(path?: string): string {
-  const base = "http://0.0.0.0";
-  const production = "https://api.sirileepage.com";
+  const base = process.env.REACT_APP_URL!;
   if (path !== undefined) {
     return `${base}/${path}`;
   } else {
