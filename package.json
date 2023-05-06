@@ -37,7 +37,7 @@
     "@types/uuid": "^8.0.0",
     "ajax": "^0.0.4",
     "awesome-debounce-promise": "^2.1.0",
-    "aws-sdk": "^2.535.0",
+    "aws-sdk": "^2.1373.0",
     "axios": "^0.21.1",
     "babel-core": "^7.0.0-bridge.0",
     "bootstrap": "^4.5.0",
